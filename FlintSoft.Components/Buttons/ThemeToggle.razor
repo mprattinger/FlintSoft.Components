@@ -1,0 +1,78 @@
+﻿@using Microsoft.JSInterop
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+
+<div class="container">
+    @if (isDark)
+    {
+        <Sun OnClicked="toggleTheme" />
+    }
+    else
+    {
+        <Moon OnClicked="toggleTheme" />
+
+    }
+</div>
+
+@code {
+    private IJSObjectReference? themeTogglerModule;
+    bool isDark = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Import the JS module
+            themeTogglerModule = await JS.InvokeAsync<IJSObjectReference>(
+            "import", "./_content/FlintSoft.Components/Buttons/ThemeToggle.razor.js");
+
+            // Now call the init function from the module
+            isDark = await themeTogglerModule.InvokeAsync<bool>("initializeThemeModule", DotNetObjectReference.Create(this));
+
+            if (isDark)
+            {
+                await themeTogglerModule.InvokeVoidAsync("themeClass", "dark-theme");
+            }
+            else
+            {
+                await themeTogglerModule.InvokeVoidAsync("themeClass", "");
+            }
+
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    void toggleTheme()
+    {
+        isDark = !isDark;
+        if (isDark)
+        {
+            themeTogglerModule?.InvokeVoidAsync("themeClass", "dark-theme");
+        }
+        else
+        {
+            themeTogglerModule?.InvokeVoidAsync("themeClass", "");
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            if (themeTogglerModule != null)
+            {
+                await themeTogglerModule.InvokeVoidAsync("disposeThemeTogglers");
+            }
+        }
+        catch
+        {
+        }
+    }
+
+    [JSInvokable]
+    public async Task SystemThemePreferenceChanged(string theme)
+    {
+        isDark = theme == "dark";
+        await InvokeAsync(StateHasChanged);
+    }
+}

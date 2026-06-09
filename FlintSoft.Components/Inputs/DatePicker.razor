@@ -1,0 +1,74 @@
+﻿@using System.Globalization
+@using System.Diagnostics.CodeAnalysis
+@inherits InputBase<DateOnly>
+
+@* @{
+    var value = BindConverter.FormatValue(CurrentValue, CultureInfo.InvariantCulture);
+    Console.WriteLine(value);
+} *@
+
+<InputContainer ChildId="@Id" Class="@ClassValue" Style="@StyleValue" Placeholder="@Placeholder" ValidationFor="@ValidationFor">
+    <input @ref="Element"
+           type="date"
+           id="@Id"
+           list=@DataList
+           readonly="@ReadOnly"
+           placeholder=" "
+           disabled="@Disabled"
+           name=@Name
+           @bind="CurrentValue"
+           required="@Required"
+           @oninput="@InputHandlerAsync" />
+</InputContainer>
+
+@code {
+    /// <summary>
+    /// Allows associating a <see href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist">datalist</see> to the element by <see href="https://developer.mozilla.org/en-US/docs/Web/API/Element/id">id</see>.
+    /// </summary>
+    [Parameter]
+    public string? DataList { get; set; }
+
+    [Parameter]
+    public string ParsingErrorMessage { get; set; } = "The {0} field must be a (valid) date.";
+
+    protected override string ClassValue => $"container {Class} {HiddenCssClass} {ErrorCssClass}".Trim();
+
+    protected override string StyleValue => $"{Style}".Trim();
+
+    // protected DateOnly CurrentValueLocal
+    // {
+    //     get { return CurrentValue; }
+    //     set
+    //     {
+    //         ChangeHandlerAsync(value).Wait();
+    //     }
+    // }
+
+    protected override bool TryParseValueFromString(string? value, [MaybeNullWhen(false)] out DateOnly result, [NotNullWhen(false)] out string? validationErrorMessage)
+    {
+        try
+        {
+            if (DateOnly.TryParse(value, CultureInfo.CurrentCulture, DateTimeStyles.None, out result))
+            {
+                validationErrorMessage = null;
+                return true;
+            }
+        }
+        catch (ArgumentException)
+        {
+            result = default!;
+        }
+
+        validationErrorMessage = string.Format(CultureInfo.InvariantCulture, ParsingErrorMessage, FieldBound ? FieldIdentifier.FieldName : UnknownBoundField);
+        return false;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && CurrentValue == default)
+        {
+            DateTime now = DateTime.Now;
+            await ChangeHandlerAsync(DateOnly.FromDateTime(now));
+        }
+    }
+}

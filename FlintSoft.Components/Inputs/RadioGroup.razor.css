@@ -1,0 +1,29 @@
+﻿.container {
+    position: relative;
+    height: 3.5rem;
+    margin: .3rem;
+}
+.radio-group {
+    display: flex;
+    flex-direction: row;
+    position: absolute;
+    top: .7rem;
+}
+
+label.title {
+    position: absolute;
+    color: var(--primary, #7393B3);
+    transition: 0.2s;
+    pointer-events: none;
+    top: -.3rem;
+    left: .1rem;
+    font-size: 12px;
+}
+
+.radio-group > label {
+    margin-right: .5rem;
+}
+
+input {
+    accent-color: var(--primary, #7393B3);
+}

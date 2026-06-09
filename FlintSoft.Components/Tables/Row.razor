@@ -1,0 +1,17 @@
+﻿@inherits MyComponentBase
+
+<div @ref="Element" id="@GetId()" class="@ClassValue" style="@StyleValue">
+    @ChildContent
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public bool IsHeaderRow { get; set; }
+
+    protected override string ClassValue => $"row {(IsHeaderRow ? "header" : "")} {Class}".Trim();
+
+    protected override string StyleValue => $"{Style}".Trim();
+}

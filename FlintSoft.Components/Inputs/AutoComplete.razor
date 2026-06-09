@@ -1,0 +1,269 @@
+﻿@using System.Diagnostics.CodeAnalysis
+@using System.Globalization
+@using Microsoft.JSInterop
+@using System.Linq.Expressions
+@inherits InputBase<TValue>
+@typeparam TValue
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+<div class="@($"container {HiddenCssClass} {ErrorCssClass}".Trim())">
+    <input @ref="Element"
+           readonly="@ReadOnly"
+           type="text"
+           autofocus="@Autofocus"
+           placeholder=" "
+           id=@Id
+           @bind="currentSearchText"
+           @bind:event="oninput"
+           disabled="@Disabled"
+           name=@Name
+           required="@Required"
+           @onkeyup="HandleKeyUp"
+           @onfocus="Focus" />
+
+    <label for="@Id">@Placeholder</label>
+
+    @if (ValidationFor != null)
+    {
+        <ValidationMessage For="@ValidationFor" />
+    }
+
+    @if (currentSearchResults.Count >= 1)
+    {
+        <div class="result">
+            <div class="list-container">
+                @foreach (var result in currentSearchResults)
+                {
+                    @if (ResultItemTemplate is null)
+                    {
+                        <div id='@($"ac-{Element.Id}-{currentSearchResults.IndexOf(result)}")'
+                             class="list-item @(currentSearchResults.IndexOf(result) == currentActiveIndex ? "active" : "")"
+                             @onmousedown:preventDefault
+                             @onmousedown="async () => await populateResult(result)">
+                            @DisplayValueFunc(result)
+                        </div>
+                    }
+                    else
+                    {
+                        <div id='@($"ac-{Element.Id}-{currentSearchResults.IndexOf(result)}")'
+                             class="@(currentSearchResults.IndexOf(result) == currentActiveIndex ? "active" : "")"
+                             @onmousedown:preventDefault
+                             @onmousedown="async () => await populateResult(result)">
+                            @ResultItemTemplate((result, currentSearchResults.IndexOf(result) == currentActiveIndex))
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    }
+
+</div>
+ 
+@code {
+    private IJSObjectReference? autoCompleteModule;
+    int currentActiveIndex = 0;
+
+    string currentSearchText = "";
+    List<TValue> currentSearchResults = new();
+
+    [Parameter]
+    public string ParsingErrorMessage { get; set; } = "The {0} field must be a (valid) number.";
+
+    [Parameter]
+    public int? MinSearchTermLength { get; set; } = null;
+
+    [Parameter, EditorRequired]
+    public Func<string, Task<List<TValue>>> OnSearchRequest { get; set; }
+
+    [Parameter, EditorRequired]
+    public Expression<Func<TValue, object>>? DisplayExpression { get; set; }
+
+    [Parameter]
+    public RenderFragment<(TValue item, bool isActive)>? ResultItemTemplate { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnNoResultSelected { get; set; }
+
+    private Func<TValue, string> DisplayValueFunc =>
+        DisplayExpression != null
+            ? (item => (DisplayExpression.Compile().Invoke(item)?.ToString() ?? string.Empty))
+            : (item => item?.ToString() ?? string.Empty);
+
+    protected override string ClassValue => $"{Class} {ErrorCssClass}".Trim();
+
+    protected override string StyleValue => $"{Style}".Trim();
+
+    protected override bool TryParseValueFromString(string? value, [MaybeNullWhen(false)] out TValue result, [NotNullWhen(false)] out string? validationErrorMessage)
+    {
+        try
+        {
+            if (BindConverter.TryConvertTo(value, CultureInfo.InvariantCulture, out result))
+            {
+                validationErrorMessage = null;
+                return true;
+            }
+        }
+        catch (ArgumentException)
+        {
+            result = default!;
+        }
+
+        validationErrorMessage = string.Format(CultureInfo.InvariantCulture, ParsingErrorMessage, FieldBound ? FieldIdentifier.FieldName : UnknownBoundField);
+        return false;
+    }
+
+    async Task HandleKeyUp(KeyboardEventArgs e)
+    {
+        if (MinSearchTermLength is not null && MinSearchTermLength > 0)
+        {
+            if (currentSearchText.Length < MinSearchTermLength)
+            {
+                clearData();
+                return;
+            }
+        }
+
+        if (currentSearchText == "")
+        {
+            await SetCurrentValueAsync(default);
+            clearData();
+            return;
+        }
+
+        switch (e.Key)
+        {
+            case "Enter":
+                return;
+            case "ArrowUp":
+                currentActiveIndex = currentActiveIndex == 0 ? 0 : currentActiveIndex - 1;
+                if (autoCompleteModule != null)
+                {
+                    await autoCompleteModule.InvokeVoidAsync("scrollIntoView", $"ac-{Element.Id}-{currentActiveIndex}");
+                }
+                return;
+            case "ArrowDown":
+                currentActiveIndex = currentActiveIndex < currentSearchResults.Count - 1 ? currentActiveIndex + 1 : currentActiveIndex;
+                if (autoCompleteModule != null)
+                {
+                    await autoCompleteModule.InvokeVoidAsync("scrollIntoView", $"ac-{Element.Id}-{currentActiveIndex}");
+                }
+                return;
+            case "Escape":
+                if (currentSearchResults.Count != 1 && !string.IsNullOrWhiteSpace(currentSearchText) && OnNoResultSelected.HasDelegate)
+                {
+                    await OnNoResultSelected.InvokeAsync(currentSearchText);
+                }
+                clearData();
+                return;
+            case "Tab":
+                return;
+            default:
+                break;
+        }
+
+        var result = await OnSearchRequest.Invoke(currentSearchText);
+
+        // if (result.Count == 1)
+        // {
+        //     await populateResult(result[0]);
+        //     clearData();
+        //     return;
+        // }
+
+        currentSearchResults = result;
+    }
+
+    [JSInvokable()]
+    public async Task HandleEnterKeyDown()
+    {
+        await populateResult(currentSearchResults[currentActiveIndex]);
+        clearData();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    [JSInvokable()]
+    public async Task HandleTabKeyDown()
+    {
+        if (currentSearchResults.Count != 1 && !string.IsNullOrWhiteSpace(currentSearchText) && OnNoResultSelected.HasDelegate)
+        {
+            await OnNoResultSelected.InvokeAsync(currentSearchText);
+            clearData();
+        }
+        await InvokeAsync(StateHasChanged);
+    }
+
+    async Task populateResult(TValue value)
+    {
+        currentSearchText = DisplayValueFunc(value);
+
+        // await ChangeHandlerAsync(value);
+
+        var _notifyCalled = false;
+
+        await SetCurrentValueAsync(value ?? default);
+        _notifyCalled = true;
+
+        if (!_notifyCalled)
+        {
+            NotifyFieldChange();
+        }
+
+        clearData();
+    }
+
+    async Task Focus()
+    {
+        if (autoCompleteModule != null)
+        {
+            await autoCompleteModule.InvokeVoidAsync("selectText", Element);
+        }
+    }
+
+    void clearData()
+    {
+        currentSearchResults.Clear();
+        currentActiveIndex = 0;
+        //Clear any cache
+    }
+
+    [JSInvokable()]
+    public async Task PossibleOutsideClickDetected()
+    {
+        clearData();
+        await InvokeAsync(StateHasChanged);
+    }
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Import the JS module
+            autoCompleteModule = await JS.InvokeAsync<IJSObjectReference>(
+                "import", "./_content/Components/Inputs/Autocomplete.razor.js");
+
+            // Now call the init function from the module
+            await autoCompleteModule.InvokeVoidAsync("initializeAutocomplete", Element, DotNetObjectReference.Create(this));
+        }
+    }
+
+    // async Task OnLostFocus(FocusEventArgs events)
+    // {
+    //     
+    // }
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            if (autoCompleteModule != null)
+            {
+                await autoCompleteModule.InvokeVoidAsync("disposeAutocomplete", Element);
+            }
+        }
+        catch
+        {
+        }
+    }
+}

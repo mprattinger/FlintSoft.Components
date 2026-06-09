@@ -1,0 +1,34 @@
+﻿@using System.Linq.Expressions
+
+@inherits MyComponentBase
+@typeparam TValue
+
+<div class="@ClassValue">
+    @ChildContent
+    <label for="@ChildId">@Placeholder</label>
+    @if (ValidationFor != null)
+    {
+        <ValidationMessage For="@ValidationFor" />
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public RenderFragment ChildContent { get; set; }
+
+    [Parameter, EditorRequired]
+    public string? ChildId { get; set; }
+
+    [Parameter]
+    public virtual string? Placeholder { get; set; }
+
+    [Parameter]
+    public Expression<Func<TValue>>? ValidationFor { get; set; }
+
+    // [Parameter]
+    // public Expression<Func<TValue>>? ValueExpression { get; set; }
+
+    protected override string ClassValue => $"{Class}".Trim();
+
+    protected override string StyleValue => $"{Style}".Trim();
+}

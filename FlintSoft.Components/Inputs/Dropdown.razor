@@ -1,0 +1,82 @@
+﻿@using System.Linq.Expressions
+@using System.Diagnostics.CodeAnalysis
+@using System.Globalization
+@inherits InputBase<TValue>
+@typeparam TValue
+
+<InputContainer ChildId="@Id" Class="@ClassValue" Style="@StyleValue" Placeholder="@Placeholder" ValidationFor="@ValidationFor">
+    <select @ref="Element"
+            id="@Id"
+            readonly="@ReadOnly"
+            placeholder=" "
+            disabled="@Disabled"
+            name=@Name
+            class="dropdown"
+            value="@(CurrentValue != null ? IdValueFunc(CurrentValue) : string.Empty)"
+            @onchange="OnChangeHandler">
+        @foreach (var item in Items)
+        {
+            <option value="@IdValueFunc(item)">@DisplayValueFunc(item)</option>
+        }
+    </select>
+</InputContainer>
+
+@code {
+
+    protected override string ClassValue => $"container {Class} {HiddenCssClass} {ErrorCssClass}".Trim();
+
+    protected override string StyleValue => $"{Style}".Trim();
+
+    [Parameter]
+    public string ParsingErrorMessage { get; set; } = "The {0} field must be a (valid) date.";
+
+    [Parameter, EditorRequired]
+    public List<TValue> Items { get; set; }
+
+    [Parameter, EditorRequired]
+    public Expression<Func<TValue, object?>> IdExpression { get; set; }
+
+    [Parameter, EditorRequired]
+    public Expression<Func<TValue, object>>? DisplayExpression { get; set; }
+
+    private Func<TValue, string> DisplayValueFunc =>
+        DisplayExpression != null
+            ? (item => (DisplayExpression.Compile().Invoke(item)?.ToString() ?? string.Empty))
+            : (item => item?.ToString() ?? string.Empty);
+
+    private Func<TValue, string> IdValueFunc =>
+        IdExpression != null
+        ? (item => (IdExpression.Compile().Invoke(item)?.ToString() ?? string.Empty))
+        : (item => item?.ToString() ?? string.Empty);
+
+    protected override bool TryParseValueFromString(string? value, [MaybeNullWhen(false)] out TValue result, [NotNullWhen(false)] out string? validationErrorMessage)
+    {
+        try
+        {
+            if (BindConverter.TryConvertTo(value, CultureInfo.InvariantCulture, out result))
+            {
+                validationErrorMessage = null;
+                return true;
+            }
+        }
+        catch (ArgumentException)
+        {
+            result = default!;
+        }
+
+        validationErrorMessage = string.Format(CultureInfo.InvariantCulture, ParsingErrorMessage, FieldBound ? FieldIdentifier.FieldName : UnknownBoundField);
+        return false;
+    }
+
+    async Task OnChangeHandler(ChangeEventArgs e)
+    {
+        var selected = e.Value?.ToString();
+
+        var currentItem = Items.FirstOrDefault(item => IdValueFunc(item) == selected);
+
+        if (currentItem != null)
+        {
+            await SetCurrentValueAsync(currentItem ?? default);
+        }
+    }
+}

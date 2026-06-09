@@ -1,0 +1,12 @@
+﻿input {
+    outline: none;
+    background: none;
+    border: none;
+    border-bottom: 2px solid var(--primary, #7393B3) !important;
+    color: var(--color-text);
+    font-size: 16px;
+}
+    input::-webkit-calendar-picker-indicator {
+        filter: var(--color-control-filter, invert(100%));
+        cursor: pointer;
+    }

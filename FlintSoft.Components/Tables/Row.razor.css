@@ -1,0 +1,19 @@
+﻿.row {
+    display: flex;
+    justify-content: space-between;
+    padding: .5rem;
+    align-items: center;
+    width: 100%;
+    border-bottom: 2px solid var(--color-lightgray);
+}
+
+.row:last-child {
+    border: none;
+}
+
+.header {
+    font-size: 1.3rem !important;
+    color: var(--color-darkgray);
+    font-weight: bolder;
+    border-bottom: 1px solid var(--color-lightgray);
+}

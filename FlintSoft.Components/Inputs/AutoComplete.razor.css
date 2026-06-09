@@ -1,0 +1,87 @@
+﻿.container {
+    position: relative;
+    height: 3.5rem;
+    margin: .3rem;
+}
+
+::deep input {
+    outline: none;
+    background: none;
+    border: none;
+    border-bottom: 2px solid var(--primary, #7393B3);
+    color: var(--color-text, darkslategray);
+    width: 100%;
+    font-size: 16px;
+    position: absolute;
+    top: .7rem;
+}
+
+::deep label {
+    position: absolute;
+    color: var(--primary, #7393B3);
+    transition: 0.2s;
+    pointer-events: none;
+    left: .3rem;
+    top: .7rem;
+}
+
+input:focus + label,
+input:not(:placeholder-shown) + label {
+    top: -.3rem;
+    left: .1rem;
+    font-size: 12px;
+}
+
+::deep .validation-message {
+    color: red;
+    position: absolute;
+    bottom: 0;
+    font-size: .7rem;
+}
+
+.has-error > ::deep input {
+    border-bottom-color: red;
+}
+
+.has-error > ::deep label {
+    color: var(--color-red, red);
+}
+
+.result {
+    z-index: 100;
+    background-color: white;
+    position: absolute;
+    top: calc(100% - 17px);
+    min-width: 100%;
+    overflow: hidden;
+    border-top: 1px solid var(--primary, #7393B3);
+    border-left: 1px solid var(--primary, #7393B3);
+    border-right: 1px solid var(--primary, #7393B3);
+    border-bottom: 1px solid var(--primary), #7393B3;
+    border-bottom-left-radius: .5rem;
+    border-bottom-right-radius: .5rem;
+    padding-left: .5rem;
+    color: var(--color-control-text)
+
+}
+
+.list-container {
+    overflow-y: auto;
+    max-height: 10rem;
+    cursor: pointer;
+}
+
+.list-item {
+    padding: 0.2rem;
+    padding-left: .5rem;
+}
+
+.list-item.active {
+    background-color: var(--primary, #7393B3);
+    color: var(--primary-foreground, white);
+}
+
+    .list-item:hover {
+        background-color: var(--primary, #7393B3);
+        color: var(--primary-foreground, white);
+    }

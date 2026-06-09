@@ -1,0 +1,80 @@
+﻿@using System.Globalization
+@using System.Diagnostics.CodeAnalysis
+@inherits InputBase<TValue>
+@typeparam TValue where TValue : new()
+
+@{
+    var value = BindConverter.FormatValue(CurrentValue, CultureInfo.InvariantCulture)?.ToString();
+}
+
+@if (InContainer)
+{
+    <InputContainer ChildId="@Id" Class="@ClassValue" Style="@StyleValue" Placeholder="@Placeholder" ValidationFor="@ValidationFor">
+        <input @ref="Element"
+        type="radio"
+        readonly="@ReadOnly"
+        autofocus="@Autofocus" id=@Id
+        value="@value"
+        disabled="@Disabled"
+        name=@Name
+        required="@Required"
+        @onchange="@ChangeHandlerAsync"
+        @oninput="@InputHandlerAsync" />
+    </InputContainer>
+} else
+{
+    <input @ref="Element"
+           type="radio"
+           readonly="@ReadOnly"
+           autofocus="@Autofocus" id=@Id
+           value="@value"
+           disabled="@Disabled"
+           name=@Name
+           required="@Required"
+           @onchange="@ChangeHandlerAsync"
+           @oninput="@InputHandlerAsync" />
+}
+
+@code {
+    [Parameter]
+    public string ParsingErrorMessage { get; set; } = "The {0} field is not a valid type for a radio";
+
+    [Parameter]
+    public bool InContainer { get; set; }
+
+    protected override string ClassValue => $"{Class} {HiddenCssClass} {ErrorCssClass}".Trim();
+
+    protected override string StyleValue => $"{Style}".Trim();
+
+    protected override string? FormatValueAsString(TValue? value)
+    {
+        // Directly convert to string using InvariantCulture for all types
+        return value switch
+        {
+            null => null,
+            int @int => BindConverter.FormatValue(@int, CultureInfo.InvariantCulture),
+            string @string => @string,
+            bool @bool => @bool.ToString(),
+            _ => throw new InvalidOperationException($"Unsupported type {value.GetType()}"),
+        };
+    }
+
+    protected override bool TryParseValueFromString(string? value, [MaybeNullWhen(false)] out TValue result, [NotNullWhen(false)] out string? validationErrorMessage)
+    {
+        try
+        {
+            if (BindConverter.TryConvertTo(value, CultureInfo.InvariantCulture, out result))
+            {
+                validationErrorMessage = null;
+                return true;
+            }
+        }
+        catch (ArgumentException)
+        {
+            result = default!;
+        }
+
+        validationErrorMessage = string.Format(CultureInfo.InvariantCulture, ParsingErrorMessage, FieldBound ? FieldIdentifier.FieldName : UnknownBoundField);
+        return false;
+    }
+}

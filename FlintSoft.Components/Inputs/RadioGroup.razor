@@ -1,0 +1,63 @@
+﻿@using System.Linq.Expressions
+@using System.Diagnostics.CodeAnalysis
+@using System.Globalization
+@inherits InputBase<TValue>
+@typeparam TValue
+
+<div class="@ClassValue">
+    <div class="radio-group">
+        @foreach (var v in Values)
+        {
+            <label>
+                <input type="radio" value="@v.value" @onchange="radioValueChanged" readonly="@ReadOnly"
+                       autofocus="@Autofocus"
+                       id=@($"{Id}-{v.value}")
+                       disabled="@Disabled"
+                       name=@(Name is null || string.IsNullOrWhiteSpace(Name) ? $"{Id}-group" : Name)
+                       required="@Required" />
+                @v.label
+            </label>
+        }
+    </div>
+    <label for="@Id" class="title">@Placeholder</label>
+    @if (ValidationFor != null)
+    {
+        <ValidationMessage For="@ValidationFor" />
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string ParsingErrorMessage { get; set; } = "The {0} field is not a valid type for a radio";
+
+    [Parameter, EditorRequired]
+    public List<(TValue value, string? label)> Values { get; set; }
+
+    protected override string ClassValue => $"container {Class}  {HiddenCssClass}".Trim();
+
+    protected override string StyleValue => $"{Style}".Trim();
+
+    async Task radioValueChanged(ChangeEventArgs e)
+    {
+        await ChangeHandlerAsync(e);
+    }
+
+    protected override bool TryParseValueFromString(string? value, [MaybeNullWhen(false)] out TValue result, [NotNullWhen(false)] out string? validationErrorMessage)
+    {
+        try
+        {
+            if (BindConverter.TryConvertTo(value, CultureInfo.InvariantCulture, out result))
+            {
+                validationErrorMessage = null;
+                return true;
+            }
+        }
+        catch (ArgumentException)
+        {
+            result = default!;
+        }
+
+        validationErrorMessage = string.Format(CultureInfo.InvariantCulture, ParsingErrorMessage, FieldBound ? FieldIdentifier.FieldName : UnknownBoundField);
+        return false;
+    }
+}

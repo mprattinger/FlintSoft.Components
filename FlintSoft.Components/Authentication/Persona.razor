@@ -1,0 +1,67 @@
+﻿@implements IAsyncDisposable
+@inject IJSRuntime JS
+
+<script type="module" src="@Assets["./_content/Components/Authentication/Persona.razor.js"]"></script>
+
+<div class="container" @ref="containerRef">
+    <button @onclick="toggleFlyOut">
+        <div class="initials">MP</div>
+    </button>
+
+    @if(showFlyout)
+    {
+        <div class="flyout">
+            <div class="top"></div>
+            <div class="main">
+                <div class="initials-big">
+                    MP
+                </div>
+                <div class="info">
+                    <div class="name">Michael Prattinger</div>
+                    <div class="email">michael.prattinger@becom-group.com</div>
+                </div>
+            </div>
+            <div class="footer"></div>
+        </div>
+    }
+</div>
+
+@code {
+    bool showFlyout = false;
+    private ElementReference containerRef;
+
+    [Parameter]
+    public string DisplayName { get; set; } = "";
+
+    public async ValueTask DisposeAsync()
+    {
+            try
+            {
+                await JS.InvokeVoidAsync("persona.unregister");
+            }
+            catch
+            {
+            }
+    }
+
+    async Task toggleFlyOut()
+    {
+        showFlyout = !showFlyout;
+
+            if(showFlyout)
+            {
+                await JS.InvokeVoidAsync("persona.register", containerRef, DotNetObjectReference.Create(this));
+            }
+            else
+            {
+                await JS.InvokeVoidAsync("persona.unregister");
+            }
+    }
+
+    [JSInvokable]
+    public Task CloseFlyout()
+    {
+        showFlyout = false;
+        return InvokeAsync(StateHasChanged);
+    }
+}

@@ -1,0 +1,48 @@
+﻿@if (IsVisible)
+{
+    <div class="overlay">
+        <div class="container" style="@ModalStyle">
+            <div class="close-btn">
+                @if (HasCloseButton)
+                {
+                    <Cross OnClicked="OnClose" />
+                }
+            </div>
+            <div class="header">
+                <h3>@Title</h3>
+            </div>
+            <div class="body">
+                @ChildContent
+            </div>
+            @if (Footer != null)
+            {
+                <div class="footer">
+                    @Footer
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public bool IsVisible { get; set; }
+
+    [Parameter, EditorRequired]
+    public EventCallback OnClose { get; set; }
+
+    [Parameter]
+    public string ModalStyle { get; set; } = "";
+
+    [Parameter]
+    public string Title { get; set; } = "";
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public RenderFragment? Footer { get; set; }
+
+    [Parameter]
+    public bool HasCloseButton { get; set; } = true;
+}

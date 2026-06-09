@@ -1,0 +1,50 @@
+﻿@if (IsVisible)
+{
+    <div class="@($"container {translateType(ToastAppearance)}".Trim())">
+        <div class="header">
+            <div class="title">@Title</div>
+            <div>@DateTime.Now.ToString()</div>
+            <div class="close-btn"><Cross OnClicked="OnClose" /></div>
+        </div>
+        <div class="content">@ChildContent</div>
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public bool IsVisible { get; set; }
+
+    [Parameter, EditorRequired]
+    public EventCallback OnClose { get; set; }
+
+    [Parameter, EditorRequired]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter, EditorRequired]
+    public string Title { get; set; }
+
+    [Parameter]
+    public ToastAppearanceEnum ToastAppearance { get; set; } = ToastAppearanceEnum.Primary;
+
+    string translateType(ToastAppearanceEnum buttonType)
+    {
+        return buttonType switch
+        {
+            ToastAppearanceEnum.Primary => "toast-primary",
+            ToastAppearanceEnum.Secondary => "toast-secondary",
+            ToastAppearanceEnum.Action => "toast-action",
+            ToastAppearanceEnum.Success => "toast-success",
+            ToastAppearanceEnum.Danger => "toast-danger",
+            _ => "toast-primary"
+        };
+    }
+
+    public enum ToastAppearanceEnum
+    {
+        Primary,
+        Secondary,
+        Action,
+        Success,
+        Danger
+    }
+}

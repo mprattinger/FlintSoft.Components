@@ -1,0 +1,57 @@
+﻿@using System.Diagnostics.CodeAnalysis
+@inherits InputBase<bool>
+
+@{
+    var value = BindConverter.FormatValue(CurrentValue);
+}
+
+<div class="container">
+    <label for="@Id">
+        <input type="checkbox"
+               readonly="@ReadOnly"
+               autofocus="@Autofocus"
+               list=@DataList
+               id=@Id
+               value="@value"
+               disabled="@Disabled"
+               name=@Name
+               required="@Required" 
+               @onchange="@ChangeHandlerAsync" 
+               @oninput="@InputHandlerAsync" />
+        <span class="checkmark"></span>
+        <span class="label-text">@Placeholder</span>
+    </label>
+    @if (ValidationFor != null)
+    {
+        <ValidationMessage For="@ValidationFor" />
+    }
+</div>
+
+@code {
+    /// <summary>
+    /// Allows associating a <see href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist">datalist</see> to the element by <see href="https://developer.mozilla.org/en-US/docs/Web/API/Element/id">id</see>.
+    /// </summary>
+    [Parameter]
+    public string? DataList { get; set; }
+
+    [Parameter]
+    public EventCallback<bool?> CheckStateChanged { get; set; }
+
+    protected override string ClassValue => $"{Class} {HiddenCssClass} {ErrorCssClass}".Trim();
+
+    protected override string StyleValue => $"{Style}".Trim();
+
+    protected override bool TryParseValueFromString(string? value, out bool result, [NotNullWhen(false)] out string? validationErrorMessage)
+    {
+        if (bool.TryParse(value, out var parsedValue))
+        {
+            result = parsedValue;
+            validationErrorMessage = null;
+            return true;
+        }
+
+        validationErrorMessage = "Invalid boolean value.";
+        result = default;
+        return false;
+    }
+}

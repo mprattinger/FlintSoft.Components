@@ -1,0 +1,35 @@
+﻿<Modal IsVisible="isVisible" OnClose="onClose" Title="@title" HasCloseButton="false">
+    <ChildContent>
+        @text
+    </ChildContent>
+    <Footer>
+        <div class="footer-btn" @onpointerup:stopPropagation @onpointerup="onClose">
+            <div>OK</div>
+        </div>
+    </Footer>
+</Modal>
+
+@code {
+    bool isVisible = false;
+    private TaskCompletionSource<bool>? tcs;
+    string title = "";
+    string text = "";
+    
+    public Task<bool> Open(string title, string text)
+    {
+        isVisible = true;
+        this.title = title;
+        this.text = text;
+
+        InvokeAsync(StateHasChanged);
+        tcs = new TaskCompletionSource<bool>();
+
+        return tcs.Task;
+    }
+
+    void onClose()
+    {
+        isVisible = false;
+        tcs?.TrySetResult(false);
+    }
+}

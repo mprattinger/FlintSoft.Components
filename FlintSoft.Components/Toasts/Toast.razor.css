@@ -1,0 +1,63 @@
+﻿.container {
+    position: absolute;
+    top: 4rem;
+    right: 1rem;
+    background-color: var(--modal-background);
+    border-radius: .3rem;
+    box-shadow: 0 4px 16px var(--modal-shadow);
+    color: var(--modal-text-color);
+    width: 350px;
+    border: 2px solid var(--color-lightgray);
+}
+
+.header {
+    display: flex;
+    font-size: .8rem;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: .3rem;
+    padding-left: .2rem;
+    padding-right: 2rem;
+    border-bottom: 1px solid var(--color-lightgray);
+}
+
+.title {
+    font-size: 1rem;
+    font-weight: bolder;
+}
+
+.close-btn {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    z-index: 10;
+    cursor: pointer;
+    color: var(--color-lightgray);
+}
+    .close-btn:hover {
+        color: var(--modal-text-color);
+    }
+
+    .content {
+        padding: .5rem;
+    }
+
+.toast-primary {
+    border-bottom: 5px solid var(--primary);
+}
+
+.toast-secondary {
+    border-bottom: 5px solid var(--secondary);
+}
+
+.toast-secondary {
+    border-bottom: 5px solid var(--orange);
+}
+
+.toast-action {
+    border-bottom: 5px solid var(--color-green);
+}
+
+.toast-danger {
+    border-bottom: 5px solid var(--color-red);
+}

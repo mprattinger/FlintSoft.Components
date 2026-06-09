@@ -1,0 +1,134 @@
+﻿@using System.Diagnostics.CodeAnalysis
+@using System.Globalization
+@inherits InputBase<DateTime>
+
+<div class="container">
+    <div class="inputs">
+    <input @ref="Element"
+           type="date"
+           id="@($"{Id}-date")"
+           list=@DataList
+           readonly="@ReadOnly"
+           placeholder=" "
+           disabled="@Disabled"
+           name=@Name
+           @bind="CurrentDateValueLocal"
+           required="@Required"
+               @oninput="@DateInputHandlerAsync" />
+    <input type="time"
+           id="@($"{Id}-date")"
+           list=@DataList
+           readonly="@ReadOnly"
+           placeholder=" "
+           disabled="@Disabled"
+           name=@Name
+           @bind="CurrentTimeValueLocal"
+           required="@Required"
+               @oninput="@TimeInputHandlerAsync" />
+    </div>
+    <label for="@Id">@Placeholder</label>
+    @if (ValidationFor != null)
+    {
+        <ValidationMessage For="@ValidationFor" />
+    }
+</div>
+@code {
+    /// <summary>
+    /// Allows associating a <see href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist">datalist</see> to the element by <see href="https://developer.mozilla.org/en-US/docs/Web/API/Element/id">id</see>.
+    /// </summary>
+    [Parameter]
+    public string? DataList { get; set; }
+
+    [Parameter]
+    public string ParsingErrorMessage { get; set; } = "The {0} field must be a (valid) date.";
+
+    protected override string ClassValue => $"container {Class} {HiddenCssClass} {ErrorCssClass}".Trim();
+
+    protected override string StyleValue => $"{Style}".Trim();
+
+    protected DateTime CurrentDateValueLocal
+    {
+        get { return CurrentValue; }
+        set
+        {
+            // ChangeHandlerAsync(value).Wait();
+            CurrentValue = new DateTime(value.Year, value.Month, value.Day, CurrentValue.Hour, CurrentValue.Minute, CurrentValue.Second, CurrentValue.Millisecond, CurrentValue.Kind);
+        }
+    }
+
+    protected DateTime CurrentTimeValueLocal
+    {
+        get { return CurrentValue; }
+        set
+        {
+            // ChangeHandlerAsync(value).Wait();
+            CurrentValue = new DateTime(CurrentValue.Year, CurrentValue.Month, CurrentValue.Day, value.Hour, value.Minute, value.Second, value.Millisecond, value.Kind);
+        }
+    }
+
+    protected override bool TryParseValueFromString(string? value, [MaybeNullWhen(false)] out DateTime result, [NotNullWhen(false)] out string? validationErrorMessage)
+    {
+        try
+        {
+            if (DateTime.TryParse(value, CultureInfo.CurrentCulture, DateTimeStyles.None, out result))
+            {
+                validationErrorMessage = null;
+                return true;
+            }
+        }
+        catch (ArgumentException)
+        {
+            result = default!;
+        }
+
+        validationErrorMessage = string.Format(CultureInfo.InvariantCulture, ParsingErrorMessage, FieldBound ? FieldIdentifier.FieldName : UnknownBoundField);
+        return false;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && CurrentValue == default)
+        {
+            var v = BindConverter.FormatValue(DateTime.Now, CultureInfo.InvariantCulture);
+            await ChangeHandlerAsync(DateTime.Now);
+        }
+    }
+
+    async Task DateInputHandlerAsync(ChangeEventArgs e) // TODO: To update in all Input fields
+    {
+        if(e.Value is null)
+        {
+            await InputHandlerAsync(e);
+            return;
+        }
+
+        if (!TryParseValueFromString(e.Value.ToString(), out var parsedValue, out var validationErrorMessage))
+        {
+            await InputHandlerAsync(e);
+            return;
+        }
+
+        var dt = new DateTime(parsedValue.Year, parsedValue.Month, parsedValue.Day, CurrentValue.Hour, CurrentValue.Minute, CurrentValue.Second, CurrentValue.Millisecond, CurrentValue.Kind);
+        e.Value = dt;
+        await InputHandlerAsync(e);
+    }
+
+    async Task TimeInputHandlerAsync(ChangeEventArgs e) // TODO: To update in all Input fields
+    {
+        if (e.Value is null)
+        {
+            await InputHandlerAsync(e);
+            return;
+        }
+
+        if (!TryParseValueFromString(e.Value.ToString(), out var parsedValue, out var validationErrorMessage))
+        {
+            await InputHandlerAsync(e);
+            return;
+        }
+
+        var dt = new DateTime(CurrentValue.Year, CurrentValue.Month, CurrentValue.Day, parsedValue.Hour, parsedValue.Minute, parsedValue.Second, parsedValue.Millisecond, parsedValue.Kind);
+        e.Value = dt;
+        await InputHandlerAsync(e);
+    }
+}

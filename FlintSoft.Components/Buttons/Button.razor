@@ -1,0 +1,81 @@
+﻿<button class="@($"button {translateType(ButtonAppearance)} {translateSize(ButtonSize)}".Trim())"
+        disabled="@Disabled"
+        type="@translateButtonType(ButtonType)"
+        @onclick="OnClick">
+    @ChildContent
+</button>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public ButtonAppearanceEnum ButtonAppearance { get; set; }
+
+    [Parameter]
+    public Size ButtonSize { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; } = false;
+
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnClick { get; set; }
+
+    [Parameter]
+    public ButtonTypeEnum ButtonType { get; set; }
+
+    string translateType(ButtonAppearanceEnum buttonType)
+    {
+        return buttonType switch
+        {
+            ButtonAppearanceEnum.Primary => "button-primary",
+            ButtonAppearanceEnum.Secondary => "button-secondary",
+            ButtonAppearanceEnum.Action => "button-action",
+            ButtonAppearanceEnum.Success => "button-success",
+            ButtonAppearanceEnum.Danger => "button-danger",
+            _ => "button-primary"
+        };
+    }
+
+    string translateSize(Size buttonSize)
+    {
+        return buttonSize switch
+        {
+            Size.Default => "button-size-default",
+            Size.Small => "button-small",
+            _ => ""
+        };
+    }
+
+    string translateButtonType(ButtonTypeEnum buttonType)
+    {
+        return buttonType switch
+        {
+            ButtonTypeEnum.Button => "button",
+            ButtonTypeEnum.Submit => "submit",
+            ButtonTypeEnum.Reset => "reset",
+            _ => "button"
+        };
+    }
+
+    public enum ButtonAppearanceEnum
+    {
+        Primary,
+        Secondary,
+        Action,
+        Success,
+        Danger
+    }
+
+    public enum Size
+    {
+        Default,
+        Small
+    }
+
+    public enum ButtonTypeEnum {
+        Button,
+        Submit,
+        Reset
+    }
+}

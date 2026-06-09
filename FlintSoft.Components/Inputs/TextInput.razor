@@ -1,0 +1,125 @@
+﻿
+@using System.Diagnostics.CodeAnalysis
+@inherits InputBase<string>
+
+@{
+    var value = BindConverter.FormatValue(CurrentValue);
+}
+
+<InputContainer TValue="string"
+                ChildId="@Id"
+                Class="@ClassValue"
+                Placeholder="@Placeholder"
+                ValidationFor="@ValidationFor">
+    <input @ref="Element"
+           readonly="@ReadOnly"
+           type="@TextFieldType.ToAttributeValue()"
+           list=@DataList
+           autofocus=@Autofocus
+           maxlength="@Maxlength"
+           minlength="@Minlength"
+           pattern=@Pattern
+           size="@Size"
+           placeholder=" "
+           spellcheck="@Spellcheck"
+           id=@Id
+           value=@value
+           disabled="@Disabled"
+           name=@Name
+           required="@Required"
+           @onchange="@ChangeHandlerAsync"
+           @oninput="@InputHandlerAsync" />
+</InputContainer>
+
+@code {
+    /// <summary>
+    /// Allows associating a <see href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist">datalist</see> to the element by <see href="https://developer.mozilla.org/en-US/docs/Web/API/Element/id">id</see>.
+    /// </summary>
+    [Parameter]
+    public string? DataList { get; set; }
+
+    /// <summary>
+    /// Gets or sets the maximum length.
+    /// </summary>
+    [Parameter]
+    public int? Maxlength { get; set; }
+
+    /// <summary>
+    /// Gets or sets the minimum length.
+    /// </summary>
+    [Parameter]
+    public int? Minlength { get; set; }
+
+    /// <summary>
+    /// Gets or sets a regular expression that the value must match to pass validation.
+    /// </summary>
+    [Parameter]
+    public string? Pattern { get; set; }
+
+    /// <summary>
+    /// Gets or sets the size of the text field.
+    /// </summary>
+    [Parameter]
+    public int? Size { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether spellcheck should be used.
+    /// </summary>
+    [Parameter]
+    public bool? Spellcheck { get; set; }
+
+    /// <summary>
+    /// Gets or sets the text filed type. See <see cref="AspNetCore.Components.TextFieldType"/>
+    /// </summary>
+    [Parameter]
+    public TextFieldTypeEnum? TextFieldType { get; set; }
+
+    protected override string ClassValue => $"container {Class} {HiddenCssClass} {ErrorCssClass}".Trim();
+
+    protected override string StyleValue => $"{Style}".Trim();
+
+    protected override bool TryParseValueFromString(string? value, out string result, [NotNullWhen(false)] out string? validationErrorMessage)
+    {
+        result = value ?? "";
+        validationErrorMessage = null;
+        return true;
+    }
+
+    public enum TextFieldTypeEnum
+    {
+        /// <summary>
+        /// The default type of text field
+        /// </summary>
+        Text,
+
+        /// <summary>
+        /// A text field that is used for email address input.
+        /// </summary>
+        Email,
+
+        /// <summary>
+        /// A text field that is used for password input.
+        /// </summary>
+        Password,
+
+        /// <summary>
+        /// A text field that is used for telephone number input.
+        /// </summary>
+        Tel,
+
+        /// <summary>
+        /// A text field that is used for URL input.
+        /// </summary>
+        Url,
+
+        /// <summary>
+        /// A text field that is used for color input (hexadecimal color value).
+        /// </summary>
+        Color,
+
+        /// <summary>
+        /// A text field that is used to search for a value. (accessibility)
+        /// </summary>
+        Search
+    }
+}

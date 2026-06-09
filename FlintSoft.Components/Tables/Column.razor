@@ -1,0 +1,14 @@
+﻿@inherits MyComponentBase
+
+<div @ref="Element" id="@GetId()" class="@ClassValue" style="@StyleValue">
+    @ChildContent
+</div>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    protected override string ClassValue => $"col {Class}".Trim();
+
+    protected override string StyleValue => $"{Style}".Trim();
+}
