@@ -8,7 +8,8 @@
     align-items: center;
     box-sizing: border-box;
     color: white;
-    height: 1.5rem;
+
+    cursor: pointer;
 }
 
 button:enabled:active {

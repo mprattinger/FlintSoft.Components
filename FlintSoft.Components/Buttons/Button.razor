@@ -1,4 +1,4 @@
-﻿<button class="@($"button {translateType(ButtonAppearance)} {translateSize(ButtonSize)}".Trim())"
+﻿<button class="@($"button {translateType(ButtonAppearance)} {translateSize(ButtonSize)} {Class}".Trim())"
         disabled="@Disabled"
         type="@translateButtonType(ButtonType)"
         @onclick="OnClick">
@@ -23,6 +23,12 @@
 
     [Parameter]
     public ButtonTypeEnum ButtonType { get; set; }
+
+    [Parameter]
+    public virtual string? Class { get; set; } = null;
+
+    [Parameter]
+    public virtual string? Style { get; set; } = null;
 
     string translateType(ButtonAppearanceEnum buttonType)
     {
