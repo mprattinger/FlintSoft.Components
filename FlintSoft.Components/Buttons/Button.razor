@@ -1,6 +1,7 @@
 ﻿<button class="@($"button {translateType(ButtonAppearance)} {translateSize(ButtonSize)} {Class}".Trim())"
         disabled="@Disabled"
         type="@translateButtonType(ButtonType)"
+        style="@Style"
         @onclick="OnClick">
     @ChildContent
 </button>
