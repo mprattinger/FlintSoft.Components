@@ -5,6 +5,7 @@
 
 @{
     var value = BindConverter.FormatValue(CurrentValue, CultureInfo.InvariantCulture);
+    var inpClass = $"num-text {GetTextClass()}".Trim();
 }
 
 <InputContainer ChildId="@Id"
@@ -28,7 +29,7 @@
            value="@value"
            disabled="@Disabled"
            name=@Name
-           style="text-align: right;"
+           class="@inpClass"
            required="@Required"
            @onchange="@ChangeHandlerAsync"
            @oninput="@InputHandlerAsync" />
@@ -160,5 +161,16 @@
         {
             throw new InvalidOperationException($"The type '{targetType}' is not a supported numeric type.");
         }
+    }
+
+    private string GetTextClass()
+    {
+        if (CurrentValue is null)
+        {
+            return "positive";
+        }
+
+        var numericValue = Convert.ToDecimal(CurrentValue, CultureInfo.InvariantCulture);
+        return numericValue < 0 ? "negative" : "positive";
     }
 }
