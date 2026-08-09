@@ -5,10 +5,7 @@
 
 <div class="@ClassValue" style="@StyleValue">
     @ChildContent
-    @if (!string.IsNullOrEmpty(Placeholder))
-    {
-        <span class="placeholder">@Placeholder</span>
-    }
+    <span class="placeholder">@Placeholder</span>
     <label for="@ChildId">@Placeholder</label>
     @if (ValidationFor != null)
     {
