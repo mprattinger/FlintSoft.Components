@@ -2,6 +2,7 @@
         disabled="@Disabled"
         type="@translateButtonType(ButtonType)"
         style="@Style"
+        tabindex="@TabIndex"
         @onclick="OnClick">
     @ChildContent
 </button>
@@ -30,6 +31,9 @@
 
     [Parameter]
     public virtual string? Style { get; set; } = null;
+
+    [Parameter]
+    public virtual int? TabIndex { get; set; }
 
     string translateType(ButtonAppearanceEnum buttonType)
     {
