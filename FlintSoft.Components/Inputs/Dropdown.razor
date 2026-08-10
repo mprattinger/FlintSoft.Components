@@ -68,6 +68,17 @@
         return false;
     }
 
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        // If CurrentValue is null or default and we have items, initialize with the first item
+        if ((CurrentValue == null || EqualityComparer<TValue>.Default.Equals(CurrentValue, default)) && Items?.Any() == true)
+        {
+            CurrentValue = Items.First();
+        }
+    }
+
     async Task OnChangeHandler(ChangeEventArgs e)
     {
         var selected = e.Value?.ToString();
@@ -76,7 +87,7 @@
 
         if (currentItem != null)
         {
-            await SetCurrentValueAsync(currentItem ?? default);
+            await SetCurrentValueAsync(currentItem);
         }
     }
 }
