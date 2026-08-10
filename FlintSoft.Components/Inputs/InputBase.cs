@@ -57,6 +57,9 @@ public abstract class InputBase<TValue> : MyComponentBase, IDisposable
     public virtual string? Placeholder { get; set; }
 
     [Parameter]
+    public virtual int? TabIndex { get; set; }
+
+    [Parameter]
     public Expression<Func<TValue>>? ValidationFor { get; set; }
 
     [Parameter]

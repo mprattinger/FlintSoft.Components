@@ -12,6 +12,7 @@
             disabled="@Disabled"
             name=@Name
             class="dropdown"
+            tabindex="@TabIndex"
             value="@(CurrentValue != null ? IdValueFunc(CurrentValue) : string.Empty)"
             @onchange="OnChangeHandler">
         @foreach (var item in Items)
