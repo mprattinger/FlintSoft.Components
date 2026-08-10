@@ -4,7 +4,7 @@
 @typeparam TValue where TValue : new()
 
 @{
-    var value = BindConverter.FormatValue(CurrentValue, CultureInfo.InvariantCulture);
+    var displayValue = _isEditing ? _currentInputValue : BindConverter.FormatValue(CurrentValue, CultureInfo.InvariantCulture);
     var inpClass = $"num-text {GetTextClass()}".Trim();
 }
 
@@ -23,20 +23,24 @@
            minlength="@MinLength"
            size="@Size"
            step=@Step
-           max="@(ReadOnly? value : MaxValue)"
-           min="@(ReadOnly? value : MinValue)"
+           max="@(ReadOnly? displayValue : MaxValue)"
+           min="@(ReadOnly? displayValue : MinValue)"
            id=@Id
-           value="@value"
+           value="@displayValue"
            disabled="@Disabled"
            name=@Name
            class="@inpClass"
            required="@Required"
            tabindex="@TabIndex"
-           @onchange="@ChangeHandlerAsync"
-           @oninput="@InputHandlerAsync" />
+           @oninput="@OnInputHandler"
+           @onblur="@OnBlurHandler"
+           @onfocus="@OnFocusHandler" />
 </InputContainer>
 
 @code {
+    private bool _isEditing = false;
+    private string? _currentInputValue;
+
     [Parameter]
     public bool HideStep { get; set; }
 
@@ -189,5 +193,50 @@
 
         var numericValue = Convert.ToDecimal(CurrentValue, CultureInfo.InvariantCulture);
         return numericValue < 0 ? "negative" : "positive";
+    }
+
+    private void OnFocusHandler()
+    {
+        _isEditing = true;
+        _currentInputValue = BindConverter.FormatValue(CurrentValue, CultureInfo.InvariantCulture)?.ToString();
+    }
+
+    private void OnInputHandler(ChangeEventArgs e)
+    {
+        // Store the raw user input without parsing/formatting while editing
+        _currentInputValue = e.Value?.ToString();
+    }
+
+    private async Task OnBlurHandler(FocusEventArgs e)
+    {
+        _isEditing = false;
+
+        // Now parse and validate the input
+        if (!string.IsNullOrWhiteSpace(_currentInputValue))
+        {
+            if (TryParseValueFromString(_currentInputValue, out TValue? result, out var validationErrorMessage))
+            {
+                await SetCurrentValueAsync(result);
+
+                if (FieldBound && EditContext != null)
+                {
+                    EditContext.NotifyFieldChanged(FieldIdentifier);
+                }
+            }
+            else
+            {
+                // If parsing failed, show validation error
+                if (FieldBound && EditContext != null)
+                {
+                    var validationMessages = new ValidationMessageStore(EditContext);
+                    validationMessages.Clear(FieldIdentifier);
+                    validationMessages.Add(FieldIdentifier, validationErrorMessage ?? "Invalid number format");
+                    EditContext.NotifyValidationStateChanged();
+                }
+            }
+        }
+
+        _currentInputValue = null;
+        StateHasChanged();
     }
 }
