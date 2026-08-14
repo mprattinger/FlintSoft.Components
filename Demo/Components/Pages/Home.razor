@@ -1,0 +1,229 @@
+﻿@page "/"
+@using System.ComponentModel.DataAnnotations
+
+<PageTitle>FlintSoft Components Demo</PageTitle>
+
+<div class="page">
+    <header class="page-header">
+        <div>
+            <h1>FlintSoft Components</h1>
+            <p>Interactive demo site for the FlintSoft.Components library.</p>
+        </div>
+        <ThemeToggle />
+    </header>
+
+    <Card Class="section-card">
+        <h2>Buttons</h2>
+        <ButtonRow Class="button-row">
+            <Button ButtonAppearance="Button.ButtonAppearanceEnum.Primary" ButtonSize="Button.Size.Default" ButtonType="Button.ButtonTypeEnum.Button" OnClick="ShowPrimaryToast">
+                Primary
+            </Button>
+            <Button ButtonAppearance="Button.ButtonAppearanceEnum.Secondary" ButtonSize="Button.Size.Default" ButtonType="Button.ButtonTypeEnum.Button" OnClick="ShowSecondaryToast">
+                Secondary
+            </Button>
+            <Button ButtonAppearance="Button.ButtonAppearanceEnum.Success" ButtonSize="Button.Size.Default" ButtonType="Button.ButtonTypeEnum.Button" OnClick="ShowSuccessToast">
+                Success
+            </Button>
+            <Button ButtonAppearance="Button.ButtonAppearanceEnum.Danger" ButtonSize="Button.Size.Default" ButtonType="Button.ButtonTypeEnum.Button" OnClick="ShowDangerToast">
+                Danger
+            </Button>
+            <Button ButtonAppearance="Button.ButtonAppearanceEnum.Action" ButtonSize="Button.Size.Small" ButtonType="Button.ButtonTypeEnum.Button" OnClick="OpenMessageModal">
+                Open Message Modal
+            </Button>
+            <Button ButtonAppearance="Button.ButtonAppearanceEnum.Action" ButtonSize="Button.Size.Small" ButtonType="Button.ButtonTypeEnum.Button" OnClick="OpenYesNoModal">
+                Open Yes/No Modal
+            </Button>
+        </ButtonRow>
+    </Card>
+
+    <Card Class="section-card">
+        <h2>Icons</h2>
+        <div class="icons-grid">
+            <House Class="demo-icon" Title="House" OnClicked="IconClicked" />
+            <Calendar Class="demo-icon" Title="Calendar" OnClicked="IconClicked" />
+            <Gear Class="demo-icon" Title="Gear" OnClicked="IconClicked" />
+            <PlayCircle Class="demo-icon" Title="Play" OnClicked="IconClicked" />
+            <Alert Class="demo-icon" Title="Alert" OnClicked="IconClicked" />
+            <CircleCheckBig Class="demo-icon" Title="Check" OnClicked="IconClicked" />
+            <QRCode Class="demo-icon" Title="QR code" OnClicked="IconClicked" />
+            <Wizard Class="demo-icon" Title="Wizard" OnClicked="IconClicked" />
+        </div>
+    </Card>
+
+    <Card Class="section-card">
+        <h2>Inputs</h2>
+        <EditForm Model="formModel" OnValidSubmit="SubmitForm">
+            <DataAnnotationsValidator />
+            <div class="form-grid">
+                <TextInput @bind-Value="formModel.Name" Placeholder="Display name" ValidationFor="() => formModel.Name" />
+                <NumberInput TValue="decimal" @bind-Value="formModel.Budget" Placeholder="Budget" ValidationFor="() => formModel.Budget" Step="0.5" />
+                <Dropdown TValue="string"
+                          @bind-Value="formModel.Status"
+                          Placeholder="Status"
+                          ValidationFor="() => formModel.Status"
+                          Items="statuses"
+                          IdExpression="status => status"
+                          DisplayExpression="status => status" />
+                <RadioGroup TValue="string"
+                            @bind-Value="formModel.Priority"
+                            Placeholder="Priority"
+                            ValidationFor="() => formModel.Priority"
+                            Values="priorities" />
+                <DatePicker @bind-Value="formModel.StartDate" Placeholder="Start date" ValidationFor="() => formModel.StartDate" />
+                <DateTimePicker @bind-Value="formModel.Reminder" Placeholder="Reminder" ValidationFor="() => formModel.Reminder" />
+                <Checkbox @bind-Value="formModel.IsEnabled" Placeholder="Enabled" ValidationFor="() => formModel.IsEnabled" />
+            </div>
+
+            <CommandContainer Class="form-actions">
+                <Button ButtonAppearance="Button.ButtonAppearanceEnum.Primary" ButtonSize="Button.Size.Default" ButtonType="Button.ButtonTypeEnum.Submit">
+                    Submit Form
+                </Button>
+            </CommandContainer>
+        </EditForm>
+    </Card>
+
+    <Card Class="section-card">
+        <h2>Table</h2>
+        <Table>
+            <HeaderContent>
+                <Column>Name</Column>
+                <Column>Status</Column>
+                <Column>Priority</Column>
+                <Column>Budget</Column>
+            </HeaderContent>
+            <ChildContent>
+                @foreach (var item in tableRows)
+                {
+                    <Row>
+                        <Column>@item.Name</Column>
+                        <Column>@item.Status</Column>
+                        <Column>@item.Priority</Column>
+                        <Column>@item.Budget.ToString("C")</Column>
+                    </Row>
+                }
+            </ChildContent>
+        </Table>
+    </Card>
+
+    <Toast IsVisible="showToast" OnClose="CloseToast" Title="@toastTitle" ToastAppearance="@toastAppearance">
+        @toastMessage
+    </Toast>
+
+    <Message @ref="messageModal" />
+    <YesNo @ref="yesNoModal" YesText="Approve" NoText="Cancel" />
+</div>
+
+@code {
+    private DemoFormModel formModel = new();
+
+    private readonly List<string> statuses = ["Draft", "Active", "Archived"];
+    private readonly List<(string value, string? label)> priorities =
+    [
+        ("Low", "Low"),
+        ("Medium", "Medium"),
+        ("High", "High")
+    ];
+
+    private readonly List<DemoTableRow> tableRows =
+    [
+        new("Website redesign", "Active", "High", 6500m),
+        new("API migration", "Draft", "Medium", 4200m),
+        new("Reporting refresh", "Archived", "Low", 1800m)
+    ];
+
+    private Message? messageModal;
+    private YesNo? yesNoModal;
+
+    private bool showToast;
+    private string toastTitle = "";
+    private string toastMessage = "";
+    private Toast.ToastAppearanceEnum toastAppearance = Toast.ToastAppearanceEnum.Primary;
+
+    private void ShowPrimaryToast(MouseEventArgs _)
+    {
+        ShowToast("Primary action", "Primary button clicked.", Toast.ToastAppearanceEnum.Primary);
+    }
+
+    private void ShowSecondaryToast(MouseEventArgs _)
+    {
+        ShowToast("Secondary action", "Secondary button clicked.", Toast.ToastAppearanceEnum.Secondary);
+    }
+
+    private void ShowSuccessToast(MouseEventArgs _)
+    {
+        ShowToast("Saved", "Success style button clicked.", Toast.ToastAppearanceEnum.Success);
+    }
+
+    private void ShowDangerToast(MouseEventArgs _)
+    {
+        ShowToast("Danger", "Danger style button clicked.", Toast.ToastAppearanceEnum.Danger);
+    }
+
+    private void IconClicked()
+    {
+        ShowToast("Icon", "Icon click event triggered.", Toast.ToastAppearanceEnum.Action);
+    }
+
+    private async Task OpenMessageModal(MouseEventArgs _)
+    {
+        if (messageModal is null)
+        {
+            return;
+        }
+
+        await messageModal.Open("Message", "This is the FlintSoft message modal component.");
+    }
+
+    private async Task OpenYesNoModal(MouseEventArgs _)
+    {
+        if (yesNoModal is null)
+        {
+            return;
+        }
+
+        var approved = await yesNoModal.Open("Confirm", "Do you want to approve this demo action?");
+        ShowToast("Confirmation", approved ? "Action approved." : "Action canceled.", approved ? Toast.ToastAppearanceEnum.Success : Toast.ToastAppearanceEnum.Secondary);
+    }
+
+    private void SubmitForm()
+    {
+        ShowToast("Form submitted", $"Saved '{formModel.Name}' with status '{formModel.Status}'.", Toast.ToastAppearanceEnum.Success);
+    }
+
+    private void CloseToast()
+    {
+        showToast = false;
+    }
+
+    private void ShowToast(string title, string message, Toast.ToastAppearanceEnum appearance)
+    {
+        toastTitle = title;
+        toastMessage = message;
+        toastAppearance = appearance;
+        showToast = true;
+    }
+
+    private sealed class DemoFormModel
+    {
+        [Required]
+        public string Name { get; set; } = "FlintSoft Demo";
+
+        [Range(-100000, 100000)]
+        public decimal Budget { get; set; } = 2500m;
+
+        [Required]
+        public string Status { get; set; } = "Draft";
+
+        [Required]
+        public string Priority { get; set; } = "Medium";
+
+        [Range(typeof(DateOnly), "2000-01-01", "2100-12-31")]
+        public DateOnly StartDate { get; set; } = DateOnly.FromDateTime(DateTime.Today);
+
+        public DateTime Reminder { get; set; } = DateTime.Now;
+
+        public bool IsEnabled { get; set; } = true;
+    }
+
+    private sealed record DemoTableRow(string Name, string Status, string Priority, decimal Budget);
+}

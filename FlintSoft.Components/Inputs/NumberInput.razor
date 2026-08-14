@@ -136,15 +136,16 @@
 
         try
         {
+            var normalizedValue = value.Replace(',', '.');
+
             // First try with InvariantCulture (period as decimal separator)
-            if (BindConverter.TryConvertTo(value, CultureInfo.InvariantCulture, out result))
+            if (BindConverter.TryConvertTo(normalizedValue, CultureInfo.InvariantCulture, out result))
             {
                 validationErrorMessage = null;
                 return true;
             }
 
             // If that fails, try replacing comma with period to support German/European format
-            var normalizedValue = value.Replace(',', '.');
             if (normalizedValue != value && BindConverter.TryConvertTo(normalizedValue, CultureInfo.InvariantCulture, out result))
             {
                 validationErrorMessage = null;

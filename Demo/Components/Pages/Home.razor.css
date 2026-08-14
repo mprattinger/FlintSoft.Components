@@ -1,0 +1,61 @@
+.page {
+    display: grid;
+    gap: 1rem;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 1.5rem;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.page-header h1 {
+    margin: 0;
+}
+
+.page-header p {
+    margin: 0.25rem 0 0;
+    opacity: 0.8;
+}
+
+.section-card {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.section-card h2 {
+    margin: 0;
+}
+
+.button-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.icons-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.demo-icon {
+    cursor: pointer;
+    border: 1px solid var(--secondary);
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+}
+
+.form-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.form-actions {
+    margin-top: 0.5rem;
+}
