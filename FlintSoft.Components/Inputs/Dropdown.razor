@@ -15,6 +15,11 @@
             tabindex="@TabIndex"
             value="@(CurrentValue != null ? IdValueFunc(CurrentValue) : string.Empty)"
             @onchange="OnChangeHandler">
+        @if (HasEmpty)
+        {
+            <option value=""></option>
+        }
+        )
         @foreach (var item in Items)
         {
             <option value="@IdValueFunc(item)">@DisplayValueFunc(item)</option>
@@ -40,7 +45,10 @@
     [Parameter, EditorRequired]
     public Expression<Func<TValue, object>>? DisplayExpression { get; set; }
 
-    private Func<TValue, string> DisplayValueFunc =>
+    [Parameter]
+    public bool HasEmpty { get; set; } = false;
+
+        private Func<TValue, string> DisplayValueFunc =>
         DisplayExpression != null
             ? (item => (DisplayExpression.Compile().Invoke(item)?.ToString() ?? string.Empty))
             : (item => item?.ToString() ?? string.Empty);
