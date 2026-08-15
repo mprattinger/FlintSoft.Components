@@ -81,8 +81,8 @@
     {
         base.OnParametersSet();
 
-        // If CurrentValue is null or default and we have items, initialize with the first item
-        if ((CurrentValue == null || EqualityComparer<TValue>.Default.Equals(CurrentValue, default)) && Items?.Any() == true)
+        // If CurrentValue is null or default and we have items, initialize with the first item only when HasEmpty is false
+        if (!HasEmpty && (CurrentValue == null || EqualityComparer<TValue>.Default.Equals(CurrentValue, default)) && Items?.Any() == true)
         {
             CurrentValue = Items.First();
         }
@@ -91,6 +91,12 @@
     async Task OnChangeHandler(ChangeEventArgs e)
     {
         var selected = e.Value?.ToString();
+
+        if (string.IsNullOrEmpty(selected) && HasEmpty)
+        {
+            await SetCurrentValueAsync(default!);
+            return;
+        }
 
         var currentItem = Items.FirstOrDefault(item => IdValueFunc(item) == selected);
 
