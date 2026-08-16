@@ -19,7 +19,6 @@
         {
             <option value=""></option>
         }
-        )
         @foreach (var item in Items)
         {
             <option value="@IdValueFunc(item)">@DisplayValueFunc(item)</option>
@@ -37,7 +36,7 @@
     public string ParsingErrorMessage { get; set; } = "The {0} field must be a (valid) date.";
 
     [Parameter, EditorRequired]
-    public List<TValue> Items { get; set; }
+    public IEnumerable<TValue> Items { get; set; } = Enumerable.Empty<TValue>();
 
     [Parameter, EditorRequired]
     public Expression<Func<TValue, object?>> IdExpression { get; set; }
@@ -82,7 +81,7 @@
         base.OnParametersSet();
 
         // If CurrentValue is null or default and we have items, initialize with the first item only when HasEmpty is false
-        if (!HasEmpty && (CurrentValue == null || EqualityComparer<TValue>.Default.Equals(CurrentValue, default)) && Items?.Any() == true)
+        if (!HasEmpty && (CurrentValue == null || EqualityComparer<TValue>.Default.Equals(CurrentValue, default)) && Items.Any())
         {
             CurrentValue = Items.First();
         }

@@ -63,7 +63,8 @@
                           ValidationFor="() => formModel.Status"
                           Items="statuses"
                           IdExpression="status => status"
-                          DisplayExpression="status => status" />
+                          DisplayExpression="status => status" 
+                          HasEmpty="true" />
                 <RadioGroup TValue="string"
                             @bind-Value="formModel.Priority"
                             Placeholder="Priority"
@@ -187,7 +188,7 @@
 
     private void SubmitForm()
     {
-        ShowToast("Form submitted", $"Saved '{formModel.Name}' with status '{formModel.Status}'.", Toast.ToastAppearanceEnum.Success);
+        ShowToast("Form submitted", $"Saved '{formModel.Name}' with status '{formModel.Status ?? "N/A"}'.", Toast.ToastAppearanceEnum.Success);
     }
 
     private void CloseToast()
@@ -211,8 +212,7 @@
         [Range(-100000, 100000)]
         public decimal Budget { get; set; } = 2500m;
 
-        [Required]
-        public string Status { get; set; } = "Draft";
+        public string? Status { get; set; }
 
         [Required]
         public string Priority { get; set; } = "Medium";
