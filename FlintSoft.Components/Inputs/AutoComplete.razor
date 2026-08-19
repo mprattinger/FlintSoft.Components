@@ -8,22 +8,36 @@
 @implements IAsyncDisposable
 
 <div class="@($"container {HiddenCssClass} {ErrorCssClass}".Trim())">
-    <input @ref="Element"
-           readonly="@ReadOnly"
-           type="text"
-           autofocus="@Autofocus"
-           placeholder=" "
-           id=@Id
-           @bind="currentSearchText"
-           @bind:event="oninput"
-           disabled="@Disabled"
-           name=@Name
-           required="@Required"
-           tabindex="@TabIndex"
-           @onkeyup="HandleKeyUp"
-           @onfocus="Focus" />
+    <div class="input-row">
+        @if (!string.IsNullOrWhiteSpace(Prefix))
+        {
+            <span class="input-affix prefix">@Prefix</span>
+        }
 
-    <label for="@Id">@Placeholder</label>
+        <div class="input-control">
+            <input @ref="Element"
+                   readonly="@ReadOnly"
+                   type="text"
+                   autofocus="@Autofocus"
+                   placeholder=" "
+                   id=@Id
+                   @bind="currentSearchText"
+                   @bind:event="oninput"
+                   disabled="@Disabled"
+                   name=@Name
+                   required="@Required"
+                   tabindex="@TabIndex"
+                   @onkeyup="HandleKeyUp"
+                   @onfocus="Focus" />
+
+            <label for="@Id">@Placeholder</label>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Suffix))
+        {
+            <span class="input-affix suffix">@Suffix</span>
+        }
+    </div>
 
     @if (ValidationFor != null)
     {

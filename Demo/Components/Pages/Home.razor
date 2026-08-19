@@ -55,15 +55,17 @@
         <EditForm Model="formModel" OnValidSubmit="SubmitForm">
             <DataAnnotationsValidator />
             <div class="form-grid">
-                <TextInput @bind-Value="formModel.Name" Placeholder="Display name" ValidationFor="() => formModel.Name" />
-                <NumberInput TValue="decimal" @bind-Value="formModel.Budget" Placeholder="Budget" ValidationFor="() => formModel.Budget" Step="0.5" />
+                <TextInput @bind-Value="formModel.Name" Placeholder="Display name" ValidationFor="() => formModel.Name" Prefix="@("@")" />
+                <NumberInput TValue="decimal" @bind-Value="formModel.Budget" Placeholder="Budget" ValidationFor="() => formModel.Budget" Step="0.5" Suffix="€" />
+                <NumberInput @bind-Value="formModel.Tax" Placeholder="Steuern" ValidationFor="() => formModel.Tax" Suffix="%" />
                 <Dropdown TValue="string"
                           @bind-Value="formModel.Status"
                           Placeholder="Status"
                           ValidationFor="() => formModel.Status"
                           Items="statuses"
                           IdExpression="status => status"
-                          DisplayExpression="status => status" 
+                          DisplayExpression="status => status"
+                          Prefix="State"
                           HasEmpty="true" />
                 <RadioGroup TValue="string"
                             @bind-Value="formModel.Priority"
@@ -71,7 +73,7 @@
                             ValidationFor="() => formModel.Priority"
                             Values="priorities" />
                 <DatePicker @bind-Value="formModel.StartDate" Placeholder="Start date" ValidationFor="() => formModel.StartDate" />
-                <DateTimePicker @bind-Value="formModel.Reminder" Placeholder="Reminder" ValidationFor="() => formModel.Reminder" />
+                <DateTimePicker @bind-Value="formModel.Reminder" Placeholder="Reminder" ValidationFor="() => formModel.Reminder" Suffix="local" />
                 <Checkbox @bind-Value="formModel.IsEnabled" Placeholder="Enabled" ValidationFor="() => formModel.IsEnabled" />
             </div>
 
@@ -211,6 +213,9 @@
 
         [Range(-100000, 100000)]
         public decimal Budget { get; set; } = 2500m;
+
+        [Required]
+        public int Tax { get; set; } = 10;
 
         public string? Status { get; set; }
 

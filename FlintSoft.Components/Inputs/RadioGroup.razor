@@ -5,18 +5,30 @@
 @typeparam TValue
 
 <div class="@ClassValue">
-    <div class="radio-group">
-        @foreach (var v in Values)
+    <div class="inline-row">
+        @if (!string.IsNullOrWhiteSpace(Prefix))
         {
-            <label>
-                <input type="radio" value="@v.value" @onchange="radioValueChanged" readonly="@ReadOnly"
-                       autofocus="@Autofocus"
-                       id=@($"{Id}-{v.value}")
-                       disabled="@Disabled"
-                       name=@(Name is null || string.IsNullOrWhiteSpace(Name) ? $"{Id}-group" : Name)
-                       required="@Required" />
-                @v.label
-            </label>
+            <span class="input-affix prefix">@Prefix</span>
+        }
+
+        <div class="radio-group">
+            @foreach (var v in Values)
+            {
+                <label>
+                    <input type="radio" value="@v.value" @onchange="radioValueChanged" readonly="@ReadOnly"
+                           autofocus="@Autofocus"
+                           id=@($"{Id}-{v.value}")
+                           disabled="@Disabled"
+                           name=@(Name is null || string.IsNullOrWhiteSpace(Name) ? $"{Id}-group" : Name)
+                           required="@Required" />
+                    @v.label
+                </label>
+            }
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Suffix))
+        {
+            <span class="input-affix suffix">@Suffix</span>
         }
     </div>
     <label for="@Id" class="title">@Placeholder</label>

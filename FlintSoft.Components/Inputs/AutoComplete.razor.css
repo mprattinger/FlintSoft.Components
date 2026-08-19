@@ -1,7 +1,31 @@
 ﻿.container {
     position: relative;
-    height: 3.5rem;
+    min-height: 4.4rem;
     margin: .3rem;
+}
+
+.input-row {
+    display: flex;
+    align-items: flex-end;
+    gap: .4rem;
+}
+
+.input-control {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 2.75rem;
+}
+
+.input-affix {
+    display: inline-flex;
+    align-items: flex-end;
+    min-height: 2rem;
+    padding: 0 .15rem .35rem;
+    border-bottom: 2px solid var(--primary, #7393B3);
+    color: var(--primary, #7393B3);
+    white-space: nowrap;
+    line-height: 1;
 }
 
 ::deep input {
@@ -12,22 +36,23 @@
     color: var(--color-text, darkslategray);
     width: 100%;
     font-size: 16px;
-    position: absolute;
-    top: .7rem;
+    display: block;
+    margin: 0;
+    padding: 1.1rem .3rem .2rem;
 }
 
-::deep label {
+label {
     position: absolute;
     color: var(--primary, #7393B3);
     transition: 0.2s;
     pointer-events: none;
     left: .3rem;
-    top: .7rem;
+    top: 1rem;
 }
 
-input:focus + label,
-input:not(:placeholder-shown) + label {
-    top: -.3rem;
+.input-control:focus-within label,
+.input-control:has(input:not(:placeholder-shown)) label {
+    top: 0;
     left: .1rem;
     font-size: 12px;
 }
@@ -39,11 +64,16 @@ input:not(:placeholder-shown) + label {
     font-size: .7rem;
 }
 
-.has-error > ::deep input {
+.has-error > .input-row .input-affix {
+    border-bottom-color: red;
+    color: var(--color-red, red);
+}
+
+.has-error > .input-row ::deep input {
     border-bottom-color: red;
 }
 
-.has-error > ::deep label {
+.has-error > .input-row label {
     color: var(--color-red, red);
 }
 
@@ -51,18 +81,17 @@ input:not(:placeholder-shown) + label {
     z-index: 100;
     background-color: white;
     position: absolute;
-    top: calc(100% - 17px);
+    top: 2.85rem;
     min-width: 100%;
     overflow: hidden;
     border-top: 1px solid var(--primary, #7393B3);
     border-left: 1px solid var(--primary, #7393B3);
     border-right: 1px solid var(--primary, #7393B3);
-    border-bottom: 1px solid var(--primary), #7393B3;
+    border-bottom: 1px solid var(--primary, #7393B3);
     border-bottom-left-radius: .5rem;
     border-bottom-right-radius: .5rem;
     padding-left: .5rem;
-    color: var(--color-control-text)
-
+    color: var(--color-control-text);
 }
 
 .list-container {
@@ -81,7 +110,7 @@ input:not(:placeholder-shown) + label {
     color: var(--primary-foreground, white);
 }
 
-    .list-item:hover {
-        background-color: var(--primary, #7393B3);
-        color: var(--primary-foreground, white);
-    }
+.list-item:hover {
+    background-color: var(--primary, #7393B3);
+    color: var(--primary-foreground, white);
+}

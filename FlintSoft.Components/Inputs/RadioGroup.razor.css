@@ -1,13 +1,19 @@
 ﻿.container {
     position: relative;
-    height: 3.5rem;
+    min-height: 3.5rem;
     margin: .3rem;
 }
+
+.inline-row {
+    display: flex;
+    align-items: flex-end;
+    gap: .4rem;
+    padding-top: .9rem;
+}
+
 .radio-group {
     display: flex;
     flex-direction: row;
-    position: absolute;
-    top: .7rem;
 }
 
 label.title {
@@ -22,6 +28,17 @@ label.title {
 
 .radio-group > label {
     margin-right: .5rem;
+}
+
+.input-affix {
+    display: inline-flex;
+    align-items: flex-end;
+    min-height: 2rem;
+    padding: 0 .15rem .2rem;
+    border-bottom: 2px solid var(--primary, #7393B3);
+    color: var(--primary, #7393B3);
+    white-space: nowrap;
+    line-height: 1;
 }
 
 input {

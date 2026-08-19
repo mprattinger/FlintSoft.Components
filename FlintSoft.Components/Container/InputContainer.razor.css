@@ -1,10 +1,35 @@
 ﻿.container {
     position: relative;
-    height: 3.5rem;
+    min-height: 4.4rem;
     margin: .3rem;
 }
 
-::deep input, ::deep select {
+.input-row {
+    display: flex;
+    align-items: flex-end;
+    gap: .4rem;
+}
+
+.input-control {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 2.75rem;
+}
+
+.input-affix {
+    display: inline-flex;
+    align-items: flex-end;
+    min-height: 2rem;
+    padding: 0 .15rem .35rem;
+    border-bottom: 2px solid var(--primary, #7393B3);
+    color: var(--primary, #7393B3);
+    white-space: nowrap;
+    line-height: 1;
+}
+
+.input-control ::deep input,
+.input-control ::deep select {
     outline: none;
     background: none;
     border: none;
@@ -12,24 +37,25 @@
     color: var(--color-control-text);
     width: 100%;
     font-size: 16px;
-    position: absolute;
-    top: .7rem;
+    display: block;
+    margin: 0;
+    padding: 1.1rem .3rem .2rem;
 }
 
-::deep label {
+.input-control label {
     position: absolute;
     color: var(--primary, #7393B3);
     transition: 0.2s;
     pointer-events: none;
     left: .3rem;
-    top: .7rem;
+    top: 1rem;
 }
 
-input:focus + label,
-select:focus + label,
-input:not(:placeholder-shown) + label,
-select:not(:placeholder-shown) + label {
-    top: -.3rem;
+.input-control:focus-within label,
+.input-control:has(input:not(:placeholder-shown)) label,
+.input-control:has(input[type="date"]) label,
+.input-control:has(select) label {
+    top: 0;
     left: .1rem;
     font-size: 12px;
 }
@@ -37,33 +63,40 @@ select:not(:placeholder-shown) + label {
 ::deep .validation-message {
     color: var(--color-red, red);
     position: absolute;
+    left: 0;
     bottom: 0;
     font-size: .7rem;
 }
 
-    ::deep .validation-message:not(:nth-of-type(1)) {
-        display: none;
-    }
+::deep .validation-message:not(:nth-of-type(1)) {
+    display: none;
+}
 
-    input[disabled] + label {
-        color: var(--disabled, #c7c7c7)
-    }
-
-::deep input[disabled] {
-    border-bottom: 2px solid var(--disabled, #c7c7c7);
+.input-control ::deep input[disabled],
+.input-control ::deep select[disabled] {
+    border-bottom-color: var(--disabled, #c7c7c7);
     color: var(--disabled, #c7c7c7);
 }
 
-    .hidden {
-        display: none;
-    }
+.input-control ::deep input[disabled] + label,
+.input-control ::deep select[disabled] + label {
+    color: var(--disabled, #c7c7c7);
+}
 
-    .has-error > ::deep input {
-        border-bottom-color: var(--color-red, red);
-    }
+.hidden {
+    display: none;
+}
 
-    .has-error > ::deep label {
-        color: var(--color-red, red);
-    }
+.has-error > .input-row .input-affix {
+    border-bottom-color: var(--color-red, red);
+    color: var(--color-red, red);
+}
 
-    
+.has-error > .input-row .input-control ::deep input,
+.has-error > .input-row .input-control ::deep select {
+    border-bottom-color: var(--color-red, red);
+}
+
+.has-error > .input-row .input-control label {
+    color: var(--color-red, red);
+}
