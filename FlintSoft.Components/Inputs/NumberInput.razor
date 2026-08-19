@@ -202,10 +202,17 @@
         _currentInputValue = BindConverter.FormatValue(CurrentValue, CultureInfo.InvariantCulture)?.ToString();
     }
 
-    private void OnInputHandler(ChangeEventArgs e)
+    private async Task OnInputHandler(ChangeEventArgs e)
     {
         // Store the raw user input without parsing/formatting while editing
         _currentInputValue = e.Value?.ToString();
+
+        // Also propagate to the model immediately so that form submissions
+        // (e.g. Enter key) capture the latest typed value without requiring blur.
+        if (TryParseValueFromString(_currentInputValue, out TValue? result, out _))
+        {
+            await SetCurrentValueAsync(result);
+        }
     }
 
     private async Task OnBlurHandler(FocusEventArgs e)
