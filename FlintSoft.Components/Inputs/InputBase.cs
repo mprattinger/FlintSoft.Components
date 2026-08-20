@@ -57,6 +57,12 @@ public abstract class InputBase<TValue> : MyComponentBase, IDisposable
     public virtual string? Placeholder { get; set; }
 
     [Parameter]
+    public virtual string? Prefix { get; set; }
+
+    [Parameter]
+    public virtual string? Suffix { get; set; }
+
+    [Parameter]
     public virtual int? TabIndex { get; set; }
 
     [Parameter]

@@ -3,30 +3,45 @@
 @inherits InputBase<DateTime>
 
 <div class="container">
-    <div class="inputs">
-    <input @ref="Element"
-           type="date"
-           id="@($"{Id}-date")"
-           list=@DataList
-           readonly="@ReadOnly"
-           placeholder=" "
-           disabled="@Disabled"
-           name=@Name
-           @bind="CurrentDateValueLocal"
-           required="@Required"
-               @oninput="@DateInputHandlerAsync" />
-    <input type="time"
-           id="@($"{Id}-date")"
-           list=@DataList
-           readonly="@ReadOnly"
-           placeholder=" "
-           disabled="@Disabled"
-           name=@Name
-           @bind="CurrentTimeValueLocal"
-           required="@Required"
-               @oninput="@TimeInputHandlerAsync" />
+    <div class="input-row">
+        @if (!string.IsNullOrWhiteSpace(Prefix))
+        {
+            <span class="input-affix prefix">@Prefix</span>
+        }
+
+        <div class="input-control">
+            <div class="inputs">
+                <input @ref="Element"
+                       type="date"
+                       id="@($"{Id}-date")"
+                       list=@DataList
+                       readonly="@ReadOnly"
+                       placeholder=" "
+                       disabled="@Disabled"
+                       name=@Name
+                       @bind="CurrentDateValueLocal"
+                       required="@Required"
+                       @oninput="@DateInputHandlerAsync" />
+                <input type="time"
+                       id="@($"{Id}-date")"
+                       list=@DataList
+                       readonly="@ReadOnly"
+                       placeholder=" "
+                       disabled="@Disabled"
+                       name=@Name
+                       @bind="CurrentTimeValueLocal"
+                       required="@Required"
+                       @oninput="@TimeInputHandlerAsync" />
+            </div>
+            <label for="@Id">@Placeholder</label>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Suffix))
+        {
+            <span class="input-affix suffix">@Suffix</span>
+        }
     </div>
-    <label for="@Id">@Placeholder</label>
+
     @if (ValidationFor != null)
     {
         <ValidationMessage For="@ValidationFor" />

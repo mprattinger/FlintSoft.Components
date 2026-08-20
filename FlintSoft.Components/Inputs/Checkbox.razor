@@ -6,22 +6,34 @@
 }
 
 <div class="container">
-    <label for="@Id">
-        <input type="checkbox"
-               readonly="@ReadOnly"
-               autofocus="@Autofocus"
-               list=@DataList
-               id=@Id
-               value="@value"
-               checked="@CurrentValue"
-               disabled="@Disabled"
-               name=@Name
-               required="@Required" 
-               tabindex="@TabIndex"
-               @onchange="@ChangeHandlerAsync" 
-               @oninput="@InputHandlerAsync" />
-        <span class="checkmark"></span>
-        <span class="label-text">@Placeholder</span>
+    <label class="checkbox-row" for="@Id">
+        @if (!string.IsNullOrWhiteSpace(Prefix))
+        {
+            <span class="input-affix prefix">@Prefix</span>
+        }
+
+        <span class="checkbox-control">
+            <input type="checkbox"
+                   readonly="@ReadOnly"
+                   autofocus="@Autofocus"
+                   list=@DataList
+                   id=@Id
+                   value="@value"
+                   checked="@CurrentValue"
+                   disabled="@Disabled"
+                   name=@Name
+                   required="@Required" 
+                   tabindex="@TabIndex"
+                   @onchange="@ChangeHandlerAsync" 
+                   @oninput="@InputHandlerAsync" />
+            <span class="checkmark"></span>
+            <span class="label-text">@Placeholder</span>
+        </span>
+
+        @if (!string.IsNullOrWhiteSpace(Suffix))
+        {
+            <span class="input-affix suffix">@Suffix</span>
+        }
     </label>
     @if (ValidationFor != null)
     {

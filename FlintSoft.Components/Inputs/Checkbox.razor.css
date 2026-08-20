@@ -1,11 +1,35 @@
 ﻿.container {
     position: relative;
-    height: 3.5rem;
+    min-height: 3.5rem;
     margin: .3rem;
+}
+
+.checkbox-row {
+    display: flex;
+    align-items: flex-end;
+    gap: .4rem;
+}
+
+.checkbox-control {
+    position: relative;
+    display: inline-flex;
+    align-items: flex-end;
+    min-height: 2rem;
+    padding: 0 0 .2rem 1.5rem;
 }
 
 input {
     display: none;
+}
+
+.input-affix {
+    display: inline-flex;
+    align-items: flex-end;
+    min-height: 2rem;
+    padding: 0 .15rem .2rem;
+    color: var(--primary, #7393B3);
+    white-space: nowrap;
+    line-height: 1;
 }
 
 .checkmark {
@@ -16,18 +40,14 @@ input {
     border: 2px solid var(--primary, #7393B3);
     vertical-align: middle;
     background: #fff;
-    top: 1rem;
-    left: .5rem;
+    left: 0;
+    bottom: .25rem;
 }
 
 .label-text {
-    position: absolute;
     color: var(--primary, #7393B3);
-    transition: 0.2s;
-    pointer-events: none;
-    top: -.3rem;
-    left: .1rem;
     font-size: 12px;
+    line-height: 1.2;
 }
 
 input[type="checkbox"]:checked + .checkmark {

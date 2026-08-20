@@ -1,15 +1,35 @@
 ﻿.container {
     position: relative;
-    height: 3.5rem;
+    min-height: 4.4rem;
     margin: .3rem;
+}
+
+.input-row {
+    display: flex;
+    align-items: flex-end;
+    gap: .4rem;
+}
+
+.input-control {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 2.75rem;
+}
+
+.input-affix {
+    display: inline-flex;
+    align-items: flex-end;
+    min-height: 2rem;
+    padding: 0 .15rem .35rem;
+    color: var(--primary, #7393B3);
+    white-space: nowrap;
+    line-height: 1;
 }
 
 .inputs {
     display: flex;
-    width: 100%;
-    position: absolute;
-    top: .7rem;
-    justify-content: space-between;
+    gap: .5rem;
 }
 
 input {
@@ -17,9 +37,11 @@ input {
     background: none;
     border: none;
     border-bottom: 2px solid var(--primary, #7393B3);
-    color: var(--color-text);
+    color: var(--color-control-text);
     font-size: 16px;
-    width: 48%;
+    width: calc(50% - .25rem);
+    margin: 0;
+    padding: 1.1rem .3rem .2rem;
     filter: var(--color-control-filter, invert(100%));
 }
 
@@ -28,7 +50,7 @@ label {
     color: var(--primary, #7393B3);
     transition: 0.2s;
     pointer-events: none;
-    top: -.3rem;
+    top: 0;
     left: .1rem;
     font-size: 12px;
 }
@@ -40,10 +62,15 @@ label {
     font-size: .7rem;
 }
 
-.has-error > ::deep input {
+.has-error > .input-row .input-affix {
+    border-bottom-color: var(--color-red, red);
+    color: var(--color-red, red);
+}
+
+.has-error input {
     border-bottom-color: var(--color-red, red);
 }
 
-.has-error > ::deep label {
+.has-error label {
     color: var(--color-red, red);
 }

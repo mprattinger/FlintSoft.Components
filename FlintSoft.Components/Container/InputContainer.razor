@@ -4,8 +4,23 @@
 @typeparam TValue
 
 <div class="@ClassValue" style="@StyleValue">
-    @ChildContent
-    <label for="@ChildId">@Placeholder</label>
+    <div class="input-row">
+        @if (!string.IsNullOrWhiteSpace(Prefix))
+        {
+            <span class="input-affix prefix">@Prefix</span>
+        }
+
+        <div class="input-control">
+            @ChildContent
+            <label for="@ChildId">@Placeholder</label>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Suffix))
+        {
+            <span class="input-affix suffix">@Suffix</span>
+        }
+    </div>
+
     @if (ValidationFor != null)
     {
         <ValidationMessage For="@ValidationFor" />
@@ -21,6 +36,12 @@
 
     [Parameter]
     public virtual string? Placeholder { get; set; }
+
+    [Parameter]
+    public string? Prefix { get; set; }
+
+    [Parameter]
+    public string? Suffix { get; set; }
 
     [Parameter]
     public Expression<Func<TValue>>? ValidationFor { get; set; }
