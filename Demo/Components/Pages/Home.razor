@@ -57,7 +57,7 @@
             <div class="form-grid">
                 <TextInput @bind-Value="formModel.Name" Placeholder="Display name" ValidationFor="() => formModel.Name" Prefix="@("@")" />
                 <NumberInput TValue="decimal" @bind-Value="formModel.Budget" Placeholder="Budget" ValidationFor="() => formModel.Budget" Step="0.5" Suffix="€" />
-                <NumberInput @bind-Value="formModel.Tax" Placeholder="Steuern" ValidationFor="() => formModel.Tax" Suffix="%" />
+                <NumberInput @bind-Value="formModel.Tax" Placeholder="Steuern" ValidationFor="() => formModel.Tax" Suffix="%" prefix="€" />
                 <Dropdown TValue="string"
                           @bind-Value="formModel.Status"
                           Placeholder="Status"
