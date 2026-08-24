@@ -3,6 +3,7 @@
         type="@translateButtonType(ButtonType)"
         style="@Style"
         tabindex="@TabIndex"
+        title="@Title"
         @onclick="OnClick">
     @ChildContent
 </button>
@@ -34,6 +35,9 @@
 
     [Parameter]
     public virtual int? TabIndex { get; set; }
+    
+    [Parameter]
+    public string? Title { get; set; }
 
     string translateType(ButtonAppearanceEnum buttonType)
     {
