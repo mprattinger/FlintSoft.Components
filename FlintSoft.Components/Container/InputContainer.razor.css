@@ -28,7 +28,8 @@
 }
 
 .input-control ::deep input,
-.input-control ::deep select {
+.input-control ::deep select,
+.input-control ::deep textarea {
     outline: none;
     background: none;
     border: none;
@@ -52,6 +53,7 @@
 
 .input-control:focus-within label,
 .input-control:has(input:not(:placeholder-shown)) label,
+.input-control:has(textarea:not(:placeholder-shown)) label,
 .input-control:has(input[type="date"]) label,
 .input-control:has(select) label {
     top: 0;
@@ -72,13 +74,9 @@
 }
 
 .input-control ::deep input[disabled],
-.input-control ::deep select[disabled] {
+.input-control ::deep select[disabled],
+.input-control ::deep textarea[disabled] {
     border-bottom-color: var(--disabled, #c7c7c7);
-    color: var(--disabled, #c7c7c7);
-}
-
-.input-control ::deep input[disabled] + label,
-.input-control ::deep select[disabled] + label {
     color: var(--disabled, #c7c7c7);
 }
 
@@ -92,7 +90,8 @@
 }
 
 .has-error > .input-row .input-control ::deep input,
-.has-error > .input-row .input-control ::deep select {
+.has-error > .input-row .input-control ::deep select,
+.has-error > .input-row .input-control ::deep textarea {
     border-bottom-color: var(--color-red, red);
 }
 

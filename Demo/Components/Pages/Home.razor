@@ -56,6 +56,7 @@
             <DataAnnotationsValidator />
             <div class="form-grid">
                 <TextInput @bind-Value="formModel.Name" Placeholder="Display name" ValidationFor="() => formModel.Name" Prefix="@("@")" />
+                <TextAreaInput @bind-Value="formModel.Notes" Placeholder="Notes" ValidationFor="() => formModel.Notes" Rows="5" />
                 <NumberInput TValue="decimal" @bind-Value="formModel.Budget" Placeholder="Budget" ValidationFor="() => formModel.Budget" Step="0.5" Suffix="€" />
                 <NumberInput @bind-Value="formModel.Tax" Placeholder="Steuern" ValidationFor="() => formModel.Tax" Suffix="%" prefix="€" />
                 <Dropdown TValue="string"
@@ -210,6 +211,8 @@
     {
         [Required]
         public string Name { get; set; } = "FlintSoft Demo";
+
+        public string Notes { get; set; } = "This is a multiline text area demo.";
 
         [Range(-100000, 100000)]
         public decimal Budget { get; set; } = 2500m;
