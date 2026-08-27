@@ -55,6 +55,7 @@
 .input-control:has(input:not(:placeholder-shown)) label,
 .input-control:has(textarea:not(:placeholder-shown)) label,
 .input-control:has(input[type="date"]) label,
+.input-control:has(input[type="file"]) label,
 .input-control:has(select) label {
     top: 0;
     left: .1rem;

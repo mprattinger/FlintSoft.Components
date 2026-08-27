@@ -1,0 +1,91 @@
+@using System.Diagnostics.CodeAnalysis
+@using Microsoft.AspNetCore.Components.Forms
+@inherits InputBase<IBrowserFile>
+
+@{
+    var attributes = BuildAttributes();
+}
+
+<InputContainer TValue="IBrowserFile"
+                ChildId="@Id"
+                Class="@ClassValue"
+                Style="@StyleValue"
+                Placeholder="@Placeholder"
+                Prefix="@Prefix"
+                Suffix="@Suffix"
+                ValidationFor="@ValidationFor">
+    <InputFile @attributes="attributes"
+               OnChange="@OnChangeHandler" />
+</InputContainer>
+
+@code {
+    /// <summary>
+    /// Gets or sets the accepted file types.
+    /// </summary>
+    [Parameter]
+    public string? Accept { get; set; } = "image/png, image/jpeg, image/webp";
+
+    protected override string ClassValue => $"container {Class} {HiddenCssClass} {ErrorCssClass}".Trim();
+
+    protected override string StyleValue => $"{Style}".Trim();
+
+    protected override string? FormatValueAsString(IBrowserFile? value)
+        => value?.Name;
+
+    protected override bool TryParseValueFromString(string? value, out IBrowserFile result, [NotNullWhen(false)] out string? validationErrorMessage)
+    {
+        result = default!;
+        validationErrorMessage = "File inputs do not support parsing from string values.";
+        return false;
+    }
+
+    private Dictionary<string, object> BuildAttributes()
+    {
+        var attributes = new Dictionary<string, object>
+        {
+            ["class"] = "file-input"
+        };
+
+        if (!string.IsNullOrWhiteSpace(Id))
+        {
+            attributes["id"] = Id;
+        }
+
+        if (!string.IsNullOrWhiteSpace(Name))
+        {
+            attributes["name"] = Name;
+        }
+
+        if (!string.IsNullOrWhiteSpace(Accept))
+        {
+            attributes["accept"] = Accept;
+        }
+
+        if (Disabled)
+        {
+            attributes["disabled"] = true;
+        }
+
+        if (TabIndex is not null)
+        {
+            attributes["tabindex"] = TabIndex.Value;
+        }
+
+        if (Required)
+        {
+            attributes["required"] = true;
+        }
+
+        if (Autofocus)
+        {
+            attributes["autofocus"] = true;
+        }
+
+        return attributes;
+    }
+
+    private async Task OnChangeHandler(InputFileChangeEventArgs e)
+    {
+        await SetCurrentValueAsync(e.FileCount > 0 ? e.File : null);
+    }
+}
