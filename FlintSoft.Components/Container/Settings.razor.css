@@ -13,7 +13,6 @@
     border: none;
     padding: .25rem;
     cursor: pointer;
-    color: var(--color-control-text);
 }
 
 .icon {
