@@ -19,6 +19,10 @@
                 <div class="info">
                     <div class="name">@DisplayName</div>
                     <div class="email">@(string.IsNullOrWhiteSpace(Email) ? "N/A" : Email)</div>
+                    @if (ChildContent is not null)
+                    {
+                        @ChildContent
+                    }
                 </div>
             </div>
             <div class="footer"></div>
@@ -39,6 +43,9 @@
 
     [Parameter]
     public string Email { get; set; } = "";
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
 
     protected override void OnParametersSet()
     {
