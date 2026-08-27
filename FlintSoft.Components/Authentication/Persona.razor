@@ -1,24 +1,24 @@
 ﻿@implements IAsyncDisposable
 @inject IJSRuntime JS
 
-<script type="module" src="@Assets["./_content/Components/Authentication/Persona.razor.js"]"></script>
+<script type="module" src="@Assets["./_content/FlintSoft.Components/Authentication/Persona.razor.js"]"></script>
 
 <div class="container" @ref="containerRef">
     <button @onclick="toggleFlyOut">
-        <div class="initials">MP</div>
+        <div class="initials">@resolvedInitials</div>
     </button>
 
-    @if(showFlyout)
+    @if (showFlyout)
     {
-        <div class="flyout">
+        <div class="flyout" @onclick="toggleFlyOut">
             <div class="top"></div>
             <div class="main">
                 <div class="initials-big">
-                    MP
+                    @resolvedInitials
                 </div>
                 <div class="info">
-                    <div class="name">Michael Prattinger</div>
-                    <div class="email">michael.prattinger@becom-group.com</div>
+                    <div class="name">@DisplayName</div>
+                    <div class="email">@(string.IsNullOrWhiteSpace(Email) ? "N/A" : Email)</div>
                 </div>
             </div>
             <div class="footer"></div>
@@ -29,33 +29,71 @@
 @code {
     bool showFlyout = false;
     private ElementReference containerRef;
+    private string resolvedInitials = "";
+
+    [Parameter]
+    public string Initials { get; set; } = "";
 
     [Parameter]
     public string DisplayName { get; set; } = "";
 
+    [Parameter]
+    public string Email { get; set; } = "";
+
+    protected override void OnParametersSet()
+    {
+        resolvedInitials = !string.IsNullOrWhiteSpace(Initials)
+            ? Initials.Trim()
+            : CreateInitials(DisplayName);
+    }
+
+    private static string CreateInitials(string? displayName)
+    {
+        if (string.IsNullOrWhiteSpace(displayName))
+        {
+            return "";
+        }
+
+        var parts = displayName.Split([' ', '-', '_'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        if (parts.Length == 0)
+        {
+            return "";
+        }
+
+        if (parts.Length == 1)
+        {
+            return parts[0].Length >= 2
+                ? parts[0][..2].ToUpperInvariant()
+                : parts[0].ToUpperInvariant();
+        }
+
+        return string.Concat(parts[0][0], parts[1][0]).ToUpperInvariant();
+    }
+
     public async ValueTask DisposeAsync()
     {
-            try
-            {
-                await JS.InvokeVoidAsync("persona.unregister");
-            }
-            catch
-            {
-            }
+        try
+        {
+            await JS.InvokeVoidAsync("persona.unregister");
+        }
+        catch
+        {
+        }
     }
 
     async Task toggleFlyOut()
     {
         showFlyout = !showFlyout;
 
-            if(showFlyout)
-            {
-                await JS.InvokeVoidAsync("persona.register", containerRef, DotNetObjectReference.Create(this));
-            }
-            else
-            {
-                await JS.InvokeVoidAsync("persona.unregister");
-            }
+        if (showFlyout)
+        {
+            await JS.InvokeVoidAsync("persona.register", containerRef, DotNetObjectReference.Create(this));
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("persona.unregister");
+        }
     }
 
     [JSInvokable]
