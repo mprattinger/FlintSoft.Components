@@ -4,6 +4,7 @@
     flex-direction: column;
     height: 100%;
     justify-content: center;
+    color: var(--persona-fg, #fff);
 }
 
     .container button {
@@ -22,11 +23,11 @@
     justify-content: center;
     font-weight: 600;
     color: white;
-    background: #6b7280;
+    background: var(--persona-initials-bg, #6b7280);
 }
 
 .flyout {
-    background-color: var(--color-gray);
+    background-color: var(--persona-bg, #6b7280);
     position: absolute;
     z-index: 100;
     right: 0.1rem;
@@ -58,7 +59,7 @@
     justify-content: center;
     font-weight: 600;
     color: white;
-    background: #6b7280;
+    background: var(--persona-initials-bg, #6b7280);
     font-size: 1.6rem;
 }
 
