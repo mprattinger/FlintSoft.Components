@@ -25,10 +25,10 @@
     right: 0;
     min-width: 12rem;
     padding: .75rem;
-    border-radius: .5rem;
-    background: var(--background);
-    color: var(--color-text);
-    box-shadow: 0 .5rem 1.5rem rgba(0, 0, 0, 0.18);
-    border: 1px solid color-mix(in srgb, var(--secondary) 20%, transparent);
-    z-index: 100;
+    border-radius: var(--fs-radius-md);
+    background: var(--fs-color-background);
+    color: var(--fs-color-text);
+    box-shadow: var(--fs-shadow-xl);
+    border: 1px solid color-mix(in srgb, var(--fs-color-secondary) 20%, transparent);
+    z-index: var(--fs-z-flyout);
 }

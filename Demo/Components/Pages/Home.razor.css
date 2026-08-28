@@ -48,7 +48,7 @@
 
 .demo-icon {
     cursor: pointer;
-    border: 1px solid var(--secondary);
+    border: 1px solid var(--fs-color-secondary);
     border-radius: 0.5rem;
     padding: 0.5rem;
 }

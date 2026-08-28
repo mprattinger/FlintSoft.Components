@@ -1,4 +1,4 @@
-﻿.container {
+.container {
     position: relative;
     min-height: 4.4rem;
     margin: .3rem;
@@ -22,7 +22,7 @@
     align-items: flex-end;
     min-height: 2rem;
     padding-bottom: .45rem;
-    color: var(--primary, #7393B3);
+    color: var(--fs-color-primary);
     white-space: nowrap;
     line-height: 1;
 }
@@ -33,8 +33,8 @@
     outline: none;
     background: none;
     border: none;
-    border-bottom: 2px solid var(--primary, #7393B3);
-    color: var(--color-control-text);
+    border-bottom: 2px solid var(--fs-color-primary);
+    color: var(--fs-color-control-text);
     width: 100%;
     font-size: 16px;
     display: block;
@@ -44,7 +44,7 @@
 
 .input-control label {
     position: absolute;
-    color: var(--primary, #7393B3);
+    color: var(--fs-color-primary);
     transition: 0.2s;
     pointer-events: none;
     left: .3rem;
@@ -63,7 +63,7 @@
 }
 
 ::deep .validation-message {
-    color: var(--color-red, red);
+    color: var(--fs-color-danger);
     position: absolute;
     left: 0;
     bottom: 0;
@@ -77,8 +77,8 @@
 .input-control ::deep input[disabled],
 .input-control ::deep select[disabled],
 .input-control ::deep textarea[disabled] {
-    border-bottom-color: var(--disabled, #c7c7c7);
-    color: var(--disabled, #c7c7c7);
+    border-bottom-color: var(--fs-color-disabled);
+    color: var(--fs-color-disabled);
 }
 
 .hidden {
@@ -86,16 +86,16 @@
 }
 
 .has-error > .input-row .input-affix {
-    border-bottom-color: var(--color-red, red);
-    color: var(--color-red, red);
+    border-bottom-color: var(--fs-color-danger);
+    color: var(--fs-color-danger);
 }
 
 .has-error > .input-row .input-control ::deep input,
 .has-error > .input-row .input-control ::deep select,
 .has-error > .input-row .input-control ::deep textarea {
-    border-bottom-color: var(--color-red, red);
+    border-bottom-color: var(--fs-color-danger);
 }
 
 .has-error > .input-row .input-control label {
-    color: var(--color-red, red);
+    color: var(--fs-color-danger);
 }

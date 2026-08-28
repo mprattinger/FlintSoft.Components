@@ -1,4 +1,4 @@
-﻿.container {
+.container {
     position: relative;
     min-height: 3.5rem;
     margin: .3rem;
@@ -27,7 +27,7 @@ input {
     align-items: flex-end;
     min-height: 2rem;
     padding: 0 .15rem .2rem;
-    color: var(--primary, #7393B3);
+    color: var(--fs-color-primary);
     white-space: nowrap;
     line-height: 1;
 }
@@ -37,7 +37,7 @@ input {
     display: inline-block;
     width: 1rem;
     height: 1rem;
-    border: 2px solid var(--primary, #7393B3);
+    border: 2px solid var(--fs-color-primary);
     vertical-align: middle;
     background: #fff;
     left: 0;
@@ -45,19 +45,19 @@ input {
 }
 
 .label-text {
-    color: var(--primary, #7393B3);
+    color: var(--fs-color-primary);
     font-size: 12px;
     line-height: 1.2;
 }
 
 input[type="checkbox"]:checked + .checkmark {
-    background: var(--primary, #7393B3);
-    border-color: color-mix(in srgb, var(--primary, #7393B3), black 20%);
+    background: var(--fs-color-primary);
+    border-color: color-mix(in srgb, var(--fs-color-primary), black 20%);
 }
 
 input[type="checkbox"]:disabled + .checkmark {
-    background: var(--disabled);
-    border-color: color-mix(in srgb, var(--disabled, #ededed), black 20%);
+    background: var(--fs-color-disabled);
+    border-color: color-mix(in srgb, var(--fs-color-disabled), black 20%);
 }
 
 input[type="checkbox"]:enabled + .checkmark {

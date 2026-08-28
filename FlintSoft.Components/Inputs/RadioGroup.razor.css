@@ -1,4 +1,4 @@
-﻿.container {
+.container {
     position: relative;
     min-height: 3.5rem;
     margin: .3rem;
@@ -18,7 +18,7 @@
 
 label.title {
     position: absolute;
-    color: var(--primary, #7393B3);
+    color: var(--fs-color-primary);
     transition: 0.2s;
     pointer-events: none;
     top: -.3rem;
@@ -35,11 +35,11 @@ label.title {
     align-items: flex-end;
     min-height: 2rem;
     padding: 0 .15rem .2rem;
-    color: var(--primary, #7393B3);
+    color: var(--fs-color-primary);
     white-space: nowrap;
     line-height: 1;
 }
 
 input {
-    accent-color: var(--primary, #7393B3);
+    accent-color: var(--fs-color-primary);
 }

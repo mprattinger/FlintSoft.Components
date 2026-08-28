@@ -58,18 +58,29 @@ dotnet add package FlintSoft.Components
 
 ### Setup
 
-1. Add the necessary imports to your `_Imports.razor`:
+1. Add the necessary namespace imports to your `_Imports.razor` (one `@using` per namespace you use):
 
 ```razor
 @using FlintSoft.Components
+@using FlintSoft.Components.Buttons
+@using FlintSoft.Components.Container
+@using FlintSoft.Components.Icons
+@using FlintSoft.Components.Inputs
+@using FlintSoft.Components.Modals
+@using FlintSoft.Components.Tables
+@using FlintSoft.Components.Toasts
+@using FlintSoft.Components.Authentication
 ```
 
-2. Include the component CSS in your `App.razor`:
+2. Link the library's design-tokens stylesheet **and** your app's scoped-CSS bundle in `App.razor` (the scoped-CSS bundle, e.g. `YourApp.styles.css`, automatically includes every component's `.razor.css` — you don't need to reference the library's CSS separately for that part):
 
 ```html
-<link href="_framework/blazor.web.css" rel="stylesheet" />
-<link href="flintsoft-components.bundle.css" rel="stylesheet" />
+<link rel="stylesheet" href="_content/FlintSoft.Components/tokens.css" />
+<link rel="stylesheet" href="@Assets["css/app.css"]" /> <!-- your own app CSS, optional overrides -->
+<link rel="stylesheet" href="@Assets["YourApp.styles.css"]" />
 ```
+
+`tokens.css` must be loaded before your own stylesheet if you want to override any of its `--fs-*` variables (see [Styling & Design Tokens](#styling--design-tokens) below).
 
 ## Usage Examples
 
@@ -91,19 +102,35 @@ dotnet add package FlintSoft.Components
 ### Modal
 
 ```razor
-<Modal IsOpen="@showModal" OnClose="@OnModalClose">
-    <h3>Modal Title</h3>
-    <p>Modal content goes here</p>
+<Modal IsVisible="@showModal" OnClose="@(() => showModal = false)" Title="Modal Title" HasCloseButton="true">
+    <ChildContent>
+        <p>Modal content goes here</p>
+    </ChildContent>
+    <Footer>
+        <Button ButtonAppearance="Button.ButtonAppearanceEnum.Primary" OnClick="@(() => showModal = false)">Close</Button>
+    </Footer>
 </Modal>
 ```
 
 ### Data Table
 
+`Table`/`Row`/`Column` are composable layout components — you build the table structure directly in markup (there's no `Items`/`Render` data-binding API):
+
 ```razor
-<Table Items="@items">
-    <Column Header="Name" Render="@((item) => item.Name)" />
-    <Column Header="Email" Render="@((item) => item.Email)" />
-    <Column Header="Status" Render="@((item) => item.Status)" />
+<Table>
+    <HeaderContent>
+        <Column>Name</Column>
+        <Column>Email</Column>
+        <Column>Status</Column>
+    </HeaderContent>
+    @foreach (var item in items)
+    {
+        <Row>
+            <Column>@item.Name</Column>
+            <Column>@item.Email</Column>
+            <Column>@item.Status</Column>
+        </Row>
+    }
 </Table>
 ```
 
@@ -116,7 +143,12 @@ dotnet add package FlintSoft.Components
 ### Toast Notification
 
 ```razor
-<Toast Message="Operation completed successfully" Type="Success" />
+<Toast IsVisible="@showToast"
+       OnClose="@(() => showToast = false)"
+       Title="Success"
+       ToastAppearance="Toast.ToastAppearanceEnum.Success">
+    Operation completed successfully
+</Toast>
 ```
 
 ## Component Base Class
@@ -161,13 +193,43 @@ var value = Priority.High.ToAttributeValue(); // "high"
 - **Implicit Usings**: Enabled
 - **Browser Support**: Web browser platform
 
-## Styling
+## Styling & Design Tokens
 
-Components use scoped CSS modules (`.razor.css` files) to:
-- Prevent style conflicts
-- Maintain component isolation
-- Provide consistent theming
-- Support light/dark mode
+Components use scoped CSS modules (`.razor.css` files) to prevent style conflicts and keep each component visually consistent. All colors, radii, shadows, spacing and z-index values are read from a single set of CSS custom properties prefixed with `--fs-` (FlintSoft), shipped in **`_content/FlintSoft.Components/tokens.css`**.
+
+There are no hardcoded colors or per-property fallback values inside component styles — if a `--fs-*` variable isn't defined somewhere in scope (usually on `:root`), the properties that use it are simply ignored by the browser. So one of the following is required:
+
+- **Recommended:** link `tokens.css` (see [Setup](#setup)) to get a complete, ready-to-use default palette, then override only the variables you want to rebrand in your own stylesheet (loaded *after* `tokens.css`).
+- **Alternative:** skip `tokens.css` entirely and define all `--fs-*` variables yourself on `:root` in your app's CSS.
+
+### Token reference
+
+| Category | Variables |
+|---|---|
+| Layout | `--fs-color-background`, `--fs-color-surface`, `--fs-color-surface-text`, `--fs-color-text`, `--fs-color-text-muted`, `--fs-color-border` |
+| Brand | `--fs-color-primary`, `--fs-color-primary-foreground`, `--fs-color-secondary` |
+| Form controls | `--fs-color-control-text`, `--fs-color-control-text-inverse`, `--fs-color-control-filter` (icon filter for native date/time pickers), `--fs-color-disabled` |
+| Semantic | `--fs-color-action`, `--fs-color-success`, `--fs-color-success-hover`, `--fs-color-danger`, `--fs-color-danger-hover`, `--fs-color-white`, `--fs-color-black` |
+| Avatar / Persona | `--fs-color-avatar-bg`, `--fs-color-avatar-initials-bg`, `--fs-color-avatar-fg` |
+| Elevation | `--fs-overlay`, `--fs-shadow-sm`, `--fs-shadow-md`, `--fs-shadow-lg`, `--fs-shadow-xl` |
+| Shape | `--fs-radius-sm`, `--fs-radius-md`, `--fs-radius-lg` |
+| Spacing | `--fs-space-1` … `--fs-space-6` |
+| Z-index | `--fs-z-flyout`, `--fs-z-modal` |
+
+### Re-branding example
+
+```css
+/* your app's own CSS, loaded after tokens.css */
+:root {
+    --fs-color-primary: #6d28d9;
+    --fs-color-action: #f59e0b;
+    --fs-radius-sm: .5rem;
+}
+```
+
+### Dark mode
+
+`<ThemeToggle />` switches themes by toggling a `dark-theme` class on `<html>`. `tokens.css` ships a matching `.dark-theme` override block that redefines the relevant `--fs-*` variables — no extra setup required. If you fully replace `tokens.css` with your own variable definitions, make sure to add your own `.dark-theme { ... }` overrides too.
 
 ## JavaScript Interop
 

@@ -7,13 +7,13 @@
     padding: .35rem .75rem;
     border: none;
     border-radius: .35rem;
-    background: var(--primary, #7393B3);
-    color: var(--primary-foreground, white);
+    background: var(--fs-color-primary);
+    color: var(--fs-color-primary-foreground);
     cursor: pointer;
 }
 
 .file-input:disabled::file-selector-button {
-    background: var(--disabled, #c7c7c7);
-    color: var(--color-control-text-inverse, white);
+    background: var(--fs-color-disabled);
+    color: var(--fs-color-control-text-inverse);
     cursor: default;
 }

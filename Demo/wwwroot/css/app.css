@@ -1,45 +1,12 @@
 @import url('reboot.css');
 
-:root {
-    --background: #ededed;
-    --menu: #3c3b41;
-    --menu-children: #595861;
-    --color-text: darkslategray;
-    --color-control-text: darkslategray;
-    --color-control-text-inverse: white;
-    --color-control-filter: invert(26%) sepia(15%) saturate(1145%) hue-rotate(135deg) brightness(92%) contrast(88%);
-    --primary: #3caadc;
-    --primary-foreground: white;
-    --secondary: #3c3b41;
-    --orange: #ffbc1b;
-    --color-green: #10b981;
-    --color-green-hover: #059669;
-    --color-red: #e04747;
-    --color-red-hover: #b24141;
-    --color-white: #fff;
-    --color-black: #000;
-}
-
-.dark-theme {
-    --background: #121212;
-    --menu: #3c3b41;
-    --menu-children: #716f7a;
-    --color-text: #ededed;
-    --color-control-text: white;
-    --color-control-text-inverse: darkslategray;
-    --color-control-filter: invert(100%);
-    --secondary: #ededed;
-    --color-white: #000;
-    --color-black: #fff;
-}
-
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
 body {
-    background: var(--background);
-    color: var(--color-text);
+    background: var(--fs-color-background);
+    color: var(--fs-color-text);
 }
 
 a, .btn-link {

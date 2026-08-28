@@ -1,13 +1,13 @@
 ﻿.button {
     outline: none;
     border: none;
-    border-radius: .25rem;
+    border-radius: var(--fs-radius-sm);
     font-size: .875rem;
     display: flex;
     justify-content: space-around;
     align-items: center;
     box-sizing: border-box;
-    color: white;
+    color: var(--fs-color-primary-foreground);
 
     cursor: pointer;
 }
@@ -21,47 +21,47 @@ button:disabled {
 }
 
 .button-primary {
-    background-color: var(--primary);
+    background-color: var(--fs-color-primary);
 }
 
 .button-primary:enabled:hover {
-    background-color: color-mix(in srgb, var(--primary), white 20%);
+    background-color: color-mix(in srgb, var(--fs-color-primary), white 20%);
 }
 
 .button-secondary {
-    color: var(--color-text);
-    border: 1px solid var(--secondary);
+    color: var(--fs-color-text);
+    border: 1px solid var(--fs-color-secondary);
     background-color: transparent;
 }
 
 .button-secondary:enabled:hover {
-    color: var(--background);
-    background-color: var(--secondary);
+    color: var(--fs-color-background);
+    background-color: var(--fs-color-secondary);
 }
 
 
 .button-action {
-    background-color: var(--orange);
+    background-color: var(--fs-color-action);
 }
 
 .button-action:enabled:hover {
-    background-color: color-mix(in srgb, var(--orange), black 20%);
+    background-color: color-mix(in srgb, var(--fs-color-action), black 20%);
 }
 
 .button-success {
-    background-color: var(--color-green);
+    background-color: var(--fs-color-success);
 }
 
 .button-success:enabled:hover {
-    background-color: var(--color-green-hover);
+    background-color: var(--fs-color-success-hover);
 }
 
 .button-danger {
-    background-color: var(--color-red);
+    background-color: var(--fs-color-danger);
 }
 
 .button-danger:enabled:hover {
-    background-color: var(--color-red-hover);
+    background-color: var(--fs-color-danger-hover);
 }
 
 

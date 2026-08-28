@@ -4,7 +4,7 @@
     flex-direction: column;
     height: 100%;
     justify-content: center;
-    color: var(--persona-fg, #fff);
+    color: var(--fs-color-avatar-fg);
 }
 
     .container button {
@@ -22,14 +22,14 @@
     align-items: center;
     justify-content: center;
     font-weight: 600;
-    color: white;
-    background: var(--persona-initials-bg, #6b7280);
+    color: var(--fs-color-avatar-fg);
+    background: var(--fs-color-avatar-initials-bg);
 }
 
 .flyout {
-    background-color: var(--persona-bg, #6b7280);
+    background-color: var(--fs-color-avatar-bg);
     position: absolute;
-    z-index: 100;
+    z-index: var(--fs-z-flyout);
     right: 0.1rem;
     top: 2.4rem;
     display: flex;
@@ -58,8 +58,8 @@
     align-items: center;
     justify-content: center;
     font-weight: 600;
-    color: white;
-    background: var(--persona-initials-bg, #6b7280);
+    color: var(--fs-color-avatar-fg);
+    background: var(--fs-color-avatar-initials-bg);
     font-size: 1.6rem;
 }
 

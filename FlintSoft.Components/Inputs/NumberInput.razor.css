@@ -1,11 +1,11 @@
-﻿.num-text {
+.num-text {
     text-align: right;
 }
 
 .positive {
-    color: var(--positive, green);
+    color: var(--fs-color-success);
 }
 
 .negative {
-    color: var(--negative, red);
+    color: var(--fs-color-danger);
 }

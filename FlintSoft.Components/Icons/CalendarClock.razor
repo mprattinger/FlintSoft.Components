@@ -1,4 +1,4 @@
-﻿@inherits IconBase
+@inherits IconBase
 
 <svg xmlns="http://www.w3.org/2000/svg"
      width="24"
@@ -26,7 +26,7 @@
 </svg>
 
 @code {
-    protected override string ClassValue => $"lucide lucide-calendar-clock-icon lucide-calendar-clock {Class}".Trim();
+    protected override string ClassValue => $"{Class}".Trim();
 
     protected override string StyleValue => $"{Style}".Trim();
 }

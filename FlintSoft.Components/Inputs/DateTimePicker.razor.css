@@ -1,4 +1,4 @@
-﻿.container {
+.container {
     position: relative;
     min-height: 4.4rem;
     margin: .3rem;
@@ -22,7 +22,7 @@
     align-items: flex-end;
     min-height: 2rem;
     padding: 0 .15rem .35rem;
-    color: var(--primary, #7393B3);
+    color: var(--fs-color-primary);
     white-space: nowrap;
     line-height: 1;
 }
@@ -36,18 +36,18 @@ input {
     outline: none;
     background: none;
     border: none;
-    border-bottom: 2px solid var(--primary, #7393B3);
-    color: var(--color-control-text);
+    border-bottom: 2px solid var(--fs-color-primary);
+    color: var(--fs-color-control-text);
     font-size: 16px;
     width: calc(50% - .25rem);
     margin: 0;
     padding: 1.1rem .3rem .2rem;
-    filter: var(--color-control-filter, invert(100%));
+    filter: var(--fs-color-control-filter);
 }
 
 label {
     position: absolute;
-    color: var(--primary, #7393B3);
+    color: var(--fs-color-primary);
     transition: 0.2s;
     pointer-events: none;
     top: 0;
@@ -56,21 +56,21 @@ label {
 }
 
 ::deep .validation-message {
-    color: var(--color-red, red);
+    color: var(--fs-color-danger);
     position: absolute;
     bottom: 0;
     font-size: .7rem;
 }
 
 .has-error > .input-row .input-affix {
-    border-bottom-color: var(--color-red, red);
-    color: var(--color-red, red);
+    border-bottom-color: var(--fs-color-danger);
+    color: var(--fs-color-danger);
 }
 
 .has-error input {
-    border-bottom-color: var(--color-red, red);
+    border-bottom-color: var(--fs-color-danger);
 }
 
 .has-error label {
-    color: var(--color-red, red);
+    color: var(--fs-color-danger);
 }
