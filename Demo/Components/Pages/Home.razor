@@ -1,15 +1,23 @@
 ﻿@page "/"
 @using System.ComponentModel.DataAnnotations
+@using FlintSoft.Components.Authentication
 
 <PageTitle>FlintSoft Components Demo</PageTitle>
 
 <div class="page">
     <header class="page-header">
-        <div>
+        <div class="left">
             <h1>FlintSoft Components</h1>
             <p>Interactive demo site for the FlintSoft.Components library.</p>
         </div>
         <ThemeToggle />
+        <Settings>
+            <div>Verein</div>
+            <div>Settings</div>
+        </Settings>
+        <Persona DisplayName="Michael Prattinger" Email="michael.prattinger@becom-group.com">
+            <div>Here are some links</div>
+        </Persona>
     </header>
 
     <Card Class="section-card">
@@ -56,6 +64,7 @@
             <DataAnnotationsValidator />
             <div class="form-grid">
                 <TextInput @bind-Value="formModel.Name" Placeholder="Display name" ValidationFor="() => formModel.Name" Prefix="@("@")" />
+                <TextAreaInput @bind-Value="formModel.Notes" Placeholder="Notes" ValidationFor="() => formModel.Notes" Rows="5" />
                 <NumberInput TValue="decimal" @bind-Value="formModel.Budget" Placeholder="Budget" ValidationFor="() => formModel.Budget" Step="0.5" Suffix="€" />
                 <NumberInput @bind-Value="formModel.Tax" Placeholder="Steuern" ValidationFor="() => formModel.Tax" Suffix="%" prefix="€" />
                 <Dropdown TValue="string"
@@ -77,11 +86,11 @@
                 <Checkbox @bind-Value="formModel.IsEnabled" Placeholder="Enabled" ValidationFor="() => formModel.IsEnabled" />
             </div>
 
-            <CommandContainer Class="form-actions">
+            <ButtonRow Class="form-actions">
                 <Button ButtonAppearance="Button.ButtonAppearanceEnum.Primary" ButtonSize="Button.Size.Default" ButtonType="Button.ButtonTypeEnum.Submit">
                     Submit Form
                 </Button>
-            </CommandContainer>
+            </ButtonRow>
         </EditForm>
     </Card>
 
@@ -210,6 +219,8 @@
     {
         [Required]
         public string Name { get; set; } = "FlintSoft Demo";
+
+        public string Notes { get; set; } = "This is a multiline text area demo.";
 
         [Range(-100000, 100000)]
         public decimal Budget { get; set; } = 2500m;

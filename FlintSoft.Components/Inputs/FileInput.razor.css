@@ -1,0 +1,19 @@
+.file-input {
+    cursor: pointer;
+}
+
+.file-input::file-selector-button {
+    margin-right: .75rem;
+    padding: .35rem .75rem;
+    border: none;
+    border-radius: .35rem;
+    background: var(--fs-color-primary);
+    color: var(--fs-color-primary-foreground);
+    cursor: pointer;
+}
+
+.file-input:disabled::file-selector-button {
+    background: var(--fs-color-disabled);
+    color: var(--fs-color-control-text-inverse);
+    cursor: default;
+}

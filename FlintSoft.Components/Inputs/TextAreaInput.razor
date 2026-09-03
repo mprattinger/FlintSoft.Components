@@ -1,0 +1,83 @@
+@using System.Diagnostics.CodeAnalysis
+@inherits InputBase<string>
+
+@{
+    var value = BindConverter.FormatValue(CurrentValue);
+}
+
+<InputContainer TValue="string"
+                ChildId="@Id"
+                Class="@ClassValue"
+                Style="@StyleValue"
+                Placeholder="@Placeholder"
+                Prefix="@Prefix"
+                Suffix="@Suffix"
+                ValidationFor="@ValidationFor">
+    <textarea @ref="Element"
+              readonly="@ReadOnly"
+              autofocus=@Autofocus
+              maxlength="@Maxlength"
+              minlength="@Minlength"
+              placeholder=" "
+              spellcheck="@Spellcheck"
+              id=@Id
+              disabled="@Disabled"
+              name=@Name
+              required="@Required"
+              tabindex="@TabIndex"
+              rows="@Rows"
+              cols="@Cols"
+              wrap="@Wrap"
+              class="textarea-input"
+              @onchange="@ChangeHandlerAsync"
+              @oninput="@InputHandlerAsync">@value</textarea>
+</InputContainer>
+
+@code {
+    /// <summary>
+    /// Gets or sets the maximum length.
+    /// </summary>
+    [Parameter]
+    public int? Maxlength { get; set; }
+
+    /// <summary>
+    /// Gets or sets the minimum length.
+    /// </summary>
+    [Parameter]
+    public int? Minlength { get; set; }
+
+    /// <summary>
+    /// Gets or sets the number of visible text lines.
+    /// </summary>
+    [Parameter]
+    public int Rows { get; set; } = 4;
+
+    /// <summary>
+    /// Gets or sets the visible width in average character widths.
+    /// </summary>
+    [Parameter]
+    public int? Cols { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether spellcheck should be used.
+    /// </summary>
+    [Parameter]
+    public bool? Spellcheck { get; set; }
+
+    /// <summary>
+    /// Gets or sets how the control wraps text values. (soft/hard/off)
+    /// </summary>
+    [Parameter]
+    public string? Wrap { get; set; }
+
+    protected override string ClassValue => $"container {Class} {HiddenCssClass} {ErrorCssClass}".Trim();
+
+    protected override string StyleValue => $"{Style}".Trim();
+
+    protected override bool TryParseValueFromString(string? value, out string result, [NotNullWhen(false)] out string? validationErrorMessage)
+    {
+        result = value ?? "";
+        validationErrorMessage = null;
+        return true;
+    }
+}

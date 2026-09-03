@@ -1,0 +1,31 @@
+﻿<div class="settings-container"
+     @onmouseenter="ShowFlyout"
+     @onmouseleave="HideFlyout">
+    <button type="button" class="trigger" aria-label="Settings" aria-expanded="@showFlyout">
+        <Gear Class="icon" Title="Settings" />
+    </button>
+
+    @if (showFlyout && ChildContent is not null)
+    {
+        <div class="flyout">
+            @ChildContent
+        </div>
+    }
+</div>
+
+@code {
+    private bool showFlyout;
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    private void ShowFlyout()
+    {
+        showFlyout = true;
+    }
+
+    private void HideFlyout()
+    {
+        showFlyout = false;
+    }
+}

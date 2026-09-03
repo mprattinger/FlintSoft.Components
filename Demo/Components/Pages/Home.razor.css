@@ -8,9 +8,12 @@
 
 .page-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
     gap: 1rem;
+}
+
+.left {
+    flex: 1;
 }
 
 .page-header h1 {
@@ -45,7 +48,7 @@
 
 .demo-icon {
     cursor: pointer;
-    border: 1px solid var(--secondary);
+    border: 1px solid var(--fs-color-secondary);
     border-radius: 0.5rem;
     padding: 0.5rem;
 }

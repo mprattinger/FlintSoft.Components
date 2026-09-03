@@ -2,12 +2,12 @@
     position: absolute;
     top: 4rem;
     right: 1rem;
-    background-color: var(--modal-background);
+    background-color: var(--fs-color-surface);
     border-radius: .3rem;
-    box-shadow: 0 4px 16px var(--modal-shadow);
-    color: var(--modal-text-color);
+    box-shadow: var(--fs-shadow-lg);
+    color: var(--fs-color-surface-text);
     width: 350px;
-    border: 2px solid var(--color-lightgray);
+    border: 2px solid var(--fs-color-border);
 }
 
 .header {
@@ -18,7 +18,7 @@
     padding-top: .3rem;
     padding-left: .2rem;
     padding-right: 2rem;
-    border-bottom: 1px solid var(--color-lightgray);
+    border-bottom: 1px solid var(--fs-color-border);
 }
 
 .title {
@@ -32,10 +32,10 @@
     top: 5px;
     z-index: 10;
     cursor: pointer;
-    color: var(--color-lightgray);
+    color: var(--fs-color-border);
 }
     .close-btn:hover {
-        color: var(--modal-text-color);
+        color: var(--fs-color-surface-text);
     }
 
     .content {
@@ -43,21 +43,21 @@
     }
 
 .toast-primary {
-    border-bottom: 5px solid var(--primary);
+    border-bottom: 5px solid var(--fs-color-primary);
 }
 
 .toast-secondary {
-    border-bottom: 5px solid var(--secondary);
-}
-
-.toast-secondary {
-    border-bottom: 5px solid var(--orange);
+    border-bottom: 5px solid var(--fs-color-secondary);
 }
 
 .toast-action {
-    border-bottom: 5px solid var(--color-green);
+    border-bottom: 5px solid var(--fs-color-action);
+}
+
+.toast-success {
+    border-bottom: 5px solid var(--fs-color-success);
 }
 
 .toast-danger {
-    border-bottom: 5px solid var(--color-red);
+    border-bottom: 5px solid var(--fs-color-danger);
 }

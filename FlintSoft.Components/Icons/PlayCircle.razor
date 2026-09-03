@@ -1,4 +1,4 @@
-﻿@inherits IconBase
+@inherits IconBase
 
 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" 
 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
@@ -15,7 +15,7 @@ style="@StyleValue"
 </svg>
 
 @code {
-    protected override string ClassValue => $"lucide lucide-circle-play-icon lucide-circle-play {Class}".Trim();
+    protected override string ClassValue => $"{Class}".Trim();
 
     protected override string StyleValue => $"{Style}".Trim();
 }

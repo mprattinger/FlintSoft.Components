@@ -4,19 +4,19 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: var(--fs-overlay);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    z-index: var(--fs-z-modal);
 }
 
 .container {
     position: relative;
-    background-color: var(--modal-background, white);
-    color: var(--modal-text-color,black);
-    border-radius: 2rem;
-    box-shadow: 0 4px 6px var(--modal-shadow, rgba(0, 0, 0, 0.1));
+    background-color: var(--fs-color-surface);
+    color: var(--fs-color-surface-text);
+    border-radius: var(--fs-radius-lg);
+    box-shadow: var(--fs-shadow-md);
     max-height: 90vh;
     overflow-y: auto;
     width: 80%;
@@ -55,7 +55,7 @@
 
 @media (min-width: 992px) {
     .container {
-        border-radius: .5rem;
+        border-radius: var(--fs-radius-md);
         width: 40%;
     }
 }

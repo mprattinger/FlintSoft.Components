@@ -1,4 +1,4 @@
-﻿@inherits IconBase
+@inherits IconBase
 
 <svg xmlns="http://www.w3.org/2000/svg"
      id="@Id"
@@ -33,7 +33,7 @@
 </svg>
 
 @code {
-    protected override string ClassValue => $"lucide lucide-qr-code-icon lucide-qr-code {Class}".Trim();
+    protected override string ClassValue => $"{Class}".Trim();
 
     protected override string StyleValue => $"{Style}".Trim();
 }

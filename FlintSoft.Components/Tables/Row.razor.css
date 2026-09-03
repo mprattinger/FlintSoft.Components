@@ -4,7 +4,7 @@
     padding: .5rem;
     align-items: center;
     width: 100%;
-    border-bottom: 2px solid var(--color-lightgray);
+    border-bottom: 2px solid var(--fs-color-border);
 }
 
 .row:last-child {
@@ -13,7 +13,7 @@
 
 .header {
     font-size: 1.3rem !important;
-    color: var(--color-darkgray);
+    color: var(--fs-color-text-muted);
     font-weight: bolder;
-    border-bottom: 1px solid var(--color-lightgray);
+    border-bottom: 1px solid var(--fs-color-border);
 }

@@ -1,7 +1,7 @@
 ﻿.dropdown {
-    color: var(--color-text);
+    color: var(--fs-color-text);
 }
 
     .dropdown option {
-        color: var(--primary);
+        color: var(--fs-color-primary);
     }

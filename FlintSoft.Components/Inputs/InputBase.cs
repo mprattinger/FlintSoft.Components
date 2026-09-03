@@ -225,8 +225,6 @@ public abstract class InputBase<TValue> : MyComponentBase, IDisposable
                 $"{nameof(Microsoft.AspNetCore.Components.Forms.EditContext)} dynamically.");
         }
 
-        UpdateAdditionalValidationAttributes();
-
         // For derived components, retain the usual lifecycle with OnInit/OnParametersSet/etc.
         return base.SetParametersAsync(ParameterView.Empty);
     }
@@ -303,21 +301,8 @@ public abstract class InputBase<TValue> : MyComponentBase, IDisposable
     /// </summary>
     /// <param name="e"></param>
     /// <returns></returns>
-    protected virtual async Task InputHandlerAsync(ChangeEventArgs e) // TODO: To update in all Input fields
+    protected virtual async Task InputHandlerAsync(ChangeEventArgs e)
     {
-        //if (!Immediate)
-        //{
-        //    return;
-        //}
-
-        //if (ImmediateDelay > 0)
-        //{
-        //    await _debounce.RunAsync(ImmediateDelay, async () => await ChangeHandlerAsync(e));
-        //}
-        //else
-        //{
-        //    await ChangeHandlerAsync(e);
-        //}
         await ChangeHandlerAsync(e);
     }
 
@@ -329,56 +314,7 @@ public abstract class InputBase<TValue> : MyComponentBase, IDisposable
 
     private void OnValidateStateChanged(object? sender, ValidationStateChangedEventArgs eventArgs)
     {
-        UpdateAdditionalValidationAttributes();
-
         InvokeAsync(StateHasChanged);
-    }
-
-    private void UpdateAdditionalValidationAttributes()
-    {
-        //if (EditContext is null)
-        //{
-        //    return;
-        //}
-
-        //var hasAriaInvalidAttribute = AdditionalAttributes != null && AdditionalAttributes.ContainsKey("aria-invalid");
-        //if (FieldBound && EditContext.GetValidationMessages(FieldIdentifier).Any())
-        //{
-        //    if (hasAriaInvalidAttribute)
-        //    {
-        //        // Do not overwrite the attribute value
-        //        return;
-        //    }
-
-        //    if (ConvertToDictionary(AdditionalAttributes, out var additionalAttributes))
-        //    {
-        //        AdditionalAttributes = additionalAttributes;
-        //    }
-
-        //    // To make the `Input` components accessible by default
-        //    // we will automatically render the `aria-invalid` attribute when the validation fails
-        //    // value must be "true" see https://www.w3.org/TR/wai-aria-1.1/#aria-invalid
-        //    additionalAttributes["aria-invalid"] = "true";
-        //}
-        //else if (hasAriaInvalidAttribute)
-        //{
-        //    // No validation errors. Need to remove `aria-invalid` if it was rendered already
-
-        //    if (AdditionalAttributes!.Count == 1)
-        //    {
-        //        // Only aria-invalid argument is present which we don't need any more
-        //        AdditionalAttributes = null;
-        //    }
-        //    else
-        //    {
-        //        if (ConvertToDictionary(AdditionalAttributes, out var additionalAttributes))
-        //        {
-        //            AdditionalAttributes = additionalAttributes;
-        //        }
-
-        //        additionalAttributes.Remove("aria-invalid");
-        //    }
-        //}
     }
 
     private static bool ConvertToDictionary(IReadOnlyDictionary<string, object>? source, out Dictionary<string, object> result)
