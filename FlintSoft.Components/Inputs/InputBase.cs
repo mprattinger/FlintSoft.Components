@@ -16,6 +16,8 @@ public abstract class InputBase<TValue> : MyComponentBase, IDisposable
     private Type? _nullableUnderlyingType;
     private bool _previousParsingAttemptFailed;
     private bool _hasInitializedParameters;
+    private bool _isProcessingInput;
+    private string? _pendingInputValue;
 
     [CascadingParameter]
     private EditContext? CascadedEditContext { get; set; }
@@ -303,7 +305,35 @@ public abstract class InputBase<TValue> : MyComponentBase, IDisposable
     /// <returns></returns>
     protected virtual async Task InputHandlerAsync(ChangeEventArgs e)
     {
-        await ChangeHandlerAsync(e);
+        //await ChangeHandlerAsync(e);
+        _pendingInputValue = e.Value?.ToString();
+
+        if (_isProcessingInput)
+        {
+            return;
+        }
+
+        _isProcessingInput = true;
+
+        try
+        {
+            while (true)
+            {
+                var nextValue = _pendingInputValue;
+                _pendingInputValue = null;
+
+                await ChangeHandlerAsync(new ChangeEventArgs { Value = nextValue });
+
+                if (_pendingInputValue is null)
+                {
+                    break;
+                }
+            }
+        }
+        finally
+        {
+            _isProcessingInput = false;
+        }
     }
 
     [SuppressMessage("Style", "VSTHRD200:Use `Async` suffix for async methods", Justification = "#vNext: To update in the next version")]
