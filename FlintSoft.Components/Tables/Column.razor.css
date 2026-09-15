@@ -1,2 +1,45 @@
 ﻿.col {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.25rem 0;
+    width: 100%;
+    border-bottom: 1px dashed var(--slate-100, #EEF1F4);
+}
+
+    .col:last-child {
+        border-bottom: none;
+    }
+
+    /* Render column label dynamically using data-label attribute */
+    .col[data-label]::before {
+        content: attr(data-label);
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: var(--color-text-secondary, var(--fs-color-text-muted, #5D6572));
+        margin-right: 1rem;
+    }
+
+
+@media (min-width: 992px) {
+    .col {
+        flex: 1 1 0%;
+        padding: 0 0.5rem;
+        word-break: break-word;
+        border-bottom: none;
+    }
+
+        .col:first-child {
+            padding-left: 0;
+        }
+
+        .col:last-child {
+            padding-right: 0;
+        }
+
+        .col[data-label]::before {
+            display: none;
+        }
 }

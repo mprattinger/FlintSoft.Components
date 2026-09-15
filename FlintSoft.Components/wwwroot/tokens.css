@@ -14,52 +14,45 @@
     --fs-color-text: darkslategray;
     --fs-color-text-muted: #6b7280;
     --fs-color-border: #d1d5db;
+    --fs-color-table-header-bg: #C2C9D2;
 
     /* Brand colors */
     --fs-color-primary: #3caadc;
     --fs-color-primary-foreground: #ffffff;
     --fs-color-secondary: #3c3b41;
-
     /* Form control colors */
     --fs-color-control-text: darkslategray;
     --fs-color-control-text-inverse: #ffffff;
     --fs-color-control-filter: invert(26%) sepia(15%) saturate(1145%) hue-rotate(135deg) brightness(92%) contrast(88%);
     --fs-color-disabled: #c7c7c7;
-
     /* Semantic colors */
     --fs-color-action: #ffbc1b;
     --fs-color-success: #10b981;
     --fs-color-success-hover: #059669;
     --fs-color-danger: #e04747;
     --fs-color-danger-hover: #b24141;
-
     --fs-color-white: #ffffff;
     --fs-color-black: #000000;
-
     /* Avatar / persona colors */
     --fs-color-avatar-bg: #6b7280;
     --fs-color-avatar-initials-bg: #6b7280;
     --fs-color-avatar-fg: #ffffff;
-
     /* Overlay / shadow */
     --fs-overlay: rgba(0, 0, 0, .5);
     --fs-shadow-sm: 0 2px 8px rgba(0, 0, 0, .15);
     --fs-shadow-md: 0 4px 6px rgba(0, 0, 0, .1);
     --fs-shadow-lg: 0 4px 16px rgba(0, 0, 0, .16);
     --fs-shadow-xl: 0 .5rem 1.5rem rgba(0, 0, 0, .18);
-
     /* Radius */
     --fs-radius-sm: .25rem;
     --fs-radius-md: .5rem;
     --fs-radius-lg: 2rem;
-
     /* Spacing scale */
     --fs-space-1: .25rem;
     --fs-space-2: .5rem;
     --fs-space-3: .75rem;
     --fs-space-4: 1rem;
     --fs-space-6: 1.5rem;
-
     /* Z-index scale */
     --fs-z-flyout: 100;
     --fs-z-modal: 1000;
@@ -72,14 +65,12 @@
     --fs-color-text: #ededed;
     --fs-color-text-muted: #a1a1aa;
     --fs-color-border: #52525b;
-
     --fs-color-secondary: #ededed;
-
     --fs-color-control-text: #ffffff;
     --fs-color-control-text-inverse: darkslategray;
     --fs-color-control-filter: invert(100%);
     --fs-color-disabled: #4b4b4b;
-
     --fs-color-white: #000000;
     --fs-color-black: #ffffff;
+    --fs-color-table-header-bg: #2B3038;
 }

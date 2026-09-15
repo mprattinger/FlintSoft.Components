@@ -1,0 +1,55 @@
+﻿@page "/table"
+@using FlintSoft.Components.Authentication
+
+<PageTitle>FlintSoft Components Demo - Tables</PageTitle>
+
+<div class="page">
+    <header class="page-header">
+        <div class="left">
+            <h1>FlintSoft Components</h1>
+            <p>Interactive demo site for the FlintSoft.Components library.</p>
+        </div>
+        <ThemeToggle />
+        <Settings>
+            <div>Verein</div>
+            <div>Settings</div>
+        </Settings>
+        <Persona DisplayName="Max Musterman" Email="max.musterman@test.com">
+            <div>Here are some links</div>
+        </Persona>
+    </header>
+
+    <Card Class="section-card">
+        <h2>Table</h2>
+        <Table>
+            <HeaderContent>
+                <Column>Name</Column>
+                <Column>Status</Column>
+                <Column>Priority</Column>
+                <Column>Budget</Column>
+            </HeaderContent>
+            <ChildContent>
+                @foreach (var item in tableRows)
+                {
+                    <Row>
+                        <Column Label="Name">@item.Name</Column>
+                        <Column Label="Status">@item.Status</Column>
+                        <Column Label="Priority">@item.Priority</Column>
+                        <Column Label="Budget">@item.Budget.ToString("C")</Column>
+                    </Row>
+                }
+            </ChildContent>
+        </Table>
+    </Card>
+</div>
+
+@code {
+    private readonly List<DemoTableRow> tableRows =
+    [
+        new("Website redesign", "Active", "High", 6500m),
+        new("API migration", "Draft", "Medium", 4200m),
+        new("Reporting refresh", "Archived", "Low", 1800m)
+    ];
+
+    private sealed record DemoTableRow(string Name, string Status, string Priority, decimal Budget);
+}

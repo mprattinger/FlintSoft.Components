@@ -8,7 +8,6 @@
     align-items: center;
     box-sizing: border-box;
     color: var(--fs-color-primary-foreground);
-
     cursor: pointer;
 }
 
@@ -67,4 +66,8 @@ button:disabled {
 
 .button-size-default {
     min-width: 120px;
+}
+
+@media (min-width: 992px) {
+
 }

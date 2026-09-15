@@ -1,5 +1,16 @@
 ﻿.container {
     display: flex;
-    justify-content: flex-end;
+    flex-direction: row;
+    
+    flex-wrap: wrap;
     gap: 1rem;
+    width: 100%;
+}
+
+@media (min-width: 992px) {
+    .container {
+        flex-direction: row;
+        /*        flex-wrap: nowrap;*/
+        justify-content: flex-end;
+    }
 }

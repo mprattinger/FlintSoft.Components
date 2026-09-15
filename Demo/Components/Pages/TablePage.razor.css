@@ -1,0 +1,35 @@
+.page {
+    display: grid;
+    gap: 1rem;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 1.5rem;
+}
+
+.page-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.left {
+    flex: 1;
+}
+
+.page-header h1 {
+    margin: 0;
+}
+
+.page-header p {
+    margin: 0.25rem 0 0;
+    opacity: 0.8;
+}
+
+.section-card {
+    display: grid;
+    gap: 0.75rem;
+}
+
+    .section-card h2 {
+        margin: 0;
+    }
