@@ -1,0 +1,14 @@
+﻿@if (IsVisible)
+{
+    <div class="container">
+        <div class="content">@ChildContent</div>
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public bool IsVisible { get; set; }
+
+    [Parameter, EditorRequired]
+    public RenderFragment ChildContent { get; set; }
+}

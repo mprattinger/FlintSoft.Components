@@ -41,6 +41,9 @@
             <Button ButtonAppearance="Button.ButtonAppearanceEnum.Action" ButtonSize="Button.Size.Small" ButtonType="Button.ButtonTypeEnum.Button" OnClick="OpenYesNoModal">
                 Open Yes/No Modal
             </Button>
+            <Button ButtonAppearance="Button.ButtonAppearanceEnum.Action" ButtonSize="Button.Size.Small" ButtonType="Button.ButtonTypeEnum.Button" OnClick="ShowAdorner">
+                Show Adorner
+            </Button>
         </ButtonRow>
     </Card>
 
@@ -123,6 +126,9 @@
 
     <Message @ref="messageModal" />
     <YesNo @ref="yesNoModal" YesText="Approve" NoText="Cancel" />
+    <Adorner IsVisible="showAdorner">
+        Loading...
+    </Adorner>
 </div>
 
 @code {
@@ -150,6 +156,8 @@
     private string toastTitle = "";
     private string toastMessage = "";
     private Toast.ToastAppearanceEnum toastAppearance = Toast.ToastAppearanceEnum.Primary;
+
+    private bool showAdorner = false;
 
     private void ShowPrimaryToast(MouseEventArgs _)
     {
@@ -213,6 +221,13 @@
         toastMessage = message;
         toastAppearance = appearance;
         showToast = true;
+    }
+
+    async Task ShowAdorner()
+    {
+        showAdorner = true;
+        await Task.Delay(3000).ContinueWith(_ => showAdorner = false);
+        await InvokeAsync(StateHasChanged);
     }
 
     private sealed class DemoFormModel
