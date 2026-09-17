@@ -70,6 +70,12 @@
                 <TextAreaInput @bind-Value="formModel.Notes" Placeholder="Notes" ValidationFor="() => formModel.Notes" Rows="5" />
                 <NumberInput TValue="decimal" @bind-Value="formModel.Budget" Placeholder="Budget" ValidationFor="() => formModel.Budget" Step="0.5" Suffix="€" />
                 <NumberInput @bind-Value="formModel.Tax" Placeholder="Steuern" ValidationFor="() => formModel.Tax" Suffix="%" prefix="€" />
+                <AutoComplete TValue="string"
+                              @bind-Value="formModel.Assignee"
+                              Placeholder="Assignee"
+                              ValidationFor="() => formModel.Assignee"
+                              OnSearchRequest="SearchAssigneesAsync"
+                              DisplayExpression="assignee => assignee" />
                 <Dropdown TValue="string"
                           @bind-Value="formModel.Status"
                           Placeholder="Status"
@@ -135,6 +141,15 @@
     private DemoFormModel formModel = new();
 
     private readonly List<string> statuses = ["Draft", "Active", "Archived"];
+    private readonly List<string> assignees =
+    [
+        "Max Mustermann",
+        "Mia Novak",
+        "Luca Steiner",
+        "Ava Wagner",
+        "Noah Berger",
+        "Lena Fischer"
+    ];
     private readonly List<(string value, string? label)> priorities =
     [
         ("Low", "Low"),
@@ -210,6 +225,15 @@
         ShowToast("Form submitted", $"Saved '{formModel.Name}' with status '{formModel.Status ?? "N/A"}'.", Toast.ToastAppearanceEnum.Success);
     }
 
+    private Task<List<string>> SearchAssigneesAsync(string term)
+    {
+        var results = assignees
+            .Where(assignee => assignee.Contains(term, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        return Task.FromResult(results);
+    }
+
     private void CloseToast()
     {
         showToast = false;
@@ -242,6 +266,8 @@
 
         [Required]
         public int Tax { get; set; } = 10;
+
+        public string? Assignee { get; set; }
 
         public string? Status { get; set; }
 

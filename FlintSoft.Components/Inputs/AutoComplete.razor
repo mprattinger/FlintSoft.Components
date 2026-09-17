@@ -256,7 +256,7 @@
         {
             // Import the JS module
             autoCompleteModule = await JS.InvokeAsync<IJSObjectReference>(
-                "import", "./_content/Components/Inputs/Autocomplete.razor.js");
+                "import", "./_content/FlintSoft.Components/Inputs/Autocomplete.razor.js");
 
             // Now call the init function from the module
             await autoCompleteModule.InvokeVoidAsync("initializeAutocomplete", Element, DotNetObjectReference.Create(this));
