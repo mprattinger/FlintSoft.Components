@@ -75,6 +75,7 @@
                               Placeholder="Assignee"
                               ValidationFor="() => formModel.Assignee"
                               OnSearchRequest="SearchAssigneesAsync"
+                              OnNoResultSelected="(s) =>formModel.Assignee = s"
                               DisplayExpression="assignee => assignee" />
                 <Dropdown TValue="string"
                           @bind-Value="formModel.Status"
@@ -94,6 +95,8 @@
                 <DateTimePicker @bind-Value="formModel.Reminder" Placeholder="Reminder" ValidationFor="() => formModel.Reminder" Suffix="local" />
                 <Checkbox @bind-Value="formModel.IsEnabled" Placeholder="Enabled" ValidationFor="() => formModel.IsEnabled" />
             </div>
+
+            <div>@(System.Text.Json.JsonSerializer.Serialize(formModel))</div>
 
             <ButtonRow Class="form-actions">
                 <Button ButtonAppearance="Button.ButtonAppearanceEnum.Primary" ButtonSize="Button.Size.Default" ButtonType="Button.ButtonTypeEnum.Submit">

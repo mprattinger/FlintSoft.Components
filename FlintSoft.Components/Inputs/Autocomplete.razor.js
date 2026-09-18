@@ -36,8 +36,6 @@ function handleKeyDown(event, dotnetRef) {
 
     if (event.key === "Tab") {
         dotnetRef.invokeMethodAsync("HandleTabKeyDown");
-        event.preventDefault();
-        event.stopPropagation();
         return;
     }
 }
