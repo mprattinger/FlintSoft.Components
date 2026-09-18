@@ -1,4 +1,8 @@
-﻿@if (IsVisible)
+﻿@using Microsoft.JSInterop
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+
+@if (IsVisible)
 {
     <div class="overlay">
         <div class="container" style="@ModalStyle">
@@ -25,6 +29,9 @@
 }
 
 @code {
+    private IJSObjectReference? modalModule;
+    private bool isBodyScrollLocked;
+
     [Parameter, EditorRequired]
     public bool IsVisible { get; set; }
 
@@ -45,4 +52,45 @@
 
     [Parameter]
     public bool HasCloseButton { get; set; } = true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            modalModule = await JS.InvokeAsync<IJSObjectReference>(
+                "import", "./_content/FlintSoft.Components/Modals/Modal.razor.js");
+        }
+
+        if (modalModule is null)
+        {
+            return;
+        }
+
+        if (IsVisible && !isBodyScrollLocked)
+        {
+            await modalModule.InvokeVoidAsync("lockBodyScroll");
+            isBodyScrollLocked = true;
+            return;
+        }
+
+        if (!IsVisible && isBodyScrollLocked)
+        {
+            await modalModule.InvokeVoidAsync("unlockBodyScroll");
+            isBodyScrollLocked = false;
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            if (modalModule != null && isBodyScrollLocked)
+            {
+                await modalModule.InvokeVoidAsync("unlockBodyScroll");
+            }
+        }
+        catch
+        {
+        }
+    }
 }
