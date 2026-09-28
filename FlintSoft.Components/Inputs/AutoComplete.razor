@@ -168,6 +168,8 @@
                 if (currentSearchResults.Count != 1 && !string.IsNullOrWhiteSpace(currentSearchText) && OnNoResultSelected.HasDelegate)
                 {
                     await OnNoResultSelected.InvokeAsync(currentSearchText);
+                    // Trigger proper value binding and validation
+                    await HandleNoResultSelected();
                 }
                 clearData();
                 return;
@@ -203,9 +205,28 @@
         if (currentSearchResults.Count != 1 && !string.IsNullOrWhiteSpace(currentSearchText) && OnNoResultSelected.HasDelegate)
         {
             await OnNoResultSelected.InvokeAsync(currentSearchText);
+            // Trigger proper value binding and validation
+            await HandleNoResultSelected();
             clearData();
         }
         await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task HandleNoResultSelected()
+    {
+        // Convert the search text to the proper TValue and update through binding
+        if (TryParseValueFromString(currentSearchText, out var parsedValue, out _))
+        {
+            await SetCurrentValueAsync(parsedValue);
+        }
+        else
+        {
+            // Even if parsing fails, update the validation state
+            if (FieldBound)
+            {
+                await InvokeAsync(() => EditContext?.NotifyValidationStateChanged());
+            }
+        }
     }
 
     async Task populateResult(TValue value)
