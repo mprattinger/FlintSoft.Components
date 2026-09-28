@@ -165,10 +165,14 @@
                 }
                 return;
             case "Escape":
-                if (currentSearchResults.Count != 1 && !string.IsNullOrWhiteSpace(currentSearchText) && OnNoResultSelected.HasDelegate)
+                if (currentSearchResults.Count != 1 && !string.IsNullOrWhiteSpace(currentSearchText))
                 {
-                    await OnNoResultSelected.InvokeAsync(currentSearchText);
-                    // Trigger proper value binding and validation
+                    // Call the optional callback first if provided
+                    if (OnNoResultSelected.HasDelegate)
+                    {
+                        await OnNoResultSelected.InvokeAsync(currentSearchText);
+                    }
+                    // Always trigger proper value binding and validation
                     await HandleNoResultSelected();
                 }
                 clearData();
@@ -202,10 +206,14 @@
     [JSInvokable()]
     public async Task HandleTabKeyDown()
     {
-        if (currentSearchResults.Count != 1 && !string.IsNullOrWhiteSpace(currentSearchText) && OnNoResultSelected.HasDelegate)
+        if (currentSearchResults.Count != 1 && !string.IsNullOrWhiteSpace(currentSearchText))
         {
-            await OnNoResultSelected.InvokeAsync(currentSearchText);
-            // Trigger proper value binding and validation
+            // Call the optional callback first if provided
+            if (OnNoResultSelected.HasDelegate)
+            {
+                await OnNoResultSelected.InvokeAsync(currentSearchText);
+            }
+            // Always trigger proper value binding and validation
             await HandleNoResultSelected();
             clearData();
         }
