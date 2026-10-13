@@ -187,9 +187,15 @@
                 }
                 return;
             case "Escape":
-                if (currentSearchResults.Count != 1 && !string.IsNullOrWhiteSpace(currentSearchText) && OnNoResultSelected.HasDelegate)
+                if (currentSearchResults.Count != 1 && !string.IsNullOrWhiteSpace(currentSearchText))
                 {
-                    await OnNoResultSelected.InvokeAsync(currentSearchText);
+                    // Call the optional callback first if provided
+                    if (OnNoResultSelected.HasDelegate)
+                    {
+                        await OnNoResultSelected.InvokeAsync(currentSearchText);
+                    }
+                    // Always trigger proper value binding and validation
+                    await HandleNoResultSelected();
                 }
                 clearData();
                 return;
@@ -252,6 +258,23 @@
 
         clearData();
         await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task HandleNoResultSelected()
+    {
+        // Convert the search text to the proper TValue and update through binding
+        if (TryParseValueFromString(currentSearchText, out var parsedValue, out _))
+        {
+            await SetCurrentValueAsync(parsedValue);
+        }
+        else
+        {
+            // Even if parsing fails, update the validation state
+            if (FieldBound)
+            {
+                await InvokeAsync(() => EditContext?.NotifyValidationStateChanged());
+            }
+        }
     }
 
     async Task populateResult(TValue value)
