@@ -28,7 +28,8 @@
                    required="@Required"
                    tabindex="@TabIndex"
                    @onkeyup="HandleKeyUp"
-                   @onfocus="Focus" />
+                   @onfocus="Focus"
+                   @onblur="HandleBlur" />
 
             <label for="@Id">@Placeholder</label>
         </div>
@@ -81,6 +82,7 @@
 
     string currentSearchText = "";
     List<TValue> currentSearchResults = new();
+    private TValue? previousValue;
 
     [Parameter]
     public string ParsingErrorMessage { get; set; } = "The {0} field must be a (valid) number.";
@@ -99,6 +101,26 @@
 
     [Parameter]
     public EventCallback<string> OnNoResultSelected { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        // If the bound Value changed from the parent, update the visible input text so
+        // the component correctly shows prefilled values in edit scenarios.
+        if (!object.Equals(Value, previousValue))
+        {
+            previousValue = Value;
+            try
+            {
+                currentSearchText = Value is not null ? DisplayValueFunc(Value) : string.Empty;
+            }
+            catch
+            {
+                currentSearchText = string.Empty;
+            }
+        }
+    }
 
     private Func<TValue, string> DisplayValueFunc =>
         DisplayExpression != null
@@ -206,17 +228,35 @@
     [JSInvokable()]
     public async Task HandleTabKeyDown()
     {
-        if (currentSearchResults.Count != 1 && !string.IsNullOrWhiteSpace(currentSearchText))
+        if (currentSearchResults.Count > 0)
         {
-            // Call the optional callback first if provided
-            if (OnNoResultSelected.HasDelegate)
-            {
-                await OnNoResultSelected.InvokeAsync(currentSearchText);
-            }
-            // Always trigger proper value binding and validation
-            await HandleNoResultSelected();
-            clearData();
+            await populateResult(currentSearchResults[currentActiveIndex]);
         }
+        else if (!string.IsNullOrWhiteSpace(currentSearchText) && OnNoResultSelected.HasDelegate)
+        {
+            await OnNoResultSelected.InvokeAsync(currentSearchText);
+        }
+        clearData();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    async Task HandleBlur(FocusEventArgs _)
+    {
+        // Small delay to let onmousedown on a result item fire first.
+        // If the user clicked a result item, populateResult already ran (onmousedown:preventDefault
+        // keeps focus on the input), so currentSearchResults will already be empty and we skip.
+        await Task.Delay(150);
+
+        if (currentSearchResults.Count > 0)
+        {
+            await populateResult(currentSearchResults[currentActiveIndex]);
+        }
+        else if (!string.IsNullOrWhiteSpace(currentSearchText) && OnNoResultSelected.HasDelegate)
+        {
+            await OnNoResultSelected.InvokeAsync(currentSearchText);
+        }
+
+        clearData();
         await InvokeAsync(StateHasChanged);
     }
 
