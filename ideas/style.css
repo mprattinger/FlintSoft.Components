@@ -1,0 +1,99 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.input-container {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.input-row {
+  display: flex;
+  flex-direction: row;
+  gap: .4rem;
+}
+
+.input-control {
+position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 2.75rem;
+}
+
+.input-affix {
+  display: inline-flex;
+  align-items: flex-end;
+  min-height: 2rem;
+  padding-bottom: .45rem;
+  color: var(--fs-color-primary);
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.input-control input {
+  outline: none;
+  background: none;
+  border: none;
+  border-bottom: 2px solid #3caadc;
+  color: darkslategray;
+  width: 100%;
+  display: block;
+  margin: 0;
+  padding: 1.1rem .3rem .2rem;
+}
+
+.input-control label {
+  position: absolute;
+  color: #3caadc;
+  transition: 0.2s;
+  pointer-events: none;
+  left: .3rem;
+  top: 1rem;
+}
+
+.input-control:focus-within label,
+.input-control:has(input:not(:placeholder-shown)) label,
+.input-control:has(textarea:not(:placeholder-shown)) label,
+.input-control:has(input[type="date"]) label,
+.input-control:has(input[type="file"]) label,
+.input-control:has(select) label {
+  top: 0;
+  left: .1rem;
+  font-size: 12px;
+}
+
+.has-error>.input-row .input-affix {
+  border-bottom-color: #e04747;
+  color: #e04747;
+}
+
+.has-error>.input-row .input-control input,
+.has-error>.input-row .input-control select,
+.has-error>.input-row .input-control textarea {
+  border-bottom-color: #e04747;
+}
+
+.has-error>.input-row .input-control label {
+  color: #e04747;
+}
+
+.validation-message {
+  color: #e04747;
+  font-size: 0.7rem; /* 14px */
+}
