@@ -1,0 +1,77 @@
+@page "/tables"
+@inject FsToastService Toasts
+
+<PageTitle>Tables - FlintSoft</PageTitle>
+<div class="demo-eyebrow">COMPONENTS / 05</div>
+<h1>A clearer picture.<br /><span>Row by row.</span></h1>
+<p class="demo-lead">Semantic tables with templated cells. Your data, your presentation, no unnecessary machinery.</p>
+<FsPanel Title="A team at a glance" Description="Custom cells, status badges and row actions. Labeled cards on smaller screens." Badge="@($"{People.Count} MEMBERS")">
+    <div class="demo-actions demo-bottom-space"><FsCheckbox Label="Show loading state" @bind-Value="_loading" /><FsCheckbox Label="Show empty state" @bind-Value="_empty" /></div>
+    <FsTable TItem="Person" Items="@(_empty ? Array.Empty<Person>() : People)" Columns="_columns" Caption="Studio team" Loading="_loading" RowKey="person => person.Id">
+        <Actions>
+            <FsButton OnClick="OpenCreate">New member</FsButton>
+        </Actions>
+        <EmptyContent>No team members yet. Your next collaborator could be the first.</EmptyContent>
+    </FsTable>
+</FsPanel>
+<FsModal @ref="_createModal" Title="New team member" OnOpening="InitializeMember">
+    <EditForm Model="_newMember" OnValidSubmit="CreateMember" FormName="new-member">
+        <DataAnnotationsValidator />
+        <div class="demo-stack">
+            <FsText Label="Member name" @bind-Value="_newMember.Name" />
+            <FsText Label="Member email" Type="email" @bind-Value="_newMember.Email" />
+            <FsButton Type="submit">Create member</FsButton>
+        </div>
+    </EditForm>
+</FsModal>
+<div class="demo-callout"><span class="demo-callout-icon" aria-hidden="true">↔</span><div><strong>Real tables. Real semantics.</strong><p>Column headers stay associated with their data. On mobile, each row becomes a labeled card with every detail and action visible.</p></div></div>
+<div class="demo-code"><span>PRESENTATION FIRST</span><pre><code>&lt;FsTable TItem="Person" Items="people" Columns="columns"
+         Caption="Studio team" RowKey="person =&gt; person.Id"&gt;
+    &lt;Actions&gt;
+        &lt;FsButton OnClick="OpenCreate"&gt;New member&lt;/FsButton&gt;
+    &lt;/Actions&gt;
+&lt;/FsTable&gt;</code></pre></div>
+
+@code {
+    private bool _loading, _empty;
+    private FsModal _createModal = default!;
+    private NewMember _newMember = new();
+    private IReadOnlyList<FsColumn<Person>> _columns = [];
+    private readonly List<Person> People = [
+        new(1, "AM", "Alex Morgan", "alex@example.com", "Product designer", "Design", "Active"),
+        new(2, "JL", "Jamie Lee", "jamie@example.com", "Frontend engineer", "Engineering", "Active"),
+        new(3, "SK", "Sam Kim", "sam@example.com", "Design engineer", "Design", "Away"),
+        new(4, "RT", "Robin Taylor", "robin@example.com", "Project lead", "Operations", "Active")
+    ];
+    protected override void OnInitialized()
+    {
+        _columns = [
+            new("Member", person => @<div class="demo-person"><span class="demo-avatar">@person.Initials</span><div><strong>@person.Name</strong><small>@person.Email</small></div></div>),
+            new("Role", person => @<span>@person.Role</span>),
+            new("Department", person => @<span>@person.Department</span>),
+            new("Status", person => @<span class="demo-status @(person.Status == "Away" ? "demo-status-away" : "")">@person.Status</span>),
+            new("Actions", person => @<FsButton Appearance="FsAppearance.Action" OnClick="() => View(person)">View</FsButton>)
+        ];
+    }
+    private void View(Person person) => Toasts.Show($"{person.Name} - {person.Role}", title: "Team member");
+    private Task OpenCreate() => _createModal.OpenAsync();
+    private void InitializeMember() => _newMember = new();
+    private async Task CreateMember()
+    {
+        var name = _newMember.Name!.Trim();
+        var initials = string.Concat(name.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Take(2).Select(part => char.ToUpperInvariant(part[0])));
+        People.Add(new(People.Max(person => person.Id) + 1, initials, name, _newMember.Email!.Trim(),
+            "Team member", "Design", "Active"));
+        _empty = false;
+        _loading = false;
+        await _createModal.CloseAsync();
+        Toasts.Show($"{name} joined the team.", FsToastStyle.Success, "Member created");
+    }
+    private sealed class NewMember
+    {
+        [Required] public string? Name { get; set; }
+        [Required, EmailAddress] public string? Email { get; set; }
+    }
+    private sealed record Person(int Id, string Initials, string Name, string Email, string Role, string Department, string Status);
+}

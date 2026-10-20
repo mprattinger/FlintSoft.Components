@@ -1,30 +1,11 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">Demo</a>
-    </div>
-</div>
-
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
-
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="nav flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
-    </nav>
-</div>
-
+<nav class="demo-nav" aria-label="Component navigation">
+    <span class="demo-nav-label">WORKSPACE</span>
+    <NavLink href="" Match="NavLinkMatch.All"><span aria-hidden="true">01</span> Overview</NavLink>
+    <span class="demo-nav-label">COMPONENTS</span>
+    <NavLink href="inputs"><span aria-hidden="true">02</span> Inputs <small>9</small></NavLink>
+    <NavLink href="buttons"><span aria-hidden="true">03</span> Buttons <small>5</small></NavLink>
+    <NavLink href="modals"><span aria-hidden="true">04</span> Modals</NavLink>
+    <NavLink href="toasts"><span aria-hidden="true">05</span> Toasts <small>4</small></NavLink>
+    <NavLink href="tables"><span aria-hidden="true">06</span> Tables</NavLink>
+    <NavLink href="panels"><span aria-hidden="true">07</span> Panels</NavLink>
+</nav>

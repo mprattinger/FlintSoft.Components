@@ -1,0 +1,52 @@
+@namespace FlintSoft.Components
+@typeparam TItem
+@inherits FsInputBase<string?>
+
+@{ base.BuildRenderTree(__builder); }
+
+@code {
+    protected override void RenderControl(Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder builder) =>
+        builder.AddContent(0, InputContent);
+
+    private RenderFragment InputContent => @<text>
+        <input @attributes="AdditionalAttributes" @ref="_input" id="@ControlId" name="@NameAttributeValue"
+               class="fs-input @CssClass" type="text" placeholder=" " autocomplete="off"
+               disabled="@Disabled" readonly="@ReadOnly" value="@_text"
+               role="combobox" aria-autocomplete="list" aria-expanded="@_open.ToString().ToLowerInvariant()"
+               aria-controls="@ListId" aria-activedescendant="@ActiveId"
+               aria-invalid="@InvalidAttribute" aria-describedby="@DescribedBy"
+               data-fs-allow-new="@AllowNewValues.ToString().ToLowerInvariant()"
+               @oninput="InputAsync" @onfocus="FocusAsync" @onblur="BlurAsync" @onkeydown="KeyDownAsync" />
+        @if (_open)
+        {
+            <div class="fs-autocomplete-popup">
+                <ul id="@ListId" class="fs-autocomplete-list" role="listbox" aria-label="@Label"
+                    aria-busy="@_loading.ToString().ToLowerInvariant()">
+                    @for (var index = 0; index < _items.Count; index++)
+                    {
+                        var optionIndex = index;
+                        var item = _items[index];
+                        <li id="@OptionId(index)" role="option" aria-selected="@(_activeIndex == index ? "true" : "false")"
+                            class="fs-autocomplete-option @(_activeIndex == index ? "fs-autocomplete-active" : "")"
+                            @onpointerdown:preventDefault="true" @onclick="() => SelectAsync(optionIndex)">
+                            @if (ItemTemplate is not null) { @ItemTemplate(item) }
+                            else { @GetText(item) }
+                        </li>
+                    }
+                </ul>
+                @if (_searchError is not null)
+                {
+                    <div class="fs-autocomplete-message fs-validation" role="alert">@_searchError</div>
+                }
+                else if (_loading)
+                {
+                    <div class="fs-autocomplete-message" role="status">@LoadingText</div>
+                }
+                else if (_items.Count == 0)
+                {
+                    <div class="fs-autocomplete-message" role="status">@NoResultsText</div>
+                }
+            </div>
+        }
+    </text>;
+}

@@ -1,7 +1,47 @@
-﻿@page "/"
+@page "/"
+@inject FsToastService Toasts
 
-<PageTitle>Home</PageTitle>
+<PageTitle>FlintSoft - Component playground</PageTitle>
+<div class="demo-eyebrow"><span class="demo-dot"></span> A FRESH START / VERSION 2</div>
+<section class="demo-hero">
+    <div>
+        <h1>Less friction.<br /><span>More possibility.</span></h1>
+        <p>A focused set of Blazor components. Clean defaults, expressive tokens,
+            and the little details that make an interface feel right.</p>
+        <div class="demo-actions"><a class="fs-button fs-button-primary" href="inputs">Explore components <span aria-hidden="true">&#8594;</span></a><a class="demo-text-link" href="https://github.com/mprattinger/FlintSoft.Components">View on GitHub &#8599;</a></div>
+    </div>
+    <div class="demo-hero-preview">
+        <div class="demo-preview-caption"><span class="demo-dot"></span> LIVE PREVIEW <span>01 / INPUTS</span></div>
+        <h2>Make yourself at home.</h2>
+        <p>A little form. A lot of attention to detail.</p>
+        <div class="demo-stack">
+            <FsText Label="Your name" @bind-Value="_name" />
+            <FsNumber TValue="decimal?" Label="Monthly budget" Prefix="EUR" @bind-Value="_budget" HelpText="Culture-aware, down to the last decimal." />
+            <FsButton OnClick="Welcome">Try it out <span aria-hidden="true">&#8594;</span></FsButton>
+        </div>
+    </div>
+</section>
+<div class="demo-stat-strip"><div><strong>09</strong><span>Input controls</span></div><div><strong>02</strong><span>Built-in themes</span></div><div><strong>100%</strong><span>Your design tokens</span></div><div><strong>0</strong><span>CSS frameworks</span></div></div>
+<div class="demo-section-heading"><div><div class="demo-eyebrow">THE BUILDING BLOCKS</div><h2>A place for every interaction.</h2></div><span class="demo-muted">Six families. One visual language.</span></div>
+<div class="demo-card-grid">
+    @foreach (var card in Cards)
+    {
+        <a class="demo-component-card" href="@card.Url"><span class="demo-card-number">@card.Number</span><span class="demo-card-arrow" aria-hidden="true">&#8599;</span><h3>@card.Title</h3><p>@card.Description</p><span class="demo-card-tag">@card.Tag</span></a>
+    }
+</div>
+<div class="demo-callout"><span class="demo-callout-icon" aria-hidden="true">Aa</span><div><strong>Your brand, not ours.</strong><p>Every color starts with a CSS token. Switch the theme above to see the same components in a different light.</p></div><code>--fs-color-primary</code></div>
 
-<h1>Hello, world!</h1>
-
-Welcome to your new app.
+@code {
+    private string? _name = "Alex Morgan";
+    private decimal? _budget = 1250.50m;
+    private void Welcome() => Toasts.Show($"Welcome, {_name ?? "friend"}! Your components are ready.", FsToastStyle.Success, "Looking good");
+    private static readonly (string Number, string Title, string Description, string Tag, string Url)[] Cards =
+    [
+        ("01", "Inputs", "Floating labels, thoughtful validation, and values that just bind.", "TEXT / NUMBERS / CHOICES", "inputs"),
+        ("02", "Buttons", "Clear hierarchy for the actions that move things forward.", "FIVE APPEARANCES", "buttons"),
+        ("03", "Modals", "A focused space for the moments that need your attention.", "ASYNC / ACCESSIBLE", "modals"),
+        ("04", "Toasts", "The right message, at just the right moment.", "FOUR MESSAGE STYLES", "toasts"),
+        ("05", "Tables", "A little structure for your data. Nothing you don't need.", "TEMPLATED / RESPONSIVE", "tables"),
+        ("06", "Panels", "A thoughtful container for related content and actions.", "THEMED / COMPOSABLE", "panels")
+    ];
+}

@@ -1,0 +1,16 @@
+@namespace FlintSoft.Components
+@implements IDisposable
+@inject FsToastService Toasts
+
+<div class="fs-toast-host" role="region" aria-label="Notifications">
+    @foreach (var toast in Toasts.Items)
+    {
+        <FsToastItem @key="toast.Id" Toast="toast" OnDismiss="() => Toasts.Dismiss(toast.Id)" />
+    }
+</div>
+
+@code {
+    protected override void OnInitialized() => Toasts.Changed += Refresh;
+    private void Refresh() => _ = InvokeAsync(StateHasChanged);
+    public void Dispose() => Toasts.Changed -= Refresh;
+}

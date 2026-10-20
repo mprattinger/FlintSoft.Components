@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "WasmHost": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:62712;http://localhost:62713"
+    }
+  }
+}

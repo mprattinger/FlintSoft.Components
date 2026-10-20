@@ -1,0 +1,108 @@
+@namespace FlintSoft.Components
+@using Microsoft.JSInterop
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+@inject FsModalCoordinator Coordinator
+
+<dialog @ref="_dialog" class="fs-modal" aria-labelledby="@(Title is null ? null : _titleId)" aria-label="@(Title is null ? AccessibleLabel : null)">
+    <div class="fs-modal-header">
+        @if (Title is not null)
+        {
+            <h2 id="@_titleId">@Title</h2>
+        }
+        <button type="button" class="fs-icon-button" aria-label="Close dialog"
+                @onclick="() => CloseAsync(FsCloseReason.CloseButton)">&#215;</button>
+    </div>
+    <div class="fs-modal-content">@ChildContent</div>
+</dialog>
+
+@code {
+    [Parameter] public string? Title { get; set; }
+    [Parameter] public string AccessibleLabel { get; set; } = "Dialog";
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public EventCallback OnOpening { get; set; }
+    [Parameter] public EventCallback<FsCloseReason> OnClosed { get; set; }
+    [Parameter] public bool CloseOnEscape { get; set; } = true;
+    [Parameter] public bool CloseOnBackdrop { get; set; } = true;
+
+    private readonly string _titleId = $"fs-modal-title-{Guid.NewGuid():N}";
+    private ElementReference _dialog;
+    private IJSObjectReference? _module;
+    private DotNetObjectReference<FsModal>? _reference;
+    private bool _opening;
+    private bool _open;
+    private bool _shown;
+    private bool _disposed;
+
+    public async Task OpenAsync()
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        if (_open || _opening) throw new InvalidOperationException("This modal is already opening or open.");
+        Coordinator.Acquire(this);
+        _opening = true;
+        try
+        {
+            _module ??= await JS.InvokeAsync<IJSObjectReference>("import", "./_content/FlintSoft.Components/flintsoft.js");
+            await _module.InvokeVoidAsync("captureModalFocus", _dialog);
+            await OnOpening.InvokeAsync();
+            if (_disposed) throw new ObjectDisposedException(nameof(FsModal));
+            _open = true;
+            await InvokeAsync(StateHasChanged);
+        }
+        finally
+        {
+            _opening = false;
+            if (!_open) Coordinator.Release(this);
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_open && !_shown)
+        {
+            _module ??= await JS.InvokeAsync<IJSObjectReference>("import", "./_content/FlintSoft.Components/flintsoft.js");
+            if (!_open || _disposed) return;
+            _reference ??= DotNetObjectReference.Create(this);
+            await _module.InvokeVoidAsync("openModal", _dialog, _reference, CloseOnEscape, CloseOnBackdrop);
+            _shown = true;
+        }
+    }
+
+    [JSInvokable]
+    public Task DismissAsync(string reason) => reason switch
+    {
+        "escape" when CloseOnEscape => CloseAsync(FsCloseReason.Escape),
+        "backdrop" when CloseOnBackdrop => CloseAsync(FsCloseReason.Backdrop),
+        _ => Task.CompletedTask
+    };
+
+    public async Task CloseAsync(FsCloseReason reason = FsCloseReason.Programmatic)
+    {
+        if (!_open) return;
+        if (_module is not null && _shown) await _module.InvokeVoidAsync("closeModal", _dialog);
+        _open = false;
+        _shown = false;
+        Coordinator.Release(this);
+        await InvokeAsync(StateHasChanged);
+        await OnClosed.InvokeAsync(reason);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        _disposed = true;
+        Coordinator.Release(this);
+        if (_module is not null)
+        {
+            try
+            {
+                await _module.InvokeVoidAsync("closeModal", _dialog);
+                await _module.DisposeAsync();
+            }
+            catch (JSDisconnectedException)
+            {
+                // The browser also restores scroll when a detached dialog is removed.
+            }
+        }
+        _reference?.Dispose();
+    }
+}

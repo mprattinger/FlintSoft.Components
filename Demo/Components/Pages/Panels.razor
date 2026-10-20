@@ -1,0 +1,41 @@
+@page "/panels"
+@inject FsToastService Toasts
+
+<PageTitle>Panels - FlintSoft</PageTitle>
+<div class="demo-eyebrow">COMPONENTS / 06</div>
+<h1>A little structure.<br /><span>Room for your content.</span></h1>
+<p class="demo-lead">The same panels used throughout this playground, ready for your own pages and forms.</p>
+
+<FsPanel Title="The everyday panel" Description="A title, a little context, and content that is entirely yours." Badge="PREVIEW">
+    <p>Group related content with a themed surface, border and responsive padding.</p>
+</FsPanel>
+
+<FsPanel Title="Project details" Description="Header actions and a footer for the next step." Badge="DRAFT">
+    <HeaderActions>
+        <FsButton Appearance="FsAppearance.Action" OnClick="Reset">Reset</FsButton>
+    </HeaderActions>
+    <ChildContent>
+        <FsText Label="Project name" @bind-Value="_name" />
+    </ChildContent>
+    <Footer>
+        <div class="demo-actions">
+            <FsButton OnClick="Save">Save project</FsButton>
+            <span class="demo-muted">Panels are containers, not forms. Use an EditForm when you need validation.</span>
+        </div>
+    </Footer>
+</FsPanel>
+
+<FsPanel aria-label="Simple content">
+    No header required. Use a plain panel when the content speaks for itself.
+</FsPanel>
+
+<div class="demo-code"><span>YOUR CONTENT, A LITTLE STRUCTURE</span><pre><code>&lt;FsPanel Title="Project details" Description="Make it yours." Badge="DRAFT"&gt;
+    &lt;ChildContent&gt;Your content here&lt;/ChildContent&gt;
+    &lt;Footer&gt;Your actions here&lt;/Footer&gt;
+&lt;/FsPanel&gt;</code></pre></div>
+
+@code {
+    private string? _name = "My next project";
+    private void Reset() => _name = "";
+    private void Save() => Toasts.Show($"Saved \"{_name}\".", FsToastStyle.Success, "Project saved");
+}

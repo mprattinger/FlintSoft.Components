@@ -1,0 +1,34 @@
+@page "/buttons"
+@inject FsToastService Toasts
+
+<PageTitle>Buttons - FlintSoft</PageTitle>
+<div class="demo-eyebrow">COMPONENTS / 02</div>
+<h1>A clear next step.<br /><span>Every time.</span></h1>
+<p class="demo-lead">Five appearances, one consistent feel. Give each action the emphasis it deserves.</p>
+<FsPanel Title="A purposeful palette" Description="Semantic colors, powered by your theme tokens.">
+    @foreach (var appearance in Enum.GetValues<FsAppearance>())
+    {
+        <div class="demo-button-row"><div><strong>@appearance</strong><p>@Description(appearance)</p></div><FsButton Appearance="appearance" OnClick="() => Click(appearance)">@ButtonLabel(appearance) <span aria-hidden="true">&#8594;</span></FsButton></div>
+    }
+</FsPanel>
+<FsPanel Title="When an action needs to wait" Description="Disabled controls retain their hierarchy, without inviting interaction.">
+    <div class="demo-actions">@foreach (var appearance in Enum.GetValues<FsAppearance>()) { <FsButton Appearance="appearance" Disabled>@appearance</FsButton> }</div>
+</FsPanel>
+<div class="demo-code"><span>EXPLICIT INTENT</span><pre><code>&lt;FsButton OnClick="Save"&gt;Save changes&lt;/FsButton&gt;
+&lt;FsButton Type="submit"&gt;Submit form&lt;/FsButton&gt;
+&lt;FsButton Appearance="FsAppearance.Danger"&gt;Delete&lt;/FsButton&gt;</code></pre></div>
+
+@code {
+    private void Click(FsAppearance appearance) => Toasts.Show($"{appearance} action clicked.", title: "Button interaction");
+    private static string Description(FsAppearance appearance) => appearance switch {
+        FsAppearance.Primary => "The main action. Confident, not loud.",
+        FsAppearance.Secondary => "An alternative path, with a lighter touch.",
+        FsAppearance.Action => "A helpful action, right where you need it.",
+        FsAppearance.Danger => "Destructive actions deserve a clear signal.",
+        _ => "Positive intent. A satisfying finish."
+    };
+    private static string ButtonLabel(FsAppearance appearance) => appearance switch {
+        FsAppearance.Primary => "Create project", FsAppearance.Secondary => "View details",
+        FsAppearance.Action => "Edit profile", FsAppearance.Danger => "Delete project", _ => "Approve request"
+    };
+}

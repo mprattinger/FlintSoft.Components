@@ -1,0 +1,31 @@
+@page "/toasts"
+@inject FsToastService Notifications
+
+<PageTitle>Toasts - FlintSoft</PageTitle>
+<div class="demo-eyebrow">COMPONENTS / 04</div>
+<h1>A small message.<br /><span>A helpful nudge.</span></h1>
+<p class="demo-lead">Keep people in the loop without taking them out of their flow.</p>
+<FsPanel Title="The right tone for the moment" Description="Click a style to send a notification to the host." Badge="LIVE">
+    <div class="demo-toast-grid">
+        @foreach (var style in Enum.GetValues<FsToastStyle>())
+        {
+            <button class="demo-toast-example demo-toast-example-@style.ToString().ToLowerInvariant()" @onclick="() => Notify(style)"><span class="demo-toast-example-icon" aria-hidden="true">@(style == FsToastStyle.Info ? "i" : style == FsToastStyle.Success ? "+" : "!")</span><strong>@Title(style)</strong><span>@Message(style)</span><small>Show @style.ToString().ToLowerInvariant() toast &#8599;</small></button>
+        }
+    </div>
+    <p class="demo-muted demo-spaced">Notifications dismiss after five seconds. Hover or focus to pause; leaving restarts the timer.</p>
+</FsPanel>
+<FsPanel Title="A little more flexibility" Description="Persistent messages and custom content are supported too.">
+    <div class="demo-actions"><FsButton Appearance="FsAppearance.Secondary" OnClick="Persistent">Keep it until dismissed</FsButton><FsButton Appearance="FsAppearance.Action" OnClick="Custom">Show custom content</FsButton></div>
+</FsPanel>
+<div class="demo-code"><span>ONE SERVICE, ONE HOST</span><pre><code>@@inject FsToastService Toasts
+
+Toasts.Show("Changes saved.", FsToastStyle.Success, "All done");
+// TimeSpan.Zero keeps a toast visible until manually dismissed.</code></pre></div>
+
+@code {
+    private void Notify(FsToastStyle style) => Notifications.Show(Message(style), style, Title(style));
+    private void Persistent() => Notifications.Show("This notification stays until you close it.", title: "Take your time", duration: TimeSpan.Zero);
+    private void Custom() => Notifications.Show(@<div>Your <strong>custom content</strong> goes here. <a href="inputs">Explore inputs</a></div>, title: "More than plain text");
+    private static string Title(FsToastStyle style) => style switch { FsToastStyle.Info => "A little heads-up", FsToastStyle.Success => "All changes saved", FsToastStyle.Danger => "Something went wrong", _ => "Worth a second look" };
+    private static string Message(FsToastStyle style) => style switch { FsToastStyle.Info => "Your workspace is ready to explore.", FsToastStyle.Success => "Everything is right where it should be.", FsToastStyle.Danger => "We couldn't complete that action. Please retry.", _ => "Check your details before continuing." };
+}

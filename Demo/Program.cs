@@ -1,10 +1,16 @@
 using Demo.Components;
+using FlintSoft.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+builder.Services.AddFlintSoftComponents();
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    options.SetDefaultCulture("de-DE").AddSupportedCultures("de-DE").AddSupportedUICultures("en");
+});
 
 var app = builder.Build();
 
@@ -18,6 +24,7 @@ if (!app.Environment.IsDevelopment())
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 app.UseHttpsRedirection();
 
+app.UseRequestLocalization();
 app.UseAntiforgery();
 
 app.MapStaticAssets();

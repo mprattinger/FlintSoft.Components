@@ -4,6 +4,11 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <PackageId>FlintSoft.Components</PackageId>
+    <Version>2.0.0-preview.1</Version>
+    <Description>Accessible, themeable Blazor components for .NET 10.</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/mprattinger/FlintSoft.Components</RepositoryUrl>
   </PropertyGroup>
 
 
@@ -13,6 +18,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.13" />
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
 </Project>
