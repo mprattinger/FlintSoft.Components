@@ -1,0 +1,14 @@
+﻿<div class="container">
+    <div><Gear /></div>
+    <div class="flyout">
+        @if (ChildContent is not null)
+        {
+            @ChildContent
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

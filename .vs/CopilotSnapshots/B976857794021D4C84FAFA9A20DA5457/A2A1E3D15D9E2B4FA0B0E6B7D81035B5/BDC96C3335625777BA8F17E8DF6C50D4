@@ -1,0 +1,49 @@
+﻿@using System.Diagnostics.CodeAnalysis
+@using Microsoft.AspNetCore.Components.Forms
+@inherits InputBase<IBrowserFile?>
+
+<InputContainer TValue="IBrowserFile?"
+                ChildId="@Id"
+                Class="@ClassValue"
+                Style="@StyleValue"
+                Placeholder="@Placeholder"
+                Prefix="@Prefix"
+                Suffix="@Suffix"
+                ValidationFor="@ValidationFor">
+    <InputFile id="@Id"
+               class="file-input"
+               name="@Name"
+               accept="@Accept"
+               disabled="@Disabled"
+               tabindex="@TabIndex"
+               required="@Required"
+               autofocus="@Autofocus"
+               OnChange="@OnChangeHandler" />
+</InputContainer>
+
+@code {
+    /// <summary>
+    /// Gets or sets the accepted file types.
+    /// </summary>
+    [Parameter]
+    public string? Accept { get; set; }
+
+    protected override string ClassValue => $"container {Class} {HiddenCssClass} {ErrorCssClass}".Trim();
+
+    protected override string StyleValue => $"{Style}".Trim();
+
+    protected override string? FormatValueAsString(IBrowserFile? value)
+        => value?.Name;
+
+    protected override bool TryParseValueFromString(string? value, out IBrowserFile? result, [NotNullWhen(false)] out string? validationErrorMessage)
+    {
+        result = default;
+        validationErrorMessage = "File inputs do not support parsing from string values.";
+        return false;
+    }
+
+    private async Task OnChangeHandler(InputFileChangeEventArgs e)
+    {
+        await SetCurrentValueAsync(e.FileCount > 0 ? e.File : null);
+    }
+}

@@ -1,0 +1,17 @@
+﻿<div class="container">
+    <button type="button" class="trigger" aria-label="Settings">
+        <Gear Class="icon" Title="Settings" />
+    </button>
+
+    @if (ChildContent is not null)
+    {
+        <div class="flyout">
+            @ChildContent
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}
