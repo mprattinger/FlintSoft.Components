@@ -40,25 +40,25 @@ jobs:
         run: dotnet restore
 
       - name: Run component tests
-        run: dotnet test tests\FlintSoft.Components.Tests\FlintSoft.Components.Tests.csproj --configuration Release --verbosity minimal --no-restore
+        run: dotnet test tests/FlintSoft.Components.Tests/FlintSoft.Components.Tests.csproj --configuration Release --verbosity minimal --no-restore
 
       - name: Pack
         run: |
-          dotnet pack src\FlintSoft.Components.csproj --configuration Release --output artifacts --no-restore `
+          dotnet pack src/FlintSoft.Components.csproj --configuration Release --output artifacts --no-restore `
             -p:ContinuousIntegrationBuild=true `
             -p:Version=${{ steps.gitversion.outputs.package }} `
             -p:PackageVersion=${{ steps.gitversion.outputs.package }} `
             -p:AssemblyVersion=${{ steps.gitversion.outputs.assembly }} `
             -p:FileVersion=${{ steps.gitversion.outputs.file }} `
-            -p:InformationalVersion=${{ steps.version.outputs.informational }}
+            -p:InformationalVersion=${{ steps.gitversion.outputs.informational }}
 
       - name: Upload NuGet packages
         uses: actions/upload-artifact@v4
         with:
           name: FlintSoft.Components.${{ steps.gitversion.outputs.package }}
           path: |
-            artifacts\*.nupkg
-            artifacts\*.snupkg
+            artifacts/*.nupkg
+            artifacts/*.snupkg
           if-no-files-found: error
 
       - name: NuGet login (OIDC → temp API key)
