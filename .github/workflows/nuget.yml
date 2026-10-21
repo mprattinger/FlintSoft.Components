@@ -12,6 +12,7 @@ jobs:
   build-and-publish:
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       id-token: write
 
     steps:
@@ -32,9 +33,9 @@ jobs:
 
       - name: Determine version with GitVersion
         id: gitversion
-        uses: gittools/actions/gitversion/execute@v0
+        uses: gittools/actions/gitversion/execute@v4
         with:
-          useConfigFile: true
+          configFilePath: GitVersion.yml
       
       - name: Restore dependencies
         run: dotnet restore
@@ -44,18 +45,18 @@ jobs:
 
       - name: Pack
         run: |
-          dotnet pack src/FlintSoft.Components.csproj --configuration Release --output artifacts --no-restore `
-            -p:ContinuousIntegrationBuild=true `
-            -p:Version=${{ steps.gitversion.outputs.package }} `
-            -p:PackageVersion=${{ steps.gitversion.outputs.package }} `
-            -p:AssemblyVersion=${{ steps.gitversion.outputs.assembly }} `
-            -p:FileVersion=${{ steps.gitversion.outputs.file }} `
-            -p:InformationalVersion=${{ steps.gitversion.outputs.informational }}
+          dotnet pack src/FlintSoft.Components.csproj --configuration Release --output artifacts --no-restore \
+            -p:ContinuousIntegrationBuild=true \
+            -p:Version=${{ steps.gitversion.outputs.semVer }} \
+            -p:PackageVersion=${{ steps.gitversion.outputs.semVer }} \
+            -p:AssemblyVersion=${{ steps.gitversion.outputs.assemblySemVer }} \
+            -p:FileVersion=${{ steps.gitversion.outputs.assemblySemFileVer }} \
+            -p:InformationalVersion=${{ steps.gitversion.outputs.informationalVersion }}
 
       - name: Upload NuGet packages
         uses: actions/upload-artifact@v4
         with:
-          name: FlintSoft.Components.${{ steps.gitversion.outputs.package }}
+          name: FlintSoft.Components.${{ steps.gitversion.outputs.semVer }}
           path: |
             artifacts/*.nupkg
             artifacts/*.snupkg
@@ -65,9 +66,9 @@ jobs:
         uses: NuGet/login@v1
         id: login
         with:
-          user: mprattinger 
+          user: mprattinger
 
-      - name: Publish to NuGet.org  
-        run: 
-          dotnet nuget push "artifacts\*.nupkg" --source https://api.nuget.org/v3/index.json `
-            --api-key ${{steps.login.outputs.NUGET_API_KEY}} --skip-duplicate
+      - name: Publish to NuGet.org
+        run: |
+          dotnet nuget push "artifacts/*.nupkg" --source https://api.nuget.org/v3/index.json \
+            --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" --skip-duplicate

@@ -291,7 +291,7 @@ public sealed class ComponentTests : BunitContext
         host.WaitForAssertion(() => Assert.Empty(host.FindAll(".fs-toast")));
         await host.InvokeAsync(() => service.Show("Persistent", duration: TimeSpan.Zero));
         Assert.Single(host.FindAll(".fs-toast"));
-        host.Find("button").Click();
+        await host.Find("button").ClickAsync(new Microsoft.AspNetCore.Components.Web.MouseEventArgs());
         Assert.Empty(service.Items);
         Assert.Throws<ArgumentOutOfRangeException>(() => service.Show("Invalid", duration: TimeSpan.FromSeconds(-1)));
     }
