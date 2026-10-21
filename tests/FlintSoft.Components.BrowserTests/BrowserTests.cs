@@ -85,6 +85,181 @@ public sealed class BrowserFixture : IAsyncLifetime
 
 public sealed class BrowserTests(BrowserFixture fixture) : IClassFixture<BrowserFixture>
 {
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task AdornerCentersDefaultAndCustomContentAcrossViewports(bool wasm)
+    {
+        var context = await fixture.Browser.NewContextAsync();
+        var page = await context.NewPageAsync();
+        var errors = new List<string>();
+        page.PageError += (_, error) => errors.Add(error);
+        await page.GotoAsync(wasm ? fixture.WasmUrl : fixture.ServerUrl + "/adorners");
+        await Expect(page.Locator(wasm ? "#ready" : "[data-interactive=true]")).ToBeVisibleAsync(new() { Timeout = 60000 });
+        var overlay = page.Locator(".fs-adorner");
+        await Expect(overlay).ToHaveCountAsync(0);
+        await page.GetByRole(AriaRole.Button, new() { Name = "Show loading", Exact = true }).ClickAsync();
+        await Expect(overlay.GetByRole(AriaRole.Status)).ToContainTextAsync("Loading...");
+        if (wasm)
+            await overlay.GetByRole(AriaRole.Button, new() { Name = "Finish loading" }).ClickAsync();
+        await Expect(overlay).ToHaveCountAsync(0);
+        foreach (var theme in new[] { "light", "dark" })
+        {
+            if (wasm)
+                await page.Locator("main").EvaluateAsync("(element, theme) => element.dataset.fsTheme = theme", theme);
+            else if (await page.Locator("[data-fs-theme]").GetAttributeAsync("data-fs-theme") != theme)
+                await page.GetByRole(AriaRole.Button, new() { Name = "Toggle dark theme" }).ClickAsync();
+            await page.GetByRole(AriaRole.Button, new() { Name = "Show custom content" }).ClickAsync();
+            await Expect(overlay).ToContainTextAsync("Preparing your workspace");
+            await Expect(overlay).Not.ToContainTextAsync("Loading...");
+            foreach (var width in new[] { 1280, 390, 320 })
+            {
+                await page.SetViewportSizeAsync(width, 844);
+                await page.EvaluateAsync("window.scrollTo(0, document.body.scrollHeight)");
+                Assert.True(await overlay.EvaluateAsync<bool>("""
+                    element => {
+                        const r = element.getBoundingClientRect();
+                        const c = element.querySelector(".fs-adorner-content").getBoundingClientRect();
+                        const width = document.documentElement.clientWidth;
+                        return r.left === 0 && r.top === 0 &&
+                            Math.abs(r.width - width) < 1 &&
+                            Math.abs(r.height - window.innerHeight) < 1 &&
+                            Math.abs(c.left + c.width / 2 - width / 2) < 1 &&
+                            Math.abs(c.top + c.height / 2 - window.innerHeight / 2) < 1;
+                    }
+                    """));
+            }
+            await overlay.ClickAsync(new() { Position = new() { X = 5, Y = 5 } });
+            await page.Keyboard.PressAsync("Escape");
+            await Expect(overlay).ToBeVisibleAsync();
+            await overlay.GetByRole(AriaRole.Button, new() { Name = "Cancel loading" }).ClickAsync();
+            await Expect(overlay).ToHaveCountAsync(0);
+        }
+        Assert.Empty(errors);
+        await context.CloseAsync();
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task SettingsSupportsGearToggleContentAndDismissal(bool wasm)
+    {
+        var context = await fixture.Browser.NewContextAsync(new()
+        {
+            HasTouch = true,
+            ViewportSize = new() { Width = 390, Height = 844 }
+        });
+        var page = await context.NewPageAsync();
+        var errors = new List<string>();
+        page.PageError += (_, error) => errors.Add(error);
+        await page.GotoAsync(wasm ? fixture.WasmUrl : fixture.ServerUrl + "/settings");
+        await Expect(page.Locator(wasm ? "#ready" : "[data-interactive=true]")).ToBeVisibleAsync(new() { Timeout = 60000 });
+        var trigger = page.GetByRole(AriaRole.Button, new() { Name = "Settings", Exact = true });
+        var flyout = page.Locator(".fs-settings-flyout");
+        await Expect(flyout).ToHaveCountAsync(0);
+        await trigger.Locator("svg").TapAsync();
+        await Expect(flyout).ToBeVisibleAsync();
+        await flyout.GetByRole(AriaRole.Button, new() { Name = "Save settings" }).ClickAsync();
+        await Expect(flyout).ToBeVisibleAsync();
+        await trigger.ClickAsync();
+        await Expect(flyout).ToHaveCountAsync(0);
+        await trigger.PressAsync("Enter");
+        await Expect(flyout).ToBeVisibleAsync();
+        await trigger.PressAsync("Tab");
+        await Expect(flyout.Locator("a").First).ToBeFocusedAsync();
+        await flyout.Locator("a").First.PressAsync("Escape");
+        await Expect(flyout).ToHaveCountAsync(0);
+        await Expect(trigger).ToBeFocusedAsync();
+        await trigger.PressAsync("Space");
+        await Expect(flyout).ToBeVisibleAsync();
+        await page.Locator("h1").TapAsync();
+        await Expect(flyout).ToHaveCountAsync(0);
+        await trigger.ClickAsync();
+        await Expect(flyout).ToBeVisibleAsync();
+        await page.SetViewportSizeAsync(320, 844);
+        await page.WaitForFunctionAsync("""
+            () => {
+                const r = document.querySelector(".fs-settings-flyout").getBoundingClientRect();
+                return r.left >= 0 && r.right <= window.innerWidth;
+            }
+            """);
+        await page.GetByRole(AriaRole.Button, new() { Name = wasm ? "Save" : "Toggle dark theme", Exact = true }).FocusAsync();
+        await Expect(flyout).ToHaveCountAsync(0);
+        if (!wasm)
+        {
+            await trigger.ClickAsync();
+            await flyout.GetByRole(AriaRole.Link, new() { Name = "Profile settings" }).ClickAsync();
+            await Expect(flyout).ToHaveCountAsync(0);
+            await Expect(page.Locator("h1")).ToContainTextAsync("A familiar face.");
+        }
+        Assert.Empty(errors);
+        await context.CloseAsync();
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task PersonaSupportsToggleOutsideTouchKeyboardAndActions(bool wasm)
+    {
+        var context = await fixture.Browser.NewContextAsync(new()
+        {
+            HasTouch = true,
+            ViewportSize = new() { Width = 390, Height = 844 }
+        });
+        var page = await context.NewPageAsync();
+        var errors = new List<string>();
+        page.PageError += (_, error) => errors.Add(error);
+        await page.GotoAsync(wasm ? fixture.WasmUrl : fixture.ServerUrl + "/personas");
+        await Expect(page.Locator(wasm ? "#ready" : "[data-interactive=true]")).ToBeVisibleAsync(new() { Timeout = 60000 });
+        var avatar = page.GetByRole(AriaRole.Button, new() { Name = "Alex Morgan", Exact = true });
+        var card = page.Locator(".fs-persona-card");
+        await Expect(card).ToHaveCountAsync(0);
+        await avatar.TapAsync();
+        await Expect(card).ToBeVisibleAsync();
+        await Expect(card).ToContainTextAsync("Product designer");
+        await card.GetByRole(AriaRole.Button, new() { Name = "Sign out" }).ClickAsync();
+        await Expect(card).ToBeVisibleAsync();
+        await avatar.ClickAsync();
+        await Expect(card).ToHaveCountAsync(0);
+        await avatar.PressAsync("Enter");
+        await Expect(card).ToBeVisibleAsync();
+        await avatar.PressAsync("Tab");
+        await Expect(card.Locator("a").First).ToBeFocusedAsync();
+        await card.Locator("a").First.PressAsync("Escape");
+        await Expect(card).ToHaveCountAsync(0);
+        await Expect(avatar).ToBeFocusedAsync();
+        await avatar.PressAsync("Space");
+        await Expect(card).ToBeVisibleAsync();
+        await page.Locator("h1").TapAsync();
+        await Expect(card).ToHaveCountAsync(0);
+        await avatar.ClickAsync();
+        await Expect(card).ToBeVisibleAsync();
+        foreach (var width in new[] { 320, 390 })
+        {
+            await page.SetViewportSizeAsync(width, 844);
+            await Expect(card).ToBeVisibleAsync();
+            await page.WaitForFunctionAsync("""
+                () => {
+                    const r = document.querySelector(".fs-persona-card").getBoundingClientRect();
+                    return r.left >= 0 && r.right <= window.innerWidth;
+                }
+                """);
+        }
+        await page.GetByRole(AriaRole.Button, new() { Name = wasm ? "Save" : "Toggle dark theme", Exact = true }).FocusAsync();
+        await Expect(card).ToHaveCountAsync(0);
+        if (!wasm)
+        {
+            var imageAvatar = page.GetByRole(AriaRole.Button, new() { Name = "Jamie Lee", Exact = true });
+            Assert.True(await imageAvatar.Locator("img").EvaluateAsync<bool>("image => image.complete && image.naturalWidth > 0"));
+            await imageAvatar.ClickAsync();
+            await Expect(card).ToContainTextAsync("Software engineer");
+            await page.GetByRole(AriaRole.Link, new() { Name = "Panels", Exact = false }).ClickAsync();
+            await Expect(card).ToHaveCountAsync(0);
+        }
+        Assert.Empty(errors);
+        await context.CloseAsync();
+    }
+
     [Fact]
     public async Task AutocompleteSupportsKeyboardPointerDismissalAndNewValues()
     {
@@ -199,7 +374,7 @@ public sealed class BrowserTests(BrowserFixture fixture) : IClassFixture<Browser
         var page = await context.NewPageAsync();
         var errors = new List<string>();
         page.PageError += (_, error) => errors.Add(error);
-        foreach (var route in new[] { "", "inputs", "buttons", "modals", "toasts", "panels", "tables" })
+        foreach (var route in new[] { "", "inputs", "buttons", "modals", "toasts", "panels", "personas", "settings", "adorners", "tables" })
         {
             await page.GotoAsync($"{fixture.ServerUrl}/{route}");
             await Expect(page.Locator("[data-interactive=true]")).ToBeVisibleAsync();

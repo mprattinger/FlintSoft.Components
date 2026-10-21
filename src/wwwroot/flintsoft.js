@@ -111,3 +111,74 @@ export function scrollAutocompleteOption(input) {
     const id = input.getAttribute("aria-activedescendant");
     if (id) document.getElementById(id)?.scrollIntoView({ block: "nearest", inline: "nearest" });
 }
+
+const flyouts = new WeakMap();
+
+export function positionPersona(root) {
+    positionFlyout(root, ".fs-persona-card");
+}
+
+function positionFlyout(root, selector) {
+    const card = root.querySelector(selector);
+    if (!card) return;
+    card.style.transform = "";
+    const bounds = card.getBoundingClientRect();
+    const shift = Math.max(8 - bounds.left, Math.min(0, document.documentElement.clientWidth - 8 - bounds.right));
+    card.style.transform = `translateX(${shift}px)`;
+}
+
+export function attachPersona(root, reference) {
+    attachFlyout(root, reference, ".fs-persona-avatar", ".fs-persona-card", "DismissPersonaAsync");
+}
+
+function attachFlyout(root, reference, triggerSelector, contentSelector, dismissMethod) {
+    if (flyouts.has(root)) return;
+    const trigger = root.querySelector(triggerSelector);
+    const isOpen = () => trigger.getAttribute("aria-expanded") === "true";
+    const outside = event => {
+        if (isOpen() && !root.contains(event.target))
+            reference.invokeMethodAsync(dismissMethod);
+    };
+    const keydown = event => {
+        if (event.key === "Escape" && isOpen()) {
+            event.preventDefault();
+            event.stopPropagation();
+            trigger.focus();
+            reference.invokeMethodAsync(dismissMethod);
+        }
+    };
+    const reposition = () => positionFlyout(root, contentSelector);
+    const cleanup = () => {
+        document.removeEventListener("pointerdown", outside, true);
+        document.removeEventListener("focusin", outside, true);
+        root.removeEventListener("keydown", keydown);
+        window.removeEventListener("resize", reposition);
+        observer.disconnect();
+        flyouts.delete(root);
+    };
+    const observer = new MutationObserver(() => {
+        if (!root.isConnected) cleanup();
+    });
+    document.addEventListener("pointerdown", outside, true);
+    document.addEventListener("focusin", outside, true);
+    root.addEventListener("keydown", keydown);
+    window.addEventListener("resize", reposition);
+    observer.observe(document.body, { childList: true, subtree: true });
+    flyouts.set(root, cleanup);
+}
+
+export function detachPersona(root) {
+    flyouts.get(root)?.();
+}
+
+export function attachSettings(root, reference) {
+    attachFlyout(root, reference, ".fs-settings-trigger", ".fs-settings-flyout", "DismissSettingsAsync");
+}
+
+export function positionSettings(root) {
+    positionFlyout(root, ".fs-settings-flyout");
+}
+
+export function detachSettings(root) {
+    flyouts.get(root)?.();
+}

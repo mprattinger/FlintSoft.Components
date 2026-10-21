@@ -1,0 +1,28 @@
+@page "/settings"
+@inject FsToastService Toasts
+
+<PageTitle>Settings - FlintSoft</PageTitle>
+<div class="demo-eyebrow">COMPONENTS / 09</div>
+<h1>A little gear.<br /><span>Your settings inside.</span></h1>
+<p class="demo-lead">Click the gear to reveal links, controls, or any content you need.</p>
+
+<FsPanel Title="Settings flyout" Description="Click again, click outside, or press Escape to close.">
+    <FsSettings>
+        <div class="demo-stack">
+            <a href="personas">Profile settings</a>
+            <a href="inputs">Preferences</a>
+            <FsCheckbox Label="Email notifications" @bind-Value="_notifications" />
+            <FsButton OnClick="Save">Save settings</FsButton>
+        </div>
+    </FsSettings>
+</FsPanel>
+
+<div class="demo-code"><span>YOUR SETTINGS, YOUR CONTENT</span><pre><code>&lt;FsSettings&gt;
+    &lt;a href="profile"&gt;Profile settings&lt;/a&gt;
+    &lt;FsButton OnClick="Save"&gt;Save settings&lt;/FsButton&gt;
+&lt;/FsSettings&gt;</code></pre></div>
+
+@code {
+    private bool _notifications = true;
+    private void Save() => Toasts.Show("Settings saved.", FsToastStyle.Success);
+}

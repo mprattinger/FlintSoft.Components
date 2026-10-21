@@ -29,6 +29,30 @@ Run the showcase with:
 dotnet run --project Demo
 ```
 
+## NuGet packaging and publishing
+
+Pushing to `main` runs `.github\workflows\nuget.yml`: it restores the pinned
+GitVersion tool, runs component tests, builds Release packages, uploads the
+`.nupkg` and `.snupkg` as a workflow artifact, and publishes to NuGet.org.
+Set the repository Actions secret `NUGET_API_KEY` to a NuGet.org API key
+with push permission for `FlintSoft.Components`.
+
+The workflow uses `GitVersion.yml` and the full Git history. The package version
+is GitVersion's **MajorMinorPatch** (no prerelease suffix); assembly and
+informational versions also come from GitVersion. NuGet.org versions are immutable:
+if multiple commits calculate the same MajorMinorPatch, the existing version is
+skipped, not replaced. Use version tags (for example `2.0.0`) and the repository's
+GitVersion conventions to advance versions. No package license is declared yet;
+choose an appropriate license before distributing the package publicly.
+
+To create the same packages locally from the repository root:
+
+```powershell
+dotnet tool restore
+$version = dotnet gitversion /showvariable MajorMinorPatch
+dotnet pack src\FlintSoft.Components.csproj --configuration Release --output artifacts -p:Version=$version -p:PackageVersion=$version
+```
+
 ## Themes
 
 Set `data-fs-theme="light"` or `data-fs-theme="dark"` on an ancestor of the components.
@@ -165,6 +189,87 @@ and label their section; titleless panels can supply `aria-label`.
 `Class` adds custom CSS classes and additional HTML attributes are forwarded to
 the section. The panel does not impose outer margins or create a form: place it
 inside an `EditForm`, or place an `EditForm` in its body, when needed.
+
+## Personas
+
+`FsPersona` shows a circular avatar that toggles a user card:
+
+```razor
+<FsPersona Name="Alex Morgan" Description="Product designer" ImageUrl="images/alex.jpg">
+    <ChildContent>
+        <a href="mailto:alex@example.com">alex@example.com</a>
+        <p>Design team / Vienna</p>
+    </ChildContent>
+    <Actions>
+        <a href="profile">View profile</a>
+        <FsButton OnClick="SignOut">Sign out</FsButton>
+    </Actions>
+</FsPersona>
+```
+
+`ImageUrl` is optional. Without an image (or if it fails to load), the avatar uses
+`Initials`, or derives initials from the first and last words of `Name`. Without
+either it displays `?`; set `AccessibleLabel` to localize the default "User profile"
+label when no name is supplied. Images are decorative because the button is named.
+`Description`, `ChildContent` and `Actions` are optional. Use inline child content
+when not supplying named slots. `Actions` accepts ordinary links, buttons or other
+components; clicking them does not automatically dismiss the card.
+
+Click the avatar again, click outside, press Escape, or move keyboard focus outside
+to close. The avatar is a native button supporting Enter and Space; Tab reaches
+the card's links and buttons, and Escape returns focus to the avatar. The card is
+non-modal and does not trap focus. `Class` and additional HTML attributes apply to
+the outer wrapper. Styles use the same light/dark tokens as other components;
+JavaScript attaches only after interactive rendering and cleans up on removal.
+
+## Settings
+
+`FsSettings` displays the library's gear icon in a button and toggles a flyout
+containing arbitrary `ChildContent`:
+
+```razor
+<FsSettings>
+    <a href="profile">Profile settings</a>
+    <FsButton OnClick="SaveSettings">Save settings</FsButton>
+</FsSettings>
+```
+
+Click the gear again, click outside, press Escape, or move keyboard focus outside
+to close. Links and controls inside remain interactive and do not automatically
+dismiss the flyout. Enter and Space toggle the button, Tab reaches the content,
+and Escape returns focus to the gear. The flyout is non-modal, not an ARIA menu,
+so it can contain links, buttons, inputs, or other components.
+
+`AccessibleLabel` defaults to "Settings" and labels both the button and flyout.
+`Class` and additional HTML attributes apply to the outer wrapper. It supports
+the library's light/dark themes and interactive Server and WebAssembly rendering.
+
+## Adorners
+
+`FsAdorner` displays a full-screen overlay while `IsLoading` is true (false by
+default). Its content is centered horizontally and vertically in the viewport.
+
+```razor
+<FsAdorner IsLoading="_loading" />
+
+<FsAdorner IsLoading="_loading">
+    <p>Preparing your workspace...</p>
+</FsAdorner>
+```
+
+Without `ChildContent`, it displays `LoadingText` (default "Loading...").
+Custom child content replaces that message completely and can include components.
+The content is exposed as a polite status announcement. `Class` and additional
+HTML attributes apply to the overlay; styling uses the light/dark theme tokens.
+
+Set `IsLoading` back to false when the operation finishes, preferably in a `finally`
+block. Clicking outside or pressing Escape does not dismiss it. The overlay
+intercepts pointer clicks but is not a modal dialog and does not trap keyboard
+focus; disable underlying controls while busy if they must not be used.
+Place it near the layout root, outside ancestors with transforms, clipping, or
+isolated stacking contexts, so its fixed positioning covers the viewport.
+Native modal dialogs occupy the browser's top layer; place an adorner inside
+the modal when showing loading over a modal. No JavaScript or services are required.
 
 ## Buttons
 
