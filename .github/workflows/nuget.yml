@@ -62,12 +62,13 @@ jobs:
             artifacts\*.snupkg
           if-no-files-found: error
 
-      - name: Publish to NuGet.org
-        env:
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-        run: |
-          if ([string]::IsNullOrWhiteSpace($env:NUGET_API_KEY)) {
-            throw "Configure the NUGET_API_KEY repository secret before publishing."
-          }
+      - name: NuGet login (OIDC → temp API key)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: mprattinger 
+
+      - name: Publish to NuGet.org  
+        run: 
           dotnet nuget push "artifacts\*.nupkg" --source https://api.nuget.org/v3/index.json `
-            --api-key $env:NUGET_API_KEY --skip-duplicate
+            --api-key ${{steps.login.outputs.NUGET_API_KEY}} --skip-duplicate
