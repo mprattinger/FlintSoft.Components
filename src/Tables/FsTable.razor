@@ -1,0 +1,71 @@
+@namespace FlintSoft.Components
+@typeparam TItem
+
+<div class="fs-table-container">
+<div class="fs-table-scroll" tabindex="0" role="region" aria-label="@Caption">
+    <table class="fs-table" role="table" aria-labelledby="@_captionId" aria-busy="@Loading.ToString().ToLowerInvariant()">
+        <caption>
+            <div class="fs-table-caption">
+                <span id="@_captionId" class="fs-table-title">@Caption</span>
+                @if (Actions is not null)
+                {
+                    <div class="fs-table-actions" role="group" aria-label="@($"{Caption} actions")">@Actions</div>
+                }
+            </div>
+        </caption>
+        <thead role="rowgroup">
+            <tr role="row">
+                @foreach (var column in Columns)
+                {
+                    <th scope="col" role="columnheader" class="@column.Class">
+                        @if (column.HeaderTemplate is not null) { @column.HeaderTemplate }
+                        else { @column.Header }
+                    </th>
+                }
+            </tr>
+        </thead>
+        <tbody role="rowgroup">
+            @if (Loading)
+            {
+                <tr role="row"><td role="cell" colspan="@Math.Max(1, Columns.Count)" class="fs-table-state"><div role="status">
+                    @if (LoadingContent is not null) { @LoadingContent } else { <span>Loading...</span> }
+                </div></td></tr>
+            }
+            else if (Items.Count == 0)
+            {
+                <tr role="row"><td role="cell" colspan="@Math.Max(1, Columns.Count)" class="fs-table-state">
+                    @if (EmptyContent is not null) { @EmptyContent } else { <span>No items to display.</span> }
+                </td></tr>
+            }
+            else
+            {
+                @foreach (var item in Items)
+                {
+                    <tr role="row" @key="@(RowKey?.Invoke(item))">
+                        @foreach (var column in Columns)
+                        {
+                            <td role="cell" class="@column.Class">
+                                <span class="fs-table-mobile-label" aria-hidden="true">@column.Header</span>
+                                <div class="fs-table-cell-content">@column.Cell(item)</div>
+                            </td>
+                        }
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+</div>
+
+@code {
+    private readonly string _captionId = $"fs-table-caption-{Guid.NewGuid():N}";
+
+    [Parameter, EditorRequired] public IReadOnlyList<TItem> Items { get; set; } = [];
+    [Parameter, EditorRequired] public IReadOnlyList<FsColumn<TItem>> Columns { get; set; } = [];
+    [Parameter] public string Caption { get; set; } = "Data";
+    [Parameter] public bool Loading { get; set; }
+    [Parameter] public RenderFragment? Actions { get; set; }
+    [Parameter] public RenderFragment? EmptyContent { get; set; }
+    [Parameter] public RenderFragment? LoadingContent { get; set; }
+    [Parameter] public Func<TItem, object>? RowKey { get; set; }
+}

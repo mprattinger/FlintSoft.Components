@@ -1,0 +1,73 @@
+name: Build and publish NuGet package
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+
+    steps:
+      - name: Check out full history for GitVersion
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore GitVersion
+        run: dotnet tool restore
+
+      - name: Calculate version
+        id: version
+        run: |
+          $json = dotnet gitversion /output json
+          if ($LASTEXITCODE -ne 0) { throw "GitVersion failed." }
+          $version = ($json -join "`n") | ConvertFrom-Json
+          "package=$($version.MajorMinorPatch)" >> $env:GITHUB_OUTPUT
+          "assembly=$($version.AssemblySemVer)" >> $env:GITHUB_OUTPUT
+          "file=$($version.AssemblySemFileVer)" >> $env:GITHUB_OUTPUT
+          "informational=$($version.InformationalVersion)" >> $env:GITHUB_OUTPUT
+
+      - name: Run component tests
+        run: dotnet test tests\FlintSoft.Components.Tests\FlintSoft.Components.Tests.csproj --configuration Release --verbosity minimal
+
+      - name: Pack
+        run: |
+          dotnet pack src\FlintSoft.Components.csproj --configuration Release --output artifacts `
+            -p:ContinuousIntegrationBuild=true `
+            -p:Version=${{ steps.version.outputs.package }} `
+            -p:PackageVersion=${{ steps.version.outputs.package }} `
+            -p:AssemblyVersion=${{ steps.version.outputs.assembly }} `
+            -p:FileVersion=${{ steps.version.outputs.file }} `
+            -p:InformationalVersion=${{ steps.version.outputs.informational }}
+
+      - name: Upload NuGet packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: FlintSoft.Components.${{ steps.version.outputs.package }}
+          path: |
+            artifacts\*.nupkg
+            artifacts\*.snupkg
+          if-no-files-found: error
+
+      - name: Publish to NuGet.org
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:NUGET_API_KEY)) {
+            throw "Configure the NUGET_API_KEY repository secret before publishing."
+          }
+          dotnet nuget push "artifacts\*.nupkg" --source https://api.nuget.org/v3/index.json `
+            --api-key $env:NUGET_API_KEY --skip-duplicate

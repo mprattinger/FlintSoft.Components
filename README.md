@@ -1,262 +1,377 @@
-# FlintSoft.Components
+# FlintSoft.Components v2
 
-A comprehensive, modern Blazor component library built for .NET 10. FlintSoft.Components provides a rich collection of reusable, professionally-designed UI components for building responsive web applications.
+A .NET 10 Razor component library with standalone styling, light and dark themes,
+and no Bootstrap dependency. This is a clean v2 API, not a compatibility layer for v1.
 
-## Features
+## Quick start
 
-- **30+ UI Components** - Ready-to-use Razor components for common UI patterns
-- **.NET 10 Support** - Built on the latest .NET framework with modern C# features
-- **Nullable Reference Types** - Full nullable reference type support for safer code
-- **CSS Styling** - Each component includes scoped CSS for consistent styling
-- **Theme Support** - Built-in theme toggle capability
-- **Accessibility** - Components designed with accessibility in mind
-
-## Components
-
-### Input Components
-- **TextInput** - Single-line text input field
-- **NumberInput** - Numeric input with validation
-- **Checkbox** - Single checkbox control
-- **Radio & RadioGroup** - Radio button options
-- **Dropdown** - Select from predefined options
-- **AutoComplete** - Text input with autocomplete suggestions
-- **DatePicker** - Intuitive date selection
-- **DateTimePicker** - Combined date and time selection
-
-### Buttons
-- **Button** - Versatile button component with styling options
-- **ThemeToggle** - Built-in light/dark theme switcher
-
-### Modals & Dialogs
-- **Modal** - Flexible modal dialog container
-- **Message** - Simple message modal
-- **YesNo** - Confirmation dialog
-
-### Tables
-- **Table** - Data table container
-- **Column** - Table column definition
-- **Row** - Table row component
-
-### Notifications
-- **Toast** - Non-intrusive notification messages
-
-### Authentication
-- **Persona** - User persona/profile component
-
-### Container
-- Layout and container components for structural organization
-
-## Getting Started
-
-### Installation
-
-Add the FlintSoft.Components NuGet package to your Blazor project:
-
-```bash
-dotnet add package FlintSoft.Components
-```
-
-### Setup
-
-1. Add the necessary namespace imports to your `_Imports.razor` (one `@using` per namespace you use):
-
-```razor
-@using FlintSoft.Components
-@using FlintSoft.Components.Buttons
-@using FlintSoft.Components.Container
-@using FlintSoft.Components.Icons
-@using FlintSoft.Components.Inputs
-@using FlintSoft.Components.Modals
-@using FlintSoft.Components.Tables
-@using FlintSoft.Components.Toasts
-@using FlintSoft.Components.Authentication
-```
-
-2. Link the library's design-tokens stylesheet **and** your app's scoped-CSS bundle in `App.razor` (the scoped-CSS bundle, e.g. `YourApp.styles.css`, automatically includes every component's `.razor.css` — you don't need to reference the library's CSS separately for that part):
-
-```html
-<link rel="stylesheet" href="_content/FlintSoft.Components/tokens.css" />
-<link rel="stylesheet" href="@Assets["css/app.css"]" /> <!-- your own app CSS, optional overrides -->
-<link rel="stylesheet" href="@Assets["YourApp.styles.css"]" />
-```
-
-`tokens.css` must be loaded before your own stylesheet if you want to override any of its `--fs-*` variables (see [Styling & Design Tokens](#styling--design-tokens) below).
-
-## Usage Examples
-
-### Basic Button
-
-```razor
-<Button>Click me</Button>
-```
-
-### Text Input
-
-```razor
-<TextInput 
-    @bind-Value="@email" 
-    Placeholder="Enter email address" 
-    Class="my-custom-class" />
-```
-
-### Modal
-
-```razor
-<Modal IsVisible="@showModal" OnClose="@(() => showModal = false)" Title="Modal Title" HasCloseButton="true">
-    <ChildContent>
-        <p>Modal content goes here</p>
-    </ChildContent>
-    <Footer>
-        <Button ButtonAppearance="Button.ButtonAppearanceEnum.Primary" OnClick="@(() => showModal = false)">Close</Button>
-    </Footer>
-</Modal>
-```
-
-### Data Table
-
-`Table`/`Row`/`Column` are composable layout components — you build the table structure directly in markup (there's no `Items`/`Render` data-binding API):
-
-```razor
-<Table>
-    <HeaderContent>
-        <Column>Name</Column>
-        <Column>Email</Column>
-        <Column>Status</Column>
-    </HeaderContent>
-    @foreach (var item in items)
-    {
-        <Row>
-            <Column>@item.Name</Column>
-            <Column>@item.Email</Column>
-            <Column>@item.Status</Column>
-        </Row>
-    }
-</Table>
-```
-
-### Theme Toggle
-
-```razor
-<ThemeToggle />
-```
-
-### Toast Notification
-
-```razor
-<Toast IsVisible="@showToast"
-       OnClose="@(() => showToast = false)"
-       Title="Success"
-       ToastAppearance="Toast.ToastAppearanceEnum.Success">
-    Operation completed successfully
-</Toast>
-```
-
-## Component Base Class
-
-All components inherit from `MyComponentBase`, which provides:
-
-- **Element Reference** - Direct access to underlying DOM element
-- **Id Parameter** - Custom ID for component identification
-- **Class Parameter** - CSS class customization
-- **Style Parameter** - Inline style customization
-
-Example with custom styling:
-
-```razor
-<TextInput 
-    Id="user-email"
-    Class="form-control"
-    Style="margin-bottom: 10px;" />
-```
-
-## Utilities
-
-### Extension Methods
-
-The library includes utility extension methods:
-
-- **ToAttributeValue()** - Convert enum values to HTML attribute values
-- **GetDescription()** - Retrieve enum descriptions with optional case conversion
-
-Example:
+Reference the library project or install the `FlintSoft.Components` NuGet package.
+Add `@using FlintSoft.Components` to your `_Imports.razor` and register the services:
 
 ```csharp
-public enum Priority { High, Medium, Low }
-var value = Priority.High.ToAttributeValue(); // "high"
+builder.Services.AddFlintSoftComponents();
 ```
 
-## Architecture
+Reference the stylesheet in your host document:
 
-- **Namespace**: `FlintSoft.Components`
-- **Target Framework**: .NET 10.0
-- **Nullable Types**: Enabled
-- **Implicit Usings**: Enabled
-- **Browser Support**: Web browser platform
+```html
+<link rel="stylesheet" href="_content/FlintSoft.Components/flintsoft.css" />
+```
 
-## Styling & Design Tokens
+Place a single `<FsToastHost />` inside your interactive layout. Components support
+Interactive Server and WebAssembly. In a Blazor Web App, use an interactive render
+mode for pages or routes that contain these components. Prerendering does not call
+browser APIs; modal JavaScript loads after interactive rendering.
 
-Components use scoped CSS modules (`.razor.css` files) to prevent style conflicts and keep each component visually consistent. All colors, radii, shadows, spacing and z-index values are read from a single set of CSS custom properties prefixed with `--fs-` (FlintSoft), shipped in **`_content/FlintSoft.Components/tokens.css`**.
+Run the showcase with:
 
-There are no hardcoded colors or per-property fallback values inside component styles — if a `--fs-*` variable isn't defined somewhere in scope (usually on `:root`), the properties that use it are simply ignored by the browser. So one of the following is required:
+```powershell
+dotnet run --project Demo
+```
 
-- **Recommended:** link `tokens.css` (see [Setup](#setup)) to get a complete, ready-to-use default palette, then override only the variables you want to rebrand in your own stylesheet (loaded *after* `tokens.css`).
-- **Alternative:** skip `tokens.css` entirely and define all `--fs-*` variables yourself on `:root` in your app's CSS.
+## NuGet packaging and publishing
 
-### Token reference
+Pushing to `main` runs `.github\workflows\nuget.yml`: it restores the pinned
+GitVersion tool, runs component tests, builds Release packages, uploads the
+`.nupkg` and `.snupkg` as a workflow artifact, and publishes to NuGet.org.
+Set the repository Actions secret `NUGET_API_KEY` to a NuGet.org API key
+with push permission for `FlintSoft.Components`.
 
-| Category | Variables |
-|---|---|
-| Layout | `--fs-color-background`, `--fs-color-surface`, `--fs-color-surface-text`, `--fs-color-text`, `--fs-color-text-muted`, `--fs-color-border` |
-| Brand | `--fs-color-primary`, `--fs-color-primary-foreground`, `--fs-color-secondary` |
-| Form controls | `--fs-color-control-text`, `--fs-color-control-text-inverse`, `--fs-color-control-filter` (icon filter for native date/time pickers), `--fs-color-disabled` |
-| Semantic | `--fs-color-action`, `--fs-color-success`, `--fs-color-success-hover`, `--fs-color-danger`, `--fs-color-danger-hover`, `--fs-color-white`, `--fs-color-black` |
-| Avatar / Persona | `--fs-color-avatar-bg`, `--fs-color-avatar-initials-bg`, `--fs-color-avatar-fg` |
-| Elevation | `--fs-overlay`, `--fs-shadow-sm`, `--fs-shadow-md`, `--fs-shadow-lg`, `--fs-shadow-xl` |
-| Shape | `--fs-radius-sm`, `--fs-radius-md`, `--fs-radius-lg` |
-| Spacing | `--fs-space-1` … `--fs-space-6` |
-| Z-index | `--fs-z-flyout`, `--fs-z-modal` |
+The workflow uses `GitVersion.yml` and the full Git history. The package version
+is GitVersion's **MajorMinorPatch** (no prerelease suffix); assembly and
+informational versions also come from GitVersion. NuGet.org versions are immutable:
+if multiple commits calculate the same MajorMinorPatch, the existing version is
+skipped, not replaced. Use version tags (for example `2.0.0`) and the repository's
+GitVersion conventions to advance versions. No package license is declared yet;
+choose an appropriate license before distributing the package publicly.
 
-### Re-branding example
+To create the same packages locally from the repository root:
+
+```powershell
+dotnet tool restore
+$version = dotnet gitversion /showvariable MajorMinorPatch
+dotnet pack src\FlintSoft.Components.csproj --configuration Release --output artifacts -p:Version=$version -p:PackageVersion=$version
+```
+
+## Themes
+
+Set `data-fs-theme="light"` or `data-fs-theme="dark"` on an ancestor of the components.
+All design tokens start with `--fs-`. Override them after the library stylesheet:
 
 ```css
-/* your app's own CSS, loaded after tokens.css */
 :root {
-    --fs-color-primary: #6d28d9;
-    --fs-color-action: #f59e0b;
-    --fs-radius-sm: .5rem;
+    --fs-color-primary: #087eaa;
+    --fs-color-primary-soft: #e8f5fa;
+    --fs-color-on-primary: #fff;
+    --fs-radius: .75rem;
+    --fs-font-family: "Segoe UI", system-ui, sans-serif;
 }
 ```
 
-### Dark mode
+Semantic color families include primary, success, danger and warning (each with a
+soft variant), plus text, muted, surface, background, border, overlay and focus.
+Spacing, font size and shadow tokens are also available in `flintsoft.css`.
+Override dark-theme tokens in `[data-fs-theme="dark"]` when customizing that theme.
 
-`<ThemeToggle />` switches themes by toggling a `dark-theme` class on `<html>`. `tokens.css` ships a matching `.dark-theme` override block that redefines the relevant `--fs-*` variables — no extra setup required. If you fully replace `tokens.css` with your own variable definitions, make sure to add your own `.dark-theme { ... }` overrides too.
+## Inputs
 
-## JavaScript Interop
+```razor
+<FsText Label="Name" @bind-Value="model.Name" />
+<FsText Label="Email" Type="email" @bind-Value="model.Email" />
+<FsNumber TValue="decimal?" Label="Budget" Prefix="EUR" @bind-Value="model.Budget" />
+<FsDate Label="Date" @bind-Value="model.Date" />
+<FsTime Label="Time" @bind-Value="model.Time" />
+<FsTextArea Label="Notes" @bind-Value="model.Notes" />
+<FsSelect TValue="string" Label="Team" @bind-Value="model.Team">
+    <option value="">Choose a team</option>
+    <option>Design</option>
+</FsSelect>
+<FsCheckbox Label="Send updates" @bind-Value="model.Updates" />
+<FsRadioGroup TValue="string" Label="Plan" Options="plans" @bind-Value="model.Plan" />
+```
 
-Select components include JavaScript interop for enhanced functionality:
-- AutoComplete suggestions
-- DatePicker interactions
-- Theme persistence
-- Modal animations
+Use `IReadOnlyList<FsOption<TValue>>` for radio options. Numeric types are `short`,
+`int`, `long`, `float`, `double`, `decimal`, and their nullable equivalents.
+Date and time bind to `DateOnly?` and `TimeOnly?`. Checkbox values are `bool`.
+Text inputs support text, password, email, tel, url and search.
 
-## Requirements
+All inputs support `Label`, `HelpText`, `Id`, `Disabled`, `ReadOnly`, `Prefix`,
+`Suffix` and additional HTML attributes. Binding works standalone and inside
+`EditForm` with `DataAnnotationsValidator`. When not using `@bind-Value`, supply
+`ValueExpression` alongside `Value` and `ValueChanged`, as with Blazor's built-in inputs.
 
-- .NET 10.0 or later
-- ASP.NET Core 10.0 or later
-- Modern web browser with WebAssembly support
+Updates use `onchange` by default. Set `UpdateOnInput="true"` on text, textarea
+or numeric inputs for keystroke updates. Invalid numeric text remains visible while
+the last valid model value is preserved. Parsing errors are shown inside forms.
+Nullable inputs map empty text to null. Numeric formatting/parsing uses the current
+app culture; the demo uses `de-DE` to demonstrate decimal commas. Native date/time
+values use browser-required invariant formats and are localized by the browser.
+Use the application's normal Blazor localization configuration in Server or
+WebAssembly; the library does not change the application's culture.
 
-## License
+## Autocomplete
 
-[Add your license information here]
+`FsAutocomplete<TItem>` binds a **string** with `@bind-Value`. Supply an asynchronous
+search callback and a function that returns the input text for a selected item:
 
-## Contributing
+```razor
+<FsAutocomplete TItem="Customer" Label="Customer" @bind-Value="customerName"
+                SearchAsync="SearchCustomersAsync" GetText="customer => customer.Name"
+                ItemSelected="CustomerSelected" AllowNewValues="false">
+    <ItemTemplate Context="customer">
+        <strong>@customer.Name</strong>
+        <div>@customer.City</div>
+    </ItemTemplate>
+</FsAutocomplete>
 
-Contributions are welcome! Please ensure:
-- Code follows the existing style conventions
-- Components include both `.razor` and `.razor.css` files
-- JavaScript interop is properly typed
-- Components extend `MyComponentBase`
+@code {
+    private string? customerName;
+    private Customer? selectedCustomer;
+    private void CustomerSelected(Customer customer) => selectedCustomer = customer;
+    private async Task<IReadOnlyList<Customer>> SearchCustomersAsync(
+        string text, CancellationToken cancellationToken)
+    {
+        return await customerRepository.SearchAsync(text, cancellationToken);
+    }
+}
+```
 
-## Support
+`ItemTemplate` is optional; suggestions display `GetText(item)` by default.
+Templates should contain display content, not interactive controls. `ItemSelected`
+fires only for an explicitly chosen suggestion, not for newly typed text.
+The callback receives the selected object; the bound value receives its `GetText`.
 
-For issues, feature requests, or questions, please open an issue in the repository.
+Search defaults to a 250ms debounce and one character minimum, configurable with
+`DebounceMilliseconds` and `MinimumLength`. Focus searches the current text when it
+meets the minimum; set `MinimumLength="0"` to search on empty focus. Honor the supplied
+cancellation token for database/API calls. Obsolete results are ignored even if the
+callback ignores cancellation. Search failures are logged and shown in the popup;
+they are not treated as an empty result. Loading and empty messages can be customized
+with `LoadingText`, `NoResultsText` and `SearchErrorText`.
+
+No suggestion is automatically selected. Up/Down activates an entry, Enter commits
+it, and mouse/touch selection also commits it. Escape or an outside click closes the
+popup and cancels pending searches. Tab leaves without choosing a highlighted item.
+With `AllowNewValues="true"`, Enter or leaving the field commits the typed text.
+Otherwise (the default), leaving restores the previous committed value, or clears
+the input when there was none. Typing does not update the model on each keystroke;
+`UpdateOnInput` is not used for this control. An exact text match is not an implicit
+object selection. Clear the bound value from the parent to reset a restricted field.
+Changing the bound value externally also resets the editor and pending search.
+
+The component uses the existing floating label, affixes, help text and EditForm
+validation, along with ARIA combobox/listbox semantics. Suggestions are rendered
+after interactive events; no search or browser API runs during prerendering.
+
+## Panels
+
+`FsPanel` provides the same themed surface, border, rounded corners and responsive
+padding used throughout the demo. It works without any demo styles or services.
+
+```razor
+<FsPanel Title="Project details" Description="Give your idea a name." Badge="DRAFT">
+    <HeaderActions>
+        <FsButton Appearance="FsAppearance.Action" OnClick="Reset">Reset</FsButton>
+    </HeaderActions>
+    <ChildContent>
+        <FsText Label="Project name" @bind-Value="name" />
+    </ChildContent>
+    <Footer>
+        <FsButton OnClick="Save">Save project</FsButton>
+    </Footer>
+</FsPanel>
+```
+
+`Title`, `Description`, `Badge`, `HeaderActions` and `Footer` are optional.
+Use inline child content when not supplying named slots. A content-only panel
+does not render an empty header or footer. Titles render as level-two headings
+and label their section; titleless panels can supply `aria-label`.
+`Class` adds custom CSS classes and additional HTML attributes are forwarded to
+the section. The panel does not impose outer margins or create a form: place it
+inside an `EditForm`, or place an `EditForm` in its body, when needed.
+
+## Personas
+
+`FsPersona` shows a circular avatar that toggles a user card:
+
+```razor
+<FsPersona Name="Alex Morgan" Description="Product designer" ImageUrl="images/alex.jpg">
+    <ChildContent>
+        <a href="mailto:alex@example.com">alex@example.com</a>
+        <p>Design team / Vienna</p>
+    </ChildContent>
+    <Actions>
+        <a href="profile">View profile</a>
+        <FsButton OnClick="SignOut">Sign out</FsButton>
+    </Actions>
+</FsPersona>
+```
+
+`ImageUrl` is optional. Without an image (or if it fails to load), the avatar uses
+`Initials`, or derives initials from the first and last words of `Name`. Without
+either it displays `?`; set `AccessibleLabel` to localize the default "User profile"
+label when no name is supplied. Images are decorative because the button is named.
+`Description`, `ChildContent` and `Actions` are optional. Use inline child content
+when not supplying named slots. `Actions` accepts ordinary links, buttons or other
+components; clicking them does not automatically dismiss the card.
+
+Click the avatar again, click outside, press Escape, or move keyboard focus outside
+to close. The avatar is a native button supporting Enter and Space; Tab reaches
+the card's links and buttons, and Escape returns focus to the avatar. The card is
+non-modal and does not trap focus. `Class` and additional HTML attributes apply to
+the outer wrapper. Styles use the same light/dark tokens as other components;
+JavaScript attaches only after interactive rendering and cleans up on removal.
+
+## Settings
+
+`FsSettings` displays the library's gear icon in a button and toggles a flyout
+containing arbitrary `ChildContent`:
+
+```razor
+<FsSettings>
+    <a href="profile">Profile settings</a>
+    <FsButton OnClick="SaveSettings">Save settings</FsButton>
+</FsSettings>
+```
+
+Click the gear again, click outside, press Escape, or move keyboard focus outside
+to close. Links and controls inside remain interactive and do not automatically
+dismiss the flyout. Enter and Space toggle the button, Tab reaches the content,
+and Escape returns focus to the gear. The flyout is non-modal, not an ARIA menu,
+so it can contain links, buttons, inputs, or other components.
+
+`AccessibleLabel` defaults to "Settings" and labels both the button and flyout.
+`Class` and additional HTML attributes apply to the outer wrapper. It supports
+the library's light/dark themes and interactive Server and WebAssembly rendering.
+
+## Adorners
+
+`FsAdorner` displays a full-screen overlay while `IsLoading` is true (false by
+default). Its content is centered horizontally and vertically in the viewport.
+
+```razor
+<FsAdorner IsLoading="_loading" />
+
+<FsAdorner IsLoading="_loading">
+    <p>Preparing your workspace...</p>
+</FsAdorner>
+```
+
+Without `ChildContent`, it displays `LoadingText` (default "Loading...").
+Custom child content replaces that message completely and can include components.
+The content is exposed as a polite status announcement. `Class` and additional
+HTML attributes apply to the overlay; styling uses the light/dark theme tokens.
+
+Set `IsLoading` back to false when the operation finishes, preferably in a `finally`
+block. Clicking outside or pressing Escape does not dismiss it. The overlay
+intercepts pointer clicks but is not a modal dialog and does not trap keyboard
+focus; disable underlying controls while busy if they must not be used.
+Place it near the layout root, outside ancestors with transforms, clipping, or
+isolated stacking contexts, so its fixed positioning covers the viewport.
+Native modal dialogs occupy the browser's top layer; place an adorner inside
+the modal when showing loading over a modal. No JavaScript or services are required.
+
+## Buttons
+
+```razor
+<FsButton OnClick="Save">Save</FsButton>
+<FsButton Type="submit">Submit</FsButton>
+<FsButton Appearance="FsAppearance.Danger" Disabled="busy">Delete</FsButton>
+```
+
+Appearances: `Primary`, `Secondary`, `Action`, `Danger`, `Success`.
+The default HTML type is `button`, not submit.
+
+## Modals
+
+```razor
+<FsModal @ref="modal" Title="Edit project" OnOpening="LoadAsync" OnClosed="Closed">
+    <FsText Label="Name" @bind-Value="name" />
+</FsModal>
+
+@code {
+    private FsModal modal = default!;
+    private string? name;
+    private Task LoadAsync() { name = "Example"; return Task.CompletedTask; }
+    private void Closed(FsCloseReason reason) { }
+    private Task Open() => modal.OpenAsync();
+}
+```
+
+`OpenAsync` awaits initialization before scheduling the dialog for display.
+Initialization errors propagate to the caller. A second concurrent open throws;
+close the active modal first. Call `CloseAsync()` to close programmatically.
+`OnClosed` reports `Programmatic`, `CloseButton`, `Escape` or `Backdrop`.
+`CloseOnEscape` and `CloseOnBackdrop` default to true.
+For a titleless modal, provide `AccessibleLabel`.
+
+Native dialogs provide modal background isolation and keyboard focus containment.
+The JavaScript module locks body scrolling and restores focus/scroll on closure or
+component removal. Modern browsers with native `<dialog>` support are required.
+
+## Toasts
+
+```csharp
+Toasts.Show("Saved.", FsToastStyle.Success, title: "All done");
+var id = Toasts.Show("Close this when ready.", duration: TimeSpan.Zero);
+Toasts.Dismiss(id);
+```
+
+Inject `FsToastService`; render one `FsToastHost` per interactive application scope.
+Styles: `Info`, `Success`, `Danger`, `Warning`. An overload accepts `RenderFragment`.
+The default duration is five seconds; zero means manual dismissal only. Negative
+durations throw. Hover and focus pause dismissal; leaving restarts the full duration.
+Timers start after interactive rendering and are canceled when toast items are removed.
+In Interactive Server, invoke the service from the circuit's renderer context
+(use `InvokeAsync` when publishing from background work).
+
+## Tables
+
+`FsTable<TItem>` accepts `IReadOnlyList<TItem> Items` and
+`IReadOnlyList<FsColumn<TItem>> Columns`. Each column has a header, a
+`RenderFragment<TItem>` cell template, an optional CSS class and an optional
+`RenderFragment HeaderTemplate`.
+Put buttons or other components in cell templates for row actions.
+
+```razor
+<FsTable TItem="Person" Items="people" Columns="columns" Caption="Team"
+         RowKey="person => person.Id" Loading="loading">
+    <Actions>
+        <FsButton OnClick="OpenCreate">New member</FsButton>
+    </Actions>
+    <EmptyContent>No team members yet.</EmptyContent>
+</FsTable>
+```
+
+The optional `Actions` fragment renders beside the title inside the table caption,
+right-aligned and wrapping on narrow screens. Use it for table-level actions such as creating
+an entry, refreshing or exporting. Actions remain available in loading and empty
+states; the caller controls their click handlers and disabled state. Without
+`Actions`, no toolbar is rendered.
+
+Use stable, unique `RowKey` values for mutable data. `EmptyContent` and
+`LoadingContent` customize state messages. At widths up to 600px, each row becomes
+a stacked card with column labels, all values and row actions visible without
+horizontal scrolling. `Header` supplies the mobile label even when using a
+`HeaderTemplate`. The same table markup and accessible column headers are retained;
+desktop keeps the normal table layout. Cell templates should allow their content
+to wrap instead of imposing fixed widths. Sorting, filtering, paging, selection, virtualization and
+server-side data management are intentionally not included.
+
+## Release checks
+
+Install the browser once after building the browser-test project:
+
+```powershell
+dotnet build tests\FlintSoft.Components.BrowserTests
+pwsh tests\FlintSoft.Components.BrowserTests\bin\Debug\net10.0\playwright.ps1 install chromium
+```
+
+The browser suite starts and stops its own local demo and WebAssembly hosts.
+
+```powershell
+dotnet test FlintSoft.Components.slnx
+dotnet pack src --configuration Release
+```
+
+Review the demo in both themes and on narrow screens before publishing the preview.

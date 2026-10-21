@@ -1,0 +1,25 @@
+@namespace FlintSoft.Components
+
+@if (IsLoading)
+{
+    <div class="fs-adorner @Class" @attributes="AdditionalAttributes">
+        <div class="fs-adorner-content" role="status" aria-live="polite" aria-atomic="true">
+            @if (ChildContent is not null)
+            {
+                @ChildContent
+            }
+            else
+            {
+                @LoadingText
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsLoading { get; set; }
+    [Parameter] public string LoadingText { get; set; } = "Loading...";
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter(CaptureUnmatchedValues = true)] public Dictionary<string, object>? AdditionalAttributes { get; set; }
+}

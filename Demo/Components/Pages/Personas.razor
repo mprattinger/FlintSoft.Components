@@ -1,0 +1,38 @@
+@page "/personas"
+@inject FsToastService Toasts
+
+<PageTitle>Personas - FlintSoft</PageTitle>
+<div class="demo-eyebrow">COMPONENTS / 08</div>
+<h1>A familiar face.<br /><span>A little more about you.</span></h1>
+<p class="demo-lead">Click an avatar to see user details and actions. Click again, click outside, or press Escape to close.</p>
+
+<FsPanel Title="Initials and actions" Description="Initials come from the name unless you supply your own.">
+    <FsPersona Name="Alex Morgan" Description="Product designer">
+        <ChildContent>
+            <a href="mailto:alex@example.com">alex@example.com</a>
+            <p>Design team / Vienna</p>
+        </ChildContent>
+        <Actions>
+            <a class="fs-button fs-button-secondary" href="inputs">Edit profile</a>
+            <FsButton OnClick="SignOut">Sign out</FsButton>
+        </Actions>
+    </FsPersona>
+</FsPanel>
+
+<FsPanel Title="A profile picture" Description="A failed image falls back to initials.">
+    <FsPersona Name="Jamie Lee" Description="Software engineer" ImageUrl="images/persona.svg">
+        <p>Engineering team / Berlin</p>
+    </FsPersona>
+</FsPanel>
+
+<div class="demo-code"><span>YOUR PROFILE, YOUR ACTIONS</span><pre><code>&lt;FsPersona Name="Alex Morgan" Description="Product designer"&gt;
+    &lt;ChildContent&gt;More user details&lt;/ChildContent&gt;
+    &lt;Actions&gt;
+        &lt;a href="profile"&gt;View profile&lt;/a&gt;
+        &lt;FsButton OnClick="SignOut"&gt;Sign out&lt;/FsButton&gt;
+    &lt;/Actions&gt;
+&lt;/FsPersona&gt;</code></pre></div>
+
+@code {
+    private void SignOut() => Toasts.Show("Your sign-out action goes here.", title: "Profile action");
+}

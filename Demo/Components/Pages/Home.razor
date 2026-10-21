@@ -1,294 +1,50 @@
-﻿@page "/"
-@using System.ComponentModel.DataAnnotations
-@using FlintSoft.Components.Authentication
+@page "/"
+@inject FsToastService Toasts
 
-<PageTitle>FlintSoft Components Demo</PageTitle>
-
-<div class="page">
-    <header class="page-header">
-        <div class="left">
-            <h1>FlintSoft Components</h1>
-            <p>Interactive demo site for the FlintSoft.Components library.</p>
+<PageTitle>FlintSoft - Component playground</PageTitle>
+<div class="demo-eyebrow"><span class="demo-dot"></span> A FRESH START / VERSION 2</div>
+<section class="demo-hero">
+    <div>
+        <h1>Less friction.<br /><span>More possibility.</span></h1>
+        <p>A focused set of Blazor components. Clean defaults, expressive tokens,
+            and the little details that make an interface feel right.</p>
+        <div class="demo-actions"><a class="fs-button fs-button-primary" href="inputs">Explore components <span aria-hidden="true">&#8594;</span></a><a class="demo-text-link" href="https://github.com/mprattinger/FlintSoft.Components">View on GitHub &#8599;</a></div>
+    </div>
+    <div class="demo-hero-preview">
+        <div class="demo-preview-caption"><span class="demo-dot"></span> LIVE PREVIEW <span>01 / INPUTS</span></div>
+        <h2>Make yourself at home.</h2>
+        <p>A little form. A lot of attention to detail.</p>
+        <div class="demo-stack">
+            <FsText Label="Your name" @bind-Value="_name" />
+            <FsNumber TValue="decimal?" Label="Monthly budget" Prefix="EUR" @bind-Value="_budget" HelpText="Culture-aware, down to the last decimal." />
+            <FsButton OnClick="Welcome">Try it out <span aria-hidden="true">&#8594;</span></FsButton>
         </div>
-        <ThemeToggle />
-        <Settings>
-            <div>Verein</div>
-            <div>Settings</div>
-        </Settings>
-        <Persona DisplayName="Max Musterman" Email="max.musterman@test.com">
-            <div>Here are some links</div>
-        </Persona>
-    </header>
-
-    <Card Class="section-card">
-        <h2>Buttons</h2>
-        <ButtonRow Class="button-row">
-            <Button ButtonAppearance="Button.ButtonAppearanceEnum.Primary" ButtonSize="Button.Size.Default" ButtonType="Button.ButtonTypeEnum.Button" OnClick="ShowPrimaryToast">
-                Primary
-            </Button>
-            <Button ButtonAppearance="Button.ButtonAppearanceEnum.Secondary" ButtonSize="Button.Size.Default" ButtonType="Button.ButtonTypeEnum.Button" OnClick="ShowSecondaryToast">
-                Secondary
-            </Button>
-            <Button ButtonAppearance="Button.ButtonAppearanceEnum.Success" ButtonSize="Button.Size.Default" ButtonType="Button.ButtonTypeEnum.Button" OnClick="ShowSuccessToast">
-                Success
-            </Button>
-            <Button ButtonAppearance="Button.ButtonAppearanceEnum.Danger" ButtonSize="Button.Size.Default" ButtonType="Button.ButtonTypeEnum.Button" OnClick="ShowDangerToast">
-                Danger
-            </Button>
-            <Button ButtonAppearance="Button.ButtonAppearanceEnum.Action" ButtonSize="Button.Size.Small" ButtonType="Button.ButtonTypeEnum.Button" OnClick="OpenMessageModal">
-                Open Message Modal
-            </Button>
-            <Button ButtonAppearance="Button.ButtonAppearanceEnum.Action" ButtonSize="Button.Size.Small" ButtonType="Button.ButtonTypeEnum.Button" OnClick="OpenYesNoModal">
-                Open Yes/No Modal
-            </Button>
-            <Button ButtonAppearance="Button.ButtonAppearanceEnum.Action" ButtonSize="Button.Size.Small" ButtonType="Button.ButtonTypeEnum.Button" OnClick="ShowAdorner">
-                Show Adorner
-            </Button>
-        </ButtonRow>
-    </Card>
-
-    <Card Class="section-card">
-        <h2>Icons</h2>
-        <div class="icons-grid">
-            <House Class="demo-icon" Title="House" OnClicked="IconClicked" />
-            <Calendar Class="demo-icon" Title="Calendar" OnClicked="IconClicked" />
-            <Gear Class="demo-icon" Title="Gear" OnClicked="IconClicked" />
-            <PlayCircle Class="demo-icon" Title="Play" OnClicked="IconClicked" />
-            <Alert Class="demo-icon" Title="Alert" OnClicked="IconClicked" />
-            <CircleCheckBig Class="demo-icon" Title="Check" OnClicked="IconClicked" />
-            <QRCode Class="demo-icon" Title="QR code" OnClicked="IconClicked" />
-            <Wizard Class="demo-icon" Title="Wizard" OnClicked="IconClicked" />
-        </div>
-    </Card>
-
-    <Card Class="section-card">
-        <h2>Inputs</h2>
-        <EditForm Model="formModel" OnValidSubmit="SubmitForm">
-            <DataAnnotationsValidator />
-            <div class="form-grid">
-                <TextInput @bind-Value="formModel.Name" Placeholder="Display name" ValidationFor="() => formModel.Name" Prefix="@("@")" />
-                <TextAreaInput @bind-Value="formModel.Notes" Placeholder="Notes" ValidationFor="() => formModel.Notes" Rows="5" />
-                <NumberInput TValue="decimal" @bind-Value="formModel.Budget" Placeholder="Budget" ValidationFor="() => formModel.Budget" Step="0.5" Suffix="€" />
-                <NumberInput @bind-Value="formModel.Tax" Placeholder="Steuern" ValidationFor="() => formModel.Tax" Suffix="%" prefix="€" />
-                <AutoComplete TValue="string"
-                              @bind-Value="formModel.Assignee"
-                              Placeholder="Assignee"
-                              ValidationFor="() => formModel.Assignee"
-                              OnSearchRequest="SearchAssigneesAsync"
-                              OnNoResultSelected="(s) =>formModel.Assignee = s"
-                              DisplayExpression="assignee => assignee" />
-                <Dropdown TValue="string"
-                          @bind-Value="formModel.Status"
-                          Placeholder="Status"
-                          ValidationFor="() => formModel.Status"
-                          Items="statuses"
-                          IdExpression="status => status"
-                          DisplayExpression="status => status"
-                          Prefix="State"
-                          HasEmpty="true" />
-                <RadioGroup TValue="string"
-                            @bind-Value="formModel.Priority"
-                            Placeholder="Priority"
-                            ValidationFor="() => formModel.Priority"
-                            Values="priorities" />
-                <DatePicker @bind-Value="formModel.StartDate" Placeholder="Start date" ValidationFor="() => formModel.StartDate" />
-                <DateTimePicker @bind-Value="formModel.Reminder" Placeholder="Reminder" ValidationFor="() => formModel.Reminder" Suffix="local" />
-                <Checkbox @bind-Value="formModel.IsEnabled" Placeholder="Enabled" ValidationFor="() => formModel.IsEnabled" />
-            </div>
-
-            <div>@(System.Text.Json.JsonSerializer.Serialize(formModel))</div>
-
-            <ButtonRow Class="form-actions">
-                <Button ButtonAppearance="Button.ButtonAppearanceEnum.Primary" ButtonSize="Button.Size.Default" ButtonType="Button.ButtonTypeEnum.Submit">
-                    Submit Form
-                </Button>
-
-                <Button ButtonAppearance="Button.ButtonAppearanceEnum.Primary" ButtonSize="Button.Size.Default" ButtonType="Button.ButtonTypeEnum.Button" OnClick='() => formModel.Assignee = "Michael"'>
-                   Test
-                </Button>
-            </ButtonRow>
-        </EditForm>
-    </Card>
-
-    <Card Class="section-card">
-        <h2>Table</h2>
-        <Table>
-            <HeaderContent>
-                <Column>Name</Column>
-                <Column>Status</Column>
-                <Column>Priority</Column>
-                <Column>Budget</Column>
-            </HeaderContent>
-            <ChildContent>
-                @foreach (var item in tableRows)
-                {
-                    <Row>
-                        <Column>@item.Name</Column>
-                        <Column>@item.Status</Column>
-                        <Column>@item.Priority</Column>
-                        <Column>@item.Budget.ToString("C")</Column>
-                    </Row>
-                }
-            </ChildContent>
-        </Table>
-    </Card>
-
-    <Toast IsVisible="showToast" OnClose="CloseToast" Title="@toastTitle" ToastAppearance="@toastAppearance">
-        @toastMessage
-    </Toast>
-
-    <Message @ref="messageModal" />
-    <YesNo @ref="yesNoModal" YesText="Approve" NoText="Cancel" />
-    <Adorner IsVisible="showAdorner">
-        Loading...
-    </Adorner>
+    </div>
+</section>
+<div class="demo-stat-strip"><div><strong>09</strong><span>Input controls</span></div><div><strong>02</strong><span>Built-in themes</span></div><div><strong>100%</strong><span>Your design tokens</span></div><div><strong>0</strong><span>CSS frameworks</span></div></div>
+<div class="demo-section-heading"><div><div class="demo-eyebrow">THE BUILDING BLOCKS</div><h2>A place for every interaction.</h2></div><span class="demo-muted">Nine families. One visual language.</span></div>
+<div class="demo-card-grid">
+    @foreach (var card in Cards)
+    {
+        <a class="demo-component-card" href="@card.Url"><span class="demo-card-number">@card.Number</span><span class="demo-card-arrow" aria-hidden="true">&#8599;</span><h3>@card.Title</h3><p>@card.Description</p><span class="demo-card-tag">@card.Tag</span></a>
+    }
 </div>
+<div class="demo-callout"><span class="demo-callout-icon" aria-hidden="true">Aa</span><div><strong>Your brand, not ours.</strong><p>Every color starts with a CSS token. Switch the theme above to see the same components in a different light.</p></div><code>--fs-color-primary</code></div>
 
 @code {
-    private DemoFormModel formModel = new();
-
-    private readonly List<string> statuses = ["Draft", "Active", "Archived"];
-    private readonly List<string> assignees =
+    private string? _name = "Alex Morgan";
+    private decimal? _budget = 1250.50m;
+    private void Welcome() => Toasts.Show($"Welcome, {_name ?? "friend"}! Your components are ready.", FsToastStyle.Success, "Looking good");
+    private static readonly (string Number, string Title, string Description, string Tag, string Url)[] Cards =
     [
-        "Max Mustermann",
-        "Mia Novak",
-        "Luca Steiner",
-        "Ava Wagner",
-        "Noah Berger",
-        "Lena Fischer"
+        ("01", "Inputs", "Floating labels, thoughtful validation, and values that just bind.", "TEXT / NUMBERS / CHOICES", "inputs"),
+        ("02", "Buttons", "Clear hierarchy for the actions that move things forward.", "FIVE APPEARANCES", "buttons"),
+        ("03", "Modals", "A focused space for the moments that need your attention.", "ASYNC / ACCESSIBLE", "modals"),
+        ("04", "Toasts", "The right message, at just the right moment.", "FOUR MESSAGE STYLES", "toasts"),
+        ("05", "Tables", "A little structure for your data. Nothing you don't need.", "TEMPLATED / RESPONSIVE", "tables"),
+        ("06", "Panels", "A thoughtful container for related content and actions.", "THEMED / COMPOSABLE", "panels"),
+        ("07", "Personas", "A familiar face with room for user details and actions.", "AVATARS / PROFILE CARDS", "personas"),
+        ("08", "Settings", "A gear-triggered flyout for your links and preferences.", "LINKS / CUSTOM CONTENT", "settings"),
+        ("09", "Adorners", "A centered loading state while your content gets ready.", "OVERLAY / CUSTOM CONTENT", "adorners")
     ];
-    private readonly List<(string value, string? label)> priorities =
-    [
-        ("Low", "Low"),
-        ("Medium", "Medium"),
-        ("High", "High")
-    ];
-
-    private readonly List<DemoTableRow> tableRows =
-    [
-        new("Website redesign", "Active", "High", 6500m),
-        new("API migration", "Draft", "Medium", 4200m),
-        new("Reporting refresh", "Archived", "Low", 1800m)
-    ];
-
-    private Message? messageModal;
-    private YesNo? yesNoModal;
-
-    private bool showToast;
-    private string toastTitle = "";
-    private string toastMessage = "";
-    private Toast.ToastAppearanceEnum toastAppearance = Toast.ToastAppearanceEnum.Primary;
-
-    private bool showAdorner = false;
-
-    private void ShowPrimaryToast(MouseEventArgs _)
-    {
-        ShowToast("Primary action", "Primary button clicked.", Toast.ToastAppearanceEnum.Primary);
-    }
-
-    private void ShowSecondaryToast(MouseEventArgs _)
-    {
-        ShowToast("Secondary action", "Secondary button clicked.", Toast.ToastAppearanceEnum.Secondary);
-    }
-
-    private void ShowSuccessToast(MouseEventArgs _)
-    {
-        ShowToast("Saved", "Success style button clicked.", Toast.ToastAppearanceEnum.Success);
-    }
-
-    private void ShowDangerToast(MouseEventArgs _)
-    {
-        ShowToast("Danger", "Danger style button clicked.", Toast.ToastAppearanceEnum.Danger);
-    }
-
-    private void IconClicked()
-    {
-        ShowToast("Icon", "Icon click event triggered.", Toast.ToastAppearanceEnum.Action);
-    }
-
-    private async Task OpenMessageModal(MouseEventArgs _)
-    {
-        if (messageModal is null)
-        {
-            return;
-        }
-
-        await messageModal.Open("Message", "This is the FlintSoft message modal component.");
-    }
-
-    private async Task OpenYesNoModal(MouseEventArgs _)
-    {
-        if (yesNoModal is null)
-        {
-            return;
-        }
-
-        var approved = await yesNoModal.Open("Confirm", "Do you want to approve this demo action?");
-        ShowToast("Confirmation", approved ? "Action approved." : "Action canceled.", approved ? Toast.ToastAppearanceEnum.Success : Toast.ToastAppearanceEnum.Secondary);
-    }
-
-    private void SubmitForm()
-    {
-        ShowToast("Form submitted", $"Saved '{formModel.Name}' with status '{formModel.Status ?? "N/A"}'.", Toast.ToastAppearanceEnum.Success);
-    }
-
-    private Task<List<string>> SearchAssigneesAsync(string term)
-    {
-        var results = assignees
-            .Where(assignee => assignee.Contains(term, StringComparison.OrdinalIgnoreCase))
-            .ToList();
-
-        return Task.FromResult(results);
-    }
-
-    private void CloseToast()
-    {
-        showToast = false;
-    }
-
-    private void ShowToast(string title, string message, Toast.ToastAppearanceEnum appearance)
-    {
-        toastTitle = title;
-        toastMessage = message;
-        toastAppearance = appearance;
-        showToast = true;
-    }
-
-    async Task ShowAdorner()
-    {
-        showAdorner = true;
-        await Task.Delay(3000).ContinueWith(_ => showAdorner = false);
-        await InvokeAsync(StateHasChanged);
-    }
-
-    private sealed class DemoFormModel
-    {
-        [Required]
-        public string Name { get; set; } = "FlintSoft Demo";
-
-        public string Notes { get; set; } = "This is a multiline text area demo.";
-
-        [Range(-100000, 100000)]
-        public decimal Budget { get; set; } = 2500m;
-
-        [Required]
-        public int Tax { get; set; } = 10;
-
-        [Required]
-        public string? Assignee { get; set; }
-
-        public string? Status { get; set; }
-
-        [Required]
-        public string Priority { get; set; } = "Medium";
-
-        [Range(typeof(DateOnly), "2000-01-01", "2100-12-31")]
-        public DateOnly StartDate { get; set; } = DateOnly.FromDateTime(DateTime.Today);
-
-        public DateTime Reminder { get; set; } = DateTime.Now;
-
-        public bool IsEnabled { get; set; } = true;
-    }
-
-    private sealed record DemoTableRow(string Name, string Status, string Priority, decimal Budget);
 }

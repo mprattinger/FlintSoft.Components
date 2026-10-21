@@ -1,0 +1,50 @@
+@namespace FlintSoft.Components
+
+<section class="fs-panel @Class" aria-labelledby="@(Title is null ? null : _titleId)" @attributes="AdditionalAttributes">
+    @if (Title is not null || Description is not null || Badge is not null || HeaderActions is not null)
+    {
+        <div class="fs-panel-header">
+            @if (Title is not null || Description is not null)
+            {
+                <div class="fs-panel-heading">
+                    @if (Title is not null)
+                    {
+                        <h2 id="@_titleId">@Title</h2>
+                    }
+                    @if (Description is not null)
+                    {
+                        <p>@Description</p>
+                    }
+                </div>
+            }
+            @if (Badge is not null || HeaderActions is not null)
+            {
+                <div class="fs-panel-actions">
+                    @if (Badge is not null)
+                    {
+                        <span class="fs-panel-badge">@Badge</span>
+                    }
+                    @HeaderActions
+                </div>
+            }
+        </div>
+    }
+    <div class="fs-panel-body">@ChildContent</div>
+    @if (Footer is not null)
+    {
+        <div class="fs-panel-footer">@Footer</div>
+    }
+</section>
+
+@code {
+    private readonly string _titleId = $"fs-panel-title-{Guid.NewGuid():N}";
+
+    [Parameter] public string? Title { get; set; }
+    [Parameter] public string? Description { get; set; }
+    [Parameter] public string? Badge { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public RenderFragment? HeaderActions { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public RenderFragment? Footer { get; set; }
+    [Parameter(CaptureUnmatchedValues = true)] public Dictionary<string, object>? AdditionalAttributes { get; set; }
+}

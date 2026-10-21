@@ -1,0 +1,96 @@
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Web
+@using FlintSoft.Components
+@using System.ComponentModel.DataAnnotations
+@inject FsToastService Toasts
+
+<main style="max-width: 50rem; margin: 2rem auto; padding: 1rem;">
+    <h1>WebAssembly component smoke host</h1>
+    <FsButton OnClick="ShowLoading">Show loading</FsButton>
+    <FsButton OnClick="ShowCustomLoading">Show custom content</FsButton>
+    <FsAdorner IsLoading="_loading">
+        @if (_customLoading)
+        {
+            <p>Preparing your workspace</p>
+            <FsButton OnClick="HideLoading">Cancel loading</FsButton>
+        }
+        else
+        {
+            <span>Loading...</span>
+            <FsButton OnClick="HideLoading">Finish loading</FsButton>
+        }
+    </FsAdorner>
+    <FsPersona Name="Alex Morgan" Description="Product designer">
+        <ChildContent>
+            <a href="mailto:alex@example.com">alex@example.com</a>
+        </ChildContent>
+        <Actions>
+            <FsButton OnClick="ProfileAction">Sign out</FsButton>
+        </Actions>
+    </FsPersona>
+    <FsSettings>
+        <a href="mailto:alex@example.com">Profile settings</a>
+        <FsButton OnClick="ProfileAction">Save settings</FsButton>
+    </FsSettings>
+    <EditForm Model="_model" OnValidSubmit="Saved">
+        <DataAnnotationsValidator />
+        <FsText Label="Name" @bind-Value="_model.Name" />
+        <FsNumber TValue="decimal?" Label="Budget" @bind-Value="_model.Budget" />
+        <FsDate Label="Date" @bind-Value="_model.Date" />
+        <FsTime Label="Time" @bind-Value="_model.Time" />
+        <FsCheckbox Label="Updates" @bind-Value="_model.Updates" />
+        <FsSelect TValue="string" Label="Team" @bind-Value="_model.Team"><option>Design</option><option>Engineering</option></FsSelect>
+        <FsRadioGroup TValue="int" Label="Plan" Options="_plans" @bind-Value="_model.Plan" />
+        <FsAutocomplete TItem="string" Label="Assignee" @bind-Value="_model.Assignee"
+                        SearchAsync="SearchPeopleAsync" GetText="person => person" />
+        <FsButton Type="submit">Save</FsButton>
+    </EditForm>
+    <p id="bound-budget">@_model.Budget</p>
+    <p id="bound-assignee">@_model.Assignee</p>
+    <FsButton OnClick="Open">Open modal</FsButton>
+    <FsModal @ref="_modal" Title="WASM dialog" OnOpening="Initialize" OnClosed="Closed">
+        <FsAutocomplete TItem="string" Label="Project" @bind-Value="_project"
+                        SearchAsync="SearchPeopleAsync" GetText="person => person" AllowNewValues />
+        <FsButton OnClick="Close">Done</FsButton>
+    </FsModal>
+    <p id="modal-result">@_result</p>
+    <FsTable TItem="string" Caption="People" Items="_people" Columns="_columns" />
+    <FsToastHost />
+    <p id="ready">Interactive WebAssembly ready</p>
+</main>
+
+@code {
+    private readonly Profile _model = new();
+    private readonly IReadOnlyList<FsOption<int>> _plans = [new(1, "One"), new(2, "Two")];
+    private readonly IReadOnlyList<string> _people = ["Alex", "Jamie"];
+    private readonly IReadOnlyList<FsColumn<string>> _columns = [new("Name", value => @<span>@value</span>)];
+    private FsModal _modal = default!;
+    private string? _project, _result;
+    private bool _loading, _customLoading;
+    private void ShowLoading() { _customLoading = false; _loading = true; }
+    private void ShowCustomLoading() { _customLoading = true; _loading = true; }
+    private void HideLoading() => _loading = false;
+    private Task Open() => _modal.OpenAsync();
+    private Task Close() => _modal.CloseAsync();
+    private void Initialize() => _project = "Initialized";
+    private async Task<IReadOnlyList<string>> SearchPeopleAsync(string text, CancellationToken cancellationToken)
+    {
+        await Task.Delay(30, cancellationToken);
+        return _people.Where(person => person.Contains(text, StringComparison.OrdinalIgnoreCase)).ToArray();
+    }
+    private void Closed(FsCloseReason reason) => _result = reason.ToString();
+    private void Saved() => Toasts.Show("Saved", FsToastStyle.Success, "WASM success", TimeSpan.Zero);
+    private void ProfileAction() => Toasts.Show("Profile action");
+    private sealed class Profile
+    {
+        [Required] public string? Name { get; set; }
+        [Required] public decimal? Budget { get; set; }
+        public DateOnly? Date { get; set; }
+        public TimeOnly? Time { get; set; }
+        public bool Updates { get; set; }
+        public string Team { get; set; } = "Design";
+        public int Plan { get; set; } = 1;
+        public string? Assignee { get; set; }
+    }
+}

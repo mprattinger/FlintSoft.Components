@@ -1,0 +1,98 @@
+@page "/inputs"
+@inject FsToastService Toasts
+
+<PageTitle>Inputs - FlintSoft</PageTitle>
+<div class="demo-eyebrow">COMPONENTS / 01</div>
+<h1>Good input.<br /><span>Great conversations.</span></h1>
+<p class="demo-lead">Floating labels stay out of the way. Typed values and integrated validation do the heavy lifting.</p>
+
+<FsPanel Title="The everyday essentials" Description="Standalone binding. No form required." Badge="LIVE">
+    <div class="demo-form-grid">
+        <FsText Label="Full name" @bind-Value="_name" UpdateOnInput="true" HelpText="@($"Bound value: {_name}")" />
+        <FsText Label="Email address" Type="email" @bind-Value="_email" />
+        <FsText Label="Password" Type="password" @bind-Value="_password" autocomplete="new-password" />
+        <FsText Label="Read-only field" @bind-Value="_readOnly" ReadOnly />
+        <FsNumber TValue="decimal?" Label="Amount" Prefix="EUR" @bind-Value="_amount" UpdateOnInput="true" HelpText="@($"de-DE culture: {_amount?.ToString() ?? "(null)"}")" />
+        <FsNumber TValue="int?" Label="Team size" Suffix="people" @bind-Value="_size" />
+        <FsDate Label="Start date" @bind-Value="_date" />
+        <FsTime Label="Start time" @bind-Value="_time" />
+        <FsSelect TValue="string" Label="Department" @bind-Value="_department">
+            <option value="">Choose a department</option><option>Design</option><option>Engineering</option><option>Operations</option>
+        </FsSelect>
+        <FsText Label="Disabled field" @bind-Value="_disabled" Disabled />
+        <div class="demo-full-width"><FsTextArea Label="A few words about your project" @bind-Value="_notes" /></div>
+    </div>
+</FsPanel>
+<FsPanel Title="Find the right match" Description="Async suggestions, keyboard navigation and custom object templates." Badge="AUTOCOMPLETE">
+    <div class="demo-form-grid">
+        <FsAutocomplete TItem="Contact" Label="Existing contact" @bind-Value="_contact"
+                        SearchAsync="SearchContactsAsync" GetText="contact => contact.Name"
+                        ItemSelected="ContactSelected" HelpText="Type a name or city. Use Up/Down then Enter, or click a suggestion.">
+            <ItemTemplate Context="contact">
+                <strong>@contact.Name</strong>
+                <div class="demo-muted">@contact.City - @contact.Email</div>
+            </ItemTemplate>
+        </FsAutocomplete>
+        <FsAutocomplete TItem="Contact" Label="Contact or new name" @bind-Value="_newContact"
+                        SearchAsync="SearchContactsAsync" GetText="contact => contact.Name" AllowNewValues
+                        HelpText="Select a contact, or commit a new name with Enter or by leaving the field." />
+    </div>
+    <p class="demo-muted" role="status">Bound contact: @(_contact ?? "(none)") / Selected object: @_selectedContact</p>
+    <p class="demo-muted">Free-text binding: @(_newContact ?? "(none)")</p>
+</FsPanel>
+<FsPanel Title="A choice, clearly made" Description="Distinct controls for distinct decisions.">
+    <div class="demo-form-grid">
+        <div><FsCheckbox Label="Send me product updates" @bind-Value="_updates" /><p class="demo-muted">Updates: @_updates</p></div>
+        <FsRadioGroup TValue="string" Label="Preferred plan" Options="_plans" @bind-Value="_plan" HelpText="@($"Selected: {_plan}")" />
+    </div>
+</FsPanel>
+<FsPanel Title="Validation with a little guidance" Description="EditForm + DataAnnotations. Submit to see field-level feedback." Badge="EDITFORM">
+    <EditForm Model="_model" OnValidSubmit="Save" FormName="profile">
+        <DataAnnotationsValidator />
+        <div class="demo-form-grid">
+            <FsText Label="Display name" @bind-Value="_model.Name" />
+            <FsText Type="email" Label="Work email" @bind-Value="_model.Email" />
+            <FsNumber TValue="decimal?" Label="Project budget" Prefix="EUR" @bind-Value="_model.Budget" HelpText="Between 100 and 100,000. Try 1250,50." />
+            <FsDate Label="Delivery date" @bind-Value="_model.Delivery" />
+        </div>
+        <div class="demo-actions demo-spaced"><FsButton Type="submit">Save profile</FsButton><span class="demo-muted">All four fields are required.</span></div>
+    </EditForm>
+</FsPanel>
+<div class="demo-code"><span>THE BASICS</span><pre><code>&lt;FsText Label="Name" @@bind-Value="model.Name" /&gt;
+&lt;FsNumber TValue="decimal?" Label="Budget" @@bind-Value="model.Budget" /&gt;</code></pre></div>
+
+@code {
+    private string? _name = "Alex Morgan", _email, _password, _notes, _disabled = "Not available", _readOnly = "A detail worth keeping";
+    private string _department = "Design", _plan = "Studio";
+    private decimal? _amount = 1250.50m;
+    private int? _size = 6;
+    private DateOnly? _date = DateOnly.FromDateTime(DateTime.Today);
+    private TimeOnly? _time = new(9, 30);
+    private bool _updates = true;
+    private readonly Profile _model = new();
+    private string? _contact, _newContact;
+    private string _selectedContact = "(none)";
+    private static readonly IReadOnlyList<Contact> Contacts = [
+        new(1, "Alex Morgan", "Vienna", "alex@example.com"),
+        new(2, "Jamie Lee", "Berlin", "jamie@example.com"),
+        new(3, "Sam Kim", "Vienna", "sam@example.com"),
+        new(4, "Robin Taylor", "London", "robin@example.com")
+    ];
+    private static async Task<IReadOnlyList<Contact>> SearchContactsAsync(string text, CancellationToken cancellationToken)
+    {
+        await Task.Delay(150, cancellationToken);
+        return Contacts.Where(contact => contact.Name.Contains(text, StringComparison.OrdinalIgnoreCase) ||
+            contact.City.Contains(text, StringComparison.OrdinalIgnoreCase)).ToArray();
+    }
+    private void ContactSelected(Contact contact) => _selectedContact = $"{contact.Id}: {contact.Name}, {contact.City}";
+    private sealed record Contact(int Id, string Name, string City, string Email);
+    private readonly IReadOnlyList<FsOption<string>> _plans = [new("Personal", "Personal"), new("Studio", "Studio"), new("Enterprise", "Enterprise")];
+    private void Save() => Toasts.Show("Your profile is ready to go.", FsToastStyle.Success, "Changes saved");
+    private sealed class Profile
+    {
+        [Required, MinLength(2)] public string? Name { get; set; }
+        [Required, EmailAddress] public string? Email { get; set; }
+        [Required, Range(typeof(decimal), "100", "100000")] public decimal? Budget { get; set; }
+        [Required] public DateOnly? Delivery { get; set; }
+    }
+}

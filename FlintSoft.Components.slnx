@@ -1,4 +1,11 @@
 <Solution>
-  <Project Path="Demo/Demo.csproj" Id="6995315c-db08-4748-9c08-759a813d5766" />
-  <Project Path="FlintSoft.Components/FlintSoft.Components.csproj" />
+  <Folder Name="/src/">
+    <Project Path="src/FlintSoft.Components.csproj" />
+  </Folder>
+  <Project Path="Demo/Demo.csproj" />
+  <Folder Name="/tests/">
+    <Project Path="tests/FlintSoft.Components.Tests/FlintSoft.Components.Tests.csproj" />
+    <Project Path="tests/FlintSoft.Components.BrowserTests/FlintSoft.Components.BrowserTests.csproj" />
+    <Project Path="tests/WasmHost/WasmHost.csproj" />
+  </Folder>
 </Solution>

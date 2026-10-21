@@ -1,0 +1,59 @@
+@namespace FlintSoft.Components
+@implements IDisposable
+
+<div class="fs-toast fs-toast-@Toast.Style.ToString().ToLowerInvariant()"
+     role="@(Toast.Style == FsToastStyle.Danger ? "alert" : "status")" aria-atomic="true"
+     @onmouseenter="Pause" @onmouseleave="Resume"
+     @onfocusin="FocusIn" @onfocusout="FocusOut">
+    <div class="fs-toast-indicator" aria-hidden="true">@Symbol</div>
+    <div class="fs-toast-body">
+        @if (Toast.Title is not null) { <strong>@Toast.Title</strong> }
+        @if (Toast.Content is not null) { @Toast.Content }
+        else { <div>@Toast.Text</div> }
+    </div>
+    <button type="button" class="fs-icon-button" aria-label="Dismiss notification" @onclick="OnDismiss">&#215;</button>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public FsToast Toast { get; set; } = default!;
+    [Parameter] public EventCallback OnDismiss { get; set; }
+    private CancellationTokenSource? _timer;
+    private bool _hovered;
+    private bool _focused;
+    private bool _disposed;
+    private string Symbol => Toast.Style switch { FsToastStyle.Success => "+", FsToastStyle.Danger => "!", FsToastStyle.Warning => "!", _ => "i" };
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender) StartTimer();
+    }
+
+    private void Pause() { _hovered = true; CancelTimer(); }
+    private void Resume() { _hovered = false; StartTimer(); }
+    private void FocusIn() { _focused = true; CancelTimer(); }
+    private void FocusOut() { _focused = false; StartTimer(); }
+    private void StartTimer()
+    {
+        CancelTimer();
+        if (_disposed || _hovered || _focused || Toast.Duration is null) return;
+        _timer = new();
+        _ = ExpireAsync(Toast.Duration.Value, _timer.Token);
+    }
+
+    private async Task ExpireAsync(TimeSpan duration, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await Task.Delay(duration, cancellationToken);
+            await InvokeAsync(async () =>
+            {
+                if (!cancellationToken.IsCancellationRequested) await OnDismiss.InvokeAsync();
+            });
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { }
+        catch (Exception exception) { await DispatchExceptionAsync(exception); }
+    }
+
+    private void CancelTimer() { _timer?.Cancel(); _timer?.Dispose(); _timer = null; }
+    public void Dispose() { _disposed = true; CancelTimer(); }
+}

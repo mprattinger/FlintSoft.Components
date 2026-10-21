@@ -1,0 +1,49 @@
+@page "/adorners"
+
+<PageTitle>Adorners - FlintSoft</PageTitle>
+<div class="demo-eyebrow">COMPONENTS / 10</div>
+<h1>A moment to wait.<br /><span>Keep loading clear.</span></h1>
+<p class="demo-lead">A full-screen overlay with a centered loading message or your own content.</p>
+
+<FsPanel Title="Loading overlay" Description="The default message disappears when loading finishes. Custom content can include a cancel action.">
+    <div class="demo-actions">
+        <FsButton OnClick="LoadAsync" Disabled="_loading">Show loading</FsButton>
+        <FsButton OnClick="ShowCustom" Appearance="FsAppearance.Secondary">Show custom content</FsButton>
+    </div>
+</FsPanel>
+
+<FsAdorner IsLoading="_loading" />
+<FsAdorner IsLoading="_custom">
+    <div class="demo-stack">
+        <strong>Preparing your workspace</strong>
+        <p>Your own content, centered on the screen.</p>
+        <FsButton OnClick="Cancel">Cancel loading</FsButton>
+    </div>
+</FsAdorner>
+
+<div class="demo-code"><span>A LITTLE PATIENCE</span><pre><code>&lt;FsAdorner IsLoading="_loading" /&gt;
+
+&lt;FsAdorner IsLoading="_loading"&gt;
+    &lt;p&gt;Preparing your workspace...&lt;/p&gt;
+&lt;/FsAdorner&gt;</code></pre></div>
+
+@code {
+    private bool _loading;
+    private bool _custom;
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        try
+        {
+            await Task.Delay(2000);
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private void ShowCustom() => _custom = true;
+    private void Cancel() => _custom = false;
+}
