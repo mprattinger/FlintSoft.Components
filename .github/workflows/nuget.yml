@@ -9,11 +9,10 @@ permissions:
   contents: read
 
 jobs:
-  package:
-    runs-on: windows-latest
-    defaults:
-      run:
-        shell: pwsh
+  build-and-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
 
     steps:
       - name: Check out full history for GitVersion
@@ -26,37 +25,37 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
-      - name: Restore GitVersion
-        run: dotnet tool restore
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v4
+        with:
+          versionSpec: 6.x
 
-      - name: Calculate version
-        id: version
-        run: |
-          $json = dotnet gitversion /output json
-          if ($LASTEXITCODE -ne 0) { throw "GitVersion failed." }
-          $version = ($json -join "`n") | ConvertFrom-Json
-          "package=$($version.MajorMinorPatch)" >> $env:GITHUB_OUTPUT
-          "assembly=$($version.AssemblySemVer)" >> $env:GITHUB_OUTPUT
-          "file=$($version.AssemblySemFileVer)" >> $env:GITHUB_OUTPUT
-          "informational=$($version.InformationalVersion)" >> $env:GITHUB_OUTPUT
+      - name: Determine version with GitVersion
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v0
+        with:
+          useConfigFile: true
+      
+      - name: Restore dependencies
+        run: dotnet restore
 
       - name: Run component tests
-        run: dotnet test tests\FlintSoft.Components.Tests\FlintSoft.Components.Tests.csproj --configuration Release --verbosity minimal
+        run: dotnet test tests\FlintSoft.Components.Tests\FlintSoft.Components.Tests.csproj --configuration Release --verbosity minimal --no-restore
 
       - name: Pack
         run: |
-          dotnet pack src\FlintSoft.Components.csproj --configuration Release --output artifacts `
+          dotnet pack src\FlintSoft.Components.csproj --configuration Release --output artifacts --no-restore `
             -p:ContinuousIntegrationBuild=true `
-            -p:Version=${{ steps.version.outputs.package }} `
-            -p:PackageVersion=${{ steps.version.outputs.package }} `
-            -p:AssemblyVersion=${{ steps.version.outputs.assembly }} `
-            -p:FileVersion=${{ steps.version.outputs.file }} `
+            -p:Version=${{ steps.gitversion.outputs.package }} `
+            -p:PackageVersion=${{ steps.gitversion.outputs.package }} `
+            -p:AssemblyVersion=${{ steps.gitversion.outputs.assembly }} `
+            -p:FileVersion=${{ steps.gitversion.outputs.file }} `
             -p:InformationalVersion=${{ steps.version.outputs.informational }}
 
       - name: Upload NuGet packages
         uses: actions/upload-artifact@v4
         with:
-          name: FlintSoft.Components.${{ steps.version.outputs.package }}
+          name: FlintSoft.Components.${{ steps.gitversion.outputs.package }}
           path: |
             artifacts\*.nupkg
             artifacts\*.snupkg
