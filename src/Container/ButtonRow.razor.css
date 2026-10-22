@@ -1,0 +1,14 @@
+.fs-button-row {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1rem;
+    width: 100%;
+}
+
+@media (min-width: 992px) {
+    .fs-button-row {
+        flex-direction: row;
+        justify-content: flex-end;
+    }
+}

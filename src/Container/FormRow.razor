@@ -1,0 +1,16 @@
+﻿<div class="@internalClass" style="@internalStyle">
+    @ChildContent
+</div>
+
+@code {
+    private string internalClass => $"fs-form-row{(string.IsNullOrWhiteSpace(Class) ? "" : $" {Class}")}";
+    private string internalStyle => $"{(string.IsNullOrWhiteSpace(Style) ? "" : $" {Style}")}";
+
+    [Parameter]
+    public string? Style { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}
