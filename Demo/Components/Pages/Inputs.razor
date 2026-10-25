@@ -16,6 +16,7 @@
         <FsNumber TValue="int?" Label="Team size" Suffix="people" @bind-Value="_size" />
         <FsDate Label="Start date" @bind-Value="_date" />
         <FsTime Label="Start time" @bind-Value="_time" />
+        <FsDateTime Label="Start date and time" @bind-Value="_dateTime" />
         <FsSelect TValue="string" Label="Department" @bind-Value="_department">
             <option value="">Choose a department</option><option>Design</option><option>Engineering</option><option>Operations</option>
         </FsSelect>
@@ -68,6 +69,7 @@
     private int? _size = 6;
     private DateOnly? _date = DateOnly.FromDateTime(DateTime.Today);
     private TimeOnly? _time = new(9, 30);
+    private DateTime? _dateTime = new(2026, 10, 20, 9, 30, 0);
     private bool _updates = true;
     private readonly Profile _model = new();
     private string? _contact, _newContact;

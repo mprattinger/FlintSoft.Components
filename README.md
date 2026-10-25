@@ -81,6 +81,7 @@ Override dark-theme tokens in `[data-fs-theme="dark"]` when customizing that the
 <FsNumber TValue="decimal?" Label="Budget" Prefix="EUR" @bind-Value="model.Budget" />
 <FsDate Label="Date" @bind-Value="model.Date" />
 <FsTime Label="Time" @bind-Value="model.Time" />
+<FsDateTime Label="Date and time" @bind-Value="model.DateTime" />
 <FsTextArea Label="Notes" @bind-Value="model.Notes" />
 <FsSelect TValue="string" Label="Team" @bind-Value="model.Team">
     <option value="">Choose a team</option>
@@ -92,7 +93,7 @@ Override dark-theme tokens in `[data-fs-theme="dark"]` when customizing that the
 
 Use `IReadOnlyList<FsOption<TValue>>` for radio options. Numeric types are `short`,
 `int`, `long`, `float`, `double`, `decimal`, and their nullable equivalents.
-Date and time bind to `DateOnly?` and `TimeOnly?`. Checkbox values are `bool`.
+Date and time bind to `DateOnly?`, `TimeOnly?` and `DateTime?` for combined values. Checkbox values are `bool`.
 Text inputs support text, password, email, tel, url and search.
 
 All inputs support `Label`, `HelpText`, `Id`, `Disabled`, `ReadOnly`, `Prefix`,

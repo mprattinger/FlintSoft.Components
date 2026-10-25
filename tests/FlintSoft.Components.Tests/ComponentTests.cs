@@ -101,6 +101,13 @@ public sealed class ComponentTests : BunitContext
             .Add(c => c.ValueExpression, () => model.Time));
         time.Find("input").Change("09:30:15");
         Assert.Equal(new TimeOnly(9, 30, 15), model.Time);
+        var dateTime = Render<FsDateTime>(p => p
+            .Add(c => c.ValueChanged, value => model.DateTime = value)
+            .Add(c => c.ValueExpression, () => model.DateTime));
+        dateTime.Find("input").Change("2026-10-20T09:30:15");
+        Assert.Equal(new DateTime(2026, 10, 20, 9, 30, 15), model.DateTime);
+        dateTime.Find("input").Change("");
+        Assert.Null(model.DateTime);
         var select = Render<FsSelect<int?>>(p => p
             .Add(c => c.ValueChanged, value => model.Selection = value)
             .Add(c => c.ValueExpression, () => model.Selection)
@@ -327,6 +334,7 @@ public sealed class ComponentTests : BunitContext
         [Required, Range(100, 100000)] public decimal? Budget { get; set; }
         public DateOnly? Date { get; set; }
         public TimeOnly? Time { get; set; }
+        public DateTime? DateTime { get; set; }
         public int? Selection { get; set; }
         public bool Updates { get; set; }
     }
