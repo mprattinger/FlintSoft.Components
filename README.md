@@ -303,6 +303,9 @@ Initialization errors propagate to the caller. A second concurrent open throws;
 close the active modal first. Call `CloseAsync()` to close programmatically.
 `OnClosed` reports `Programmatic`, `CloseButton`, `Escape` or `Backdrop`.
 `CloseOnEscape` and `CloseOnBackdrop` default to true.
+`OpenAndWaitForCloseAsync()` opens the modal and completes when it closes,
+returning the close reason. This enables wrapper components that expose
+awaitable `OpenAsync(...)` methods and return edited/new data to the caller.
 For a titleless modal, provide `AccessibleLabel`.
 
 Native dialogs provide modal background isolation and keyboard focus containment.

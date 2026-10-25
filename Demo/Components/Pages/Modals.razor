@@ -3,32 +3,72 @@
 <PageTitle>Modals - FlintSoft</PageTitle>
 <div class="demo-eyebrow">COMPONENTS / 03</div>
 <h1>A moment of focus.<br /><span>Without the noise.</span></h1>
-<p class="demo-lead">Dynamic content, async initialization and a background that politely steps aside.</p>
-<FsPanel Title="Your next project starts here" Description="Opening waits for initialization. Closing tells you why." Badge="ASYNC">
-    <div class="demo-modal-preview"><div class="demo-preview-window"><span class="demo-preview-window-dot"></span><span class="demo-preview-window-dot"></span><span class="demo-preview-window-dot"></span></div><div class="demo-modal-illustration"><span class="demo-card-tag">A LITTLE ROOM TO THINK</span><h3>Something new is taking shape.</h3><p>Press the button to open a real, keyboard-accessible dialog.</p><FsButton OnClick="Open" Disabled="_loading">@(_loading ? "Preparing..." : "Create a project")</FsButton></div></div>
-    <div class="demo-actions demo-spaced"><FsCheckbox Label="Close with Escape" @bind-Value="_escape" /><FsCheckbox Label="Close on backdrop click" @bind-Value="_backdrop" /></div>
+<p class="demo-lead">Use direct modal callbacks when needed, or wrap a modal and await a typed result.</p>
+<FsPanel Title="Wrapper component + awaitable open" Description="Open with existing data (or null for new) and await a result." Badge="REQUEST / RESPONSE">
+    <div class="demo-actions demo-bottom-space">
+        <FsButton OnClick="CreateProjectAsync">New project</FsButton>
+    </div>
+    <FsTable TItem="ProjectRow" Items="_projects" Columns="_columns" Caption="Projects" RowKey="project => project.Id">
+        <EmptyContent>No projects yet.</EmptyContent>
+    </FsTable>
     <p class="demo-muted" role="status">@_status</p>
 </FsPanel>
-<FsModal @ref="_modal" Title="Create a project" OnOpening="Initialize" OnClosed="Closed" CloseOnEscape="_escape" CloseOnBackdrop="_backdrop">
-    <p class="demo-muted">Give your next great idea a name. This value is initialized each time the modal opens.</p>
-    <FsText Label="Project name" @bind-Value="_project" />
-    <div class="demo-actions demo-spaced"><FsButton OnClick="Create">Create project</FsButton><FsButton Appearance="FsAppearance.Secondary" OnClick="Cancel">Cancel</FsButton></div>
-</FsModal>
-<div class="demo-code"><span>LIFECYCLE</span><pre><code>&lt;FsModal @@ref="modal" Title="Create project"
-         OnOpening="LoadAsync" OnClosed="HandleClose"&gt;
-    Your content here
-&lt;/FsModal&gt;
-
-await modal.OpenAsync();</code></pre></div>
+<ProjectEditorModal @ref="_editor" />
+<div class="demo-code"><span>WRAPPER FLOW</span><pre><code>var created = await editor.OpenAsync(null);
+var updated = await editor.OpenAsync(new ProjectEditorRequest(id, name, summary));</code></pre></div>
 
 @code {
-    private FsModal _modal = default!;
-    private string? _project;
-    private bool _escape = true, _backdrop = true, _loading;
-    private string _status = "No modal opened yet.";
-    private async Task Open() { try { await _modal.OpenAsync(); } finally { _loading = false; } }
-    private async Task Initialize() { _loading = true; await Task.Delay(250); _project = "Untitled project"; _status = "Initialized and opened."; }
-    private void Closed(FsCloseReason reason) => _status = $"Last close reason: {reason}.";
-    private Task Cancel() => _modal.CloseAsync();
-    private async Task Create() { var name = _project; await _modal.CloseAsync(); _status = $"Created \"{name}\"."; }
+    private ProjectEditorModal _editor = default!;
+    private string _status = "No modal interaction yet.";
+    private int _nextId = 4;
+    private readonly List<ProjectRow> _projects =
+    [
+        new(1, "FlintSoft Design System", "Token refresh and docs polish"),
+        new(2, "Billing Portal", "Role-based settings and invoice export"),
+        new(3, "Operations Board", "Queue overview with keyboard shortcuts")
+    ];
+    private IReadOnlyList<FsColumn<ProjectRow>> _columns = [];
+
+    protected override void OnInitialized()
+    {
+        _columns =
+        [
+            new("Name", project => @<strong>@project.Name</strong>),
+            new("Summary", project => @<span>@project.Summary</span>),
+            new("Actions", project => @<FsButton Appearance="FsAppearance.Action" OnClick="() => EditProjectAsync(project)">Edit</FsButton>)
+        ];
+    }
+
+    private async Task CreateProjectAsync()
+    {
+        var result = await _editor.OpenAsync();
+        if (result is null)
+        {
+            _status = "Create canceled.";
+            return;
+        }
+
+        var id = _nextId++;
+        _projects.Add(new ProjectRow(id, result.Name, result.Summary));
+        _status = $"Created \"{result.Name}\".";
+    }
+
+    private async Task EditProjectAsync(ProjectRow project)
+    {
+        var result = await _editor.OpenAsync(new ProjectEditorRequest(project.Id, project.Name, project.Summary));
+        if (result is null)
+        {
+            _status = $"Edit canceled for \"{project.Name}\".";
+            return;
+        }
+
+        var index = _projects.FindIndex(row => row.Id == project.Id);
+        if (index >= 0)
+        {
+            _projects[index] = new ProjectRow(project.Id, result.Name, result.Summary);
+            _status = $"Updated \"{result.Name}\".";
+        }
+    }
+
+    private sealed record ProjectRow(int Id, string Name, string Summary);
 }

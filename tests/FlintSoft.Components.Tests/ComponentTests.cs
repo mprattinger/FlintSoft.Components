@@ -254,7 +254,7 @@ public sealed class ComponentTests : BunitContext
     }
 
     [Fact]
-    public async Task ModalCoordinatesInitializationClosingAndFailure()
+    public async Task ModalCoordinatesInitializationClosingFailureAndAwaitableClose()
     {
         Services.AddFlintSoftComponents();
         var module = JSInterop.SetupModule("./_content/FlintSoft.Components/flintsoft.js");
@@ -278,6 +278,17 @@ public sealed class ComponentTests : BunitContext
         var failed = Render<FsModal>(p => p.Add(c => c.OnOpening, () => throw new InvalidOperationException("load failed")));
         await Assert.ThrowsAsync<InvalidOperationException>(() => failed.InvokeAsync(() => failed.Instance.OpenAsync()));
         await modal.InvokeAsync(() => modal.Instance.OpenAsync());
+        await modal.InvokeAsync(() => modal.Instance.CloseAsync());
+
+        var closeReasonTask = modal.InvokeAsync(() => modal.Instance.OpenAndWaitForCloseAsync());
+        await modal.InvokeAsync(() => modal.Instance.CloseAsync(FsCloseReason.CloseButton));
+        Assert.Equal(FsCloseReason.CloseButton, await closeReasonTask);
+
+        var pending = modal.InvokeAsync(() => modal.Instance.OpenAndWaitForCloseAsync());
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            () => modal.InvokeAsync(() => modal.Instance.OpenAndWaitForCloseAsync()));
+        await modal.InvokeAsync(() => modal.Instance.CloseAsync());
+        await pending;
     }
 
     [Fact]
