@@ -1,0 +1,38 @@
+<FsModal @ref="_modal" Title="@(_editingId is null ? "Create a project" : "Edit project")">
+    <p class="demo-muted">This wrapper accepts existing data and returns the edited result when saved.</p>
+    <div class="demo-stack">
+        <FsText Label="Project name" @bind-Value="_name" />
+        <FsTextArea Label="Summary" @bind-Value="_summary" />
+    </div>
+    <div class="demo-actions demo-spaced">
+        <FsButton OnClick="SaveAsync">Save</FsButton>
+        <FsButton Appearance="FsAppearance.Secondary" OnClick="CancelAsync">Cancel</FsButton>
+    </div>
+</FsModal>
+
+@code {
+    private FsModal _modal = default!;
+    private int? _editingId;
+    private string? _name;
+    private string? _summary;
+    private ProjectEditorResult? _result;
+
+    public async Task<ProjectEditorResult?> OpenAsync(ProjectEditorRequest? request = null)
+    {
+        _editingId = request?.Id;
+        _name = request?.Name ?? string.Empty;
+        _summary = request?.Summary ?? string.Empty;
+        _result = null;
+
+        var closeReason = await _modal.OpenAndWaitForCloseAsync();
+        return closeReason == FsCloseReason.Programmatic ? _result : null;
+    }
+
+    private async Task SaveAsync()
+    {
+        _result = new ProjectEditorResult(_editingId, (_name ?? string.Empty).Trim(), (_summary ?? string.Empty).Trim());
+        await _modal.CloseAsync();
+    }
+
+    private Task CancelAsync() => _modal.CloseAsync(FsCloseReason.CloseButton);
+}
