@@ -19,13 +19,13 @@
     <p class="demo-muted" role="status">@_status</p>
 </FsPanel>
 <ProjectEditorModal @ref="_editor" />
-<YesNoModal @ref="_yesno" />
+<FsYesNoModal @ref="_yesno" />
 <div class="demo-code"><span>WRAPPER FLOW</span><pre><code>var created = await editor.OpenAsync(null);
 var updated = await editor.OpenAsync(new ProjectEditorRequest(id, name, summary));</code></pre></div>
 
 @code {
     private ProjectEditorModal _editor = default!;
-    private YesNoModal _yesno = default!;
+    private FsYesNoModal _yesno = default!;
 
     private string _status = "No modal interaction yet.";
     private int _nextId = 4;
