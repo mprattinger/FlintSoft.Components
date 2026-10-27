@@ -1,0 +1,26 @@
+﻿<FsModal @ref="modal" Title="@title">
+    <div>@text</div>
+    <FsButtonRow>
+        <FsButton Color="Color.Primary" OnClick="() => modal.CloseAsync(FsCloseReason.Programmatic)">@BtnText</FsButton>
+    </FsButtonRow>
+</FsModal>
+
+@code {
+    FsModal modal = default!;
+    string title = "";
+    string text = "";
+
+    [Parameter]
+    public RenderFragment BtnText { get; set; } = builder => builder.AddContent(0, "Ok");
+
+    public async Task Open(string title = "", string text = "", RenderFragment? btnText = null)
+    {
+        this.title = title;
+        this.text = text;
+
+        BtnText = btnText ?? (builder => builder.AddContent(0, "Ok"));
+
+        var _ = await modal.OpenAndWaitForCloseAsync();
+        return;
+    }
+}
