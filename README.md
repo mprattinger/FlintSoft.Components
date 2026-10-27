@@ -112,23 +112,26 @@ WebAssembly; the library does not change the application's culture.
 
 ## Autocomplete
 
-`FsAutocomplete<TItem>` binds a **string** with `@bind-Value`. Supply an asynchronous
-search callback and a function that returns the input text for a selected item:
+`FsAutocomplete<TItem>` binds the selected `TItem` with `@bind-Value`. Supply an
+asynchronous search callback and a function that returns the input text for a
+selected item. Because it inherits `InputBase<TItem?>`, selection updates the
+bound model property and participates in `EditForm` validation:
 
 ```razor
-<FsAutocomplete TItem="Customer" Label="Customer" @bind-Value="customerName"
-                SearchAsync="SearchCustomersAsync" GetText="customer => customer.Name"
-                ItemSelected="CustomerSelected" AllowNewValues="false">
-    <ItemTemplate Context="customer">
-        <strong>@customer.Name</strong>
-        <div>@customer.City</div>
-    </ItemTemplate>
-</FsAutocomplete>
+<EditForm Model="model">
+    <DataAnnotationsValidator />
+    <FsAutocomplete TItem="Customer" Label="Customer" @bind-Value="model.Customer"
+                    SearchAsync="SearchCustomersAsync" GetText="customer => customer.Name">
+        <ItemTemplate Context="customer">
+            <strong>@customer.Name</strong>
+            <div>@customer.City</div>
+        </ItemTemplate>
+    </FsAutocomplete>
+    <ValidationMessage For="() => model.Customer" />
+</EditForm>
 
 @code {
-    private string? customerName;
-    private Customer? selectedCustomer;
-    private void CustomerSelected(Customer customer) => selectedCustomer = customer;
+    private readonly EditModel model = new();
     private async Task<IReadOnlyList<Customer>> SearchCustomersAsync(
         string text, CancellationToken cancellationToken)
     {
@@ -139,8 +142,13 @@ search callback and a function that returns the input text for a selected item:
 
 `ItemTemplate` is optional; suggestions display `GetText(item)` by default.
 Templates should contain display content, not interactive controls. `ItemSelected`
-fires only for an explicitly chosen suggestion, not for newly typed text.
-The callback receives the selected object; the bound value receives its `GetText`.
+fires only for an explicitly chosen suggestion; the bound value is the selected
+object itself. Typing is a draft and does not update the model until a suggestion
+is selected.
+
+With `AllowNewValues="true"`, Enter or leaving the field commits typed text. For
+`TItem="string"`, the text itself becomes the bound value. For other item types,
+provide `CreateItemFromText="text => ..."` to create the bound item from free text.
 
 Search defaults to a 250ms debounce and one character minimum, configurable with
 `DebounceMilliseconds` and `MinimumLength`. Focus searches the current text when it
@@ -153,12 +161,11 @@ with `LoadingText`, `NoResultsText` and `SearchErrorText`.
 No suggestion is automatically selected. Up/Down activates an entry, Enter commits
 it, and mouse/touch selection also commits it. Escape or an outside click closes the
 popup and cancels pending searches. Tab leaves without choosing a highlighted item.
-With `AllowNewValues="true"`, Enter or leaving the field commits the typed text.
-Otherwise (the default), leaving restores the previous committed value, or clears
-the input when there was none. Typing does not update the model on each keystroke;
-`UpdateOnInput` is not used for this control. An exact text match is not an implicit
-object selection. Clear the bound value from the parent to reset a restricted field.
-Changing the bound value externally also resets the editor and pending search.
+Otherwise (the default), leaving restores the previous selected item's text, or
+clears the input when there was no selection. `UpdateOnInput` is not used for this
+control. An exact text match is not an implicit selection. Clear the bound value
+from the parent to reset a restricted field. Changing the bound value externally
+also resets the editor and pending search.
 
 The component uses the existing floating label, affixes, help text and EditForm
 validation, along with ARIA combobox/listbox semantics. Suggestions are rendered

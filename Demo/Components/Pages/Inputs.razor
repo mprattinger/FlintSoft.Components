@@ -28,17 +28,17 @@
     <div class="demo-form-grid">
         <FsAutocomplete TItem="Contact" Label="Existing contact" @bind-Value="_contact"
                         SearchAsync="SearchContactsAsync" GetText="contact => contact.Name"
-                        ItemSelected="ContactSelected" HelpText="Type a name or city. Use Up/Down then Enter, or click a suggestion.">
+                        HelpText="Type a name or city. Use Up/Down then Enter, or click a suggestion.">
             <ItemTemplate Context="contact">
                 <strong>@contact.Name</strong>
                 <div class="demo-muted">@contact.City - @contact.Email</div>
             </ItemTemplate>
         </FsAutocomplete>
-        <FsAutocomplete TItem="Contact" Label="Contact or new name" @bind-Value="_newContact"
-                        SearchAsync="SearchContactsAsync" GetText="contact => contact.Name" AllowNewValues
+        <FsAutocomplete TItem="string" Label="Contact or new name" @bind-Value="_newContact"
+                        SearchAsync="SearchContactNamesAsync" GetText="name => name" AllowNewValues
                         HelpText="Select a contact, or commit a new name with Enter or by leaving the field." />
     </div>
-    <p class="demo-muted" role="status">Bound contact: @(_contact ?? "(none)") / Selected object: @_selectedContact</p>
+    <p class="demo-muted" role="status">Bound customer: @(_contact is null ? "(none)" : $"{_contact.Id}: {_contact.Name}, {_contact.City}")</p>
     <p class="demo-muted">Free-text binding: @(_newContact ?? "(none)")</p>
 </FsPanel>
 <FsPanel Title="A choice, clearly made" Description="Distinct controls for distinct decisions.">
@@ -72,8 +72,8 @@
     private DateTime? _dateTime = new(2026, 10, 20, 9, 30, 0);
     private bool _updates = true;
     private readonly Profile _model = new();
-    private string? _contact, _newContact;
-    private string _selectedContact = "(none)";
+    private Contact? _contact;
+    private string? _newContact;
     private static readonly IReadOnlyList<Contact> Contacts = [
         new(1, "Alex Morgan", "Vienna", "alex@example.com"),
         new(2, "Jamie Lee", "Berlin", "jamie@example.com"),
@@ -86,7 +86,8 @@
         return Contacts.Where(contact => contact.Name.Contains(text, StringComparison.OrdinalIgnoreCase) ||
             contact.City.Contains(text, StringComparison.OrdinalIgnoreCase)).ToArray();
     }
-    private void ContactSelected(Contact contact) => _selectedContact = $"{contact.Id}: {contact.Name}, {contact.City}";
+    private static async Task<IReadOnlyList<string>> SearchContactNamesAsync(string text, CancellationToken cancellationToken) =>
+        (await SearchContactsAsync(text, cancellationToken)).Select(contact => contact.Name).ToArray();
     private sealed record Contact(int Id, string Name, string City, string Email);
     private readonly IReadOnlyList<FsOption<string>> _plans = [new("Personal", "Personal"), new("Studio", "Studio"), new("Enterprise", "Enterprise")];
     private void Save() => Toasts.Show("Your profile is ready to go.", FsToastStyle.Success, "Changes saved");

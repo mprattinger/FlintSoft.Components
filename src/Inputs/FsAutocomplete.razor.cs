@@ -15,6 +15,7 @@ public partial class FsAutocomplete<TItem> : IAsyncDisposable
     [Parameter, EditorRequired] public Func<TItem, string> GetText { get; set; } = default!;
     [Parameter] public RenderFragment<TItem>? ItemTemplate { get; set; }
     [Parameter] public EventCallback<TItem> ItemSelected { get; set; }
+    [Parameter] public Func<string, TItem>? CreateItemFromText { get; set; }
     [Parameter] public bool AllowNewValues { get; set; }
     [Parameter] public int MinimumLength { get; set; } = 1;
     [Parameter] public int DebounceMilliseconds { get; set; } = 250;
@@ -29,6 +30,7 @@ public partial class FsAutocomplete<TItem> : IAsyncDisposable
     private IReadOnlyList<TItem> _items = [];
     private string _text = "";
     private string _committedText = "";
+    private TItem? _committedValue;
     private string? _searchError;
     private int _activeIndex = -1;
     private long _request;
@@ -63,12 +65,15 @@ public partial class FsAutocomplete<TItem> : IAsyncDisposable
         ArgumentNullException.ThrowIfNull(GetText);
         ArgumentOutOfRangeException.ThrowIfNegative(MinimumLength);
         ArgumentOutOfRangeException.ThrowIfNegative(DebounceMilliseconds);
-        var value = Value ?? "";
-        if (!_initialized || value != _committedText)
+        if (AllowNewValues && CreateItemFromText is null && typeof(TItem) != typeof(string))
+            throw new InvalidOperationException($"{nameof(CreateItemFromText)} is required when {nameof(AllowNewValues)} is enabled for {typeof(TItem).Name}.");
+        var valueText = Value is null ? "" : GetText(Value);
+        if (!_initialized || !EqualityComparer<TItem?>.Default.Equals(Value, _committedValue) || valueText != _committedText)
         {
             _initialized = true;
-            _committedText = value;
-            _text = value;
+            _committedValue = Value;
+            _committedText = valueText;
+            _text = valueText;
             CloseSuggestions();
         }
         if (Disabled || ReadOnly)
@@ -179,15 +184,22 @@ public partial class FsAutocomplete<TItem> : IAsyncDisposable
         if (Disabled || ReadOnly || !_open || index < 0 || index >= _items.Count) return;
         var item = _items[index];
         _text = GetText(item);
-        CommitText();
+        CloseSuggestions();
+        CurrentValue = item;
+        _committedValue = item;
+        _committedText = _text;
         await ItemSelected.InvokeAsync(item);
     }
 
     private void CommitText()
     {
         CloseSuggestions();
-        CurrentValueAsString = _text;
-        _committedText = Value ?? "";
+        var item = CreateItemFromText is not null
+            ? CreateItemFromText(_text)
+            : (TItem)(object)_text;
+        CurrentValue = item;
+        _committedValue = item;
+        _committedText = GetText(item);
         _text = _committedText;
     }
 
@@ -195,7 +207,11 @@ public partial class FsAutocomplete<TItem> : IAsyncDisposable
     {
         _focused = false;
         if (!Disabled && !ReadOnly && AllowNewValues) CommitText();
-        else { _text = _committedText; CloseSuggestions(); }
+        else
+        {
+            _text = _committedText;
+            CloseSuggestions();
+        }
         return Task.CompletedTask;
     }
 
@@ -219,12 +235,12 @@ public partial class FsAutocomplete<TItem> : IAsyncDisposable
         _searchError = null;
     }
 
-    protected override bool TryParse(string? value, out string? result,
+    protected override bool TryParse(string? value, out TItem? result,
         [NotNullWhen(false)] out string? validationErrorMessage)
     {
-        result = value;
-        validationErrorMessage = null;
-        return true;
+        result = default;
+        validationErrorMessage = "Select a suggestion to set the value.";
+        return false;
     }
 
     protected override void Dispose(bool disposing)
