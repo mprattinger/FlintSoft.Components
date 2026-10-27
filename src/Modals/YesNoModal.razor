@@ -1,0 +1,32 @@
+﻿@using FlintSoft.Components.Container
+<FsModal @ref="modal" Title="@title">
+    <div>@text</div>
+    <ButtonRow>
+        <FsButton Color="Color.Secondary" OnClick="() => modal.CloseAsync(FsCloseReason.CloseButton)">@NoText</FsButton>
+        <FsButton Color="Color.Primary" OnClick="() => modal.CloseAsync(FsCloseReason.Programmatic)">@YesText</FsButton>
+    </ButtonRow>
+</FsModal>
+
+@code {
+    FsModal modal = default!;
+    string title = "";
+    string text = "";
+
+    [Parameter]
+    public RenderFragment YesText { get; set; } = builder => builder.AddContent(0, "Yes");
+
+    [Parameter]
+    public RenderFragment NoText { get; set; } = builder => builder.AddContent(0, "No");
+
+    public async Task<bool> Open(string title = "", string text = "", RenderFragment yesText = null, RenderFragment noText = null)
+    {
+        this.title = title;
+        this.text = text;
+        YesText = yesText ?? (builder => builder.AddContent(0, "Yes"));
+        NoText = noText ?? (builder => builder.AddContent(0, "No"));
+
+        var result = await modal.OpenAndWaitForCloseAsync();
+        
+        return result == FsCloseReason.Programmatic;
+    }
+}
