@@ -27,6 +27,25 @@ public sealed class ComponentTests : BunitContext
     }
 
     [Fact]
+    public async Task FocusAsyncCanBeCalledAfterRender()
+    {
+        JSInterop.Mode = JSRuntimeMode.Loose;
+        var model = new Model();
+        var text = Render<FsText>(p => p
+            .Add(c => c.Value, model.Name)
+            .Add(c => c.ValueChanged, value => model.Name = value)
+            .Add(c => c.ValueExpression, () => model.Name));
+        var select = Render<FsSelect<int?>>(p => p
+            .Add(c => c.Value, model.Selection)
+            .Add(c => c.ValueChanged, value => model.Selection = value)
+            .Add(c => c.ValueExpression, () => model.Selection)
+            .AddChildContent("<option value=\"\">None</option>"));
+
+        await text.InvokeAsync(() => text.Instance.FocusAsync().AsTask());
+        await select.InvokeAsync(() => select.Instance.FocusAsync().AsTask());
+    }
+
+    [Fact]
     public void NumericInputPreservesInvalidTextAndUsesDecimalComma()
     {
         var previous = CultureInfo.CurrentCulture;

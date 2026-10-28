@@ -16,6 +16,7 @@ public class FsText : FsInputBase<string?>
         builder.AddAttribute(38, "type", Type);
         builder.AddAttribute(39, "placeholder", " ");
         AddTextBinding(builder);
+        CaptureControlElement(builder, 60);
         builder.CloseElement();
     }
 

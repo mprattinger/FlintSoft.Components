@@ -61,6 +61,14 @@ public sealed class AutocompleteTests : BunitContext
     }
 
     [Fact]
+    public async Task FocusAsyncCanBeCalledAfterRender()
+    {
+        JSInterop.Mode = JSRuntimeMode.Loose;
+        var input = Create();
+        await input.InvokeAsync(() => input.Instance.FocusAsync().AsTask());
+    }
+
+    [Fact]
     public async Task RestrictedBlurRestoresPreviousValueAndEscapeIgnoresLateResults()
     {
         _value = Contacts[0];

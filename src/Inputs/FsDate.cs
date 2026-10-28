@@ -13,6 +13,7 @@ public class FsDate : FsInputBase<DateOnly?>
         AddControlAttributes(builder);
         builder.AddAttribute(38, "type", "date");
         AddTextBinding(builder);
+        CaptureControlElement(builder, 60);
         builder.CloseElement();
     }
 

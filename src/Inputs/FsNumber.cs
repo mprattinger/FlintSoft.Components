@@ -32,6 +32,7 @@ public class FsNumber<TValue> : FsInputBase<TValue>
         builder.AddAttribute(40, "placeholder", " ");
         AddTextBinding(builder);
         builder.AddAttribute(60, "onblur", EventCallback.Factory.Create<FocusEventArgs>(this, () => _editing = false));
+        CaptureControlElement(builder, 61);
         builder.CloseElement();
     }
 

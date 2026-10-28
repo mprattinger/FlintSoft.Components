@@ -32,6 +32,7 @@ public class FsRadioGroup<TValue> : FsInputBase<TValue>
             builder.AddAttribute(42, "disabled", Disabled || ReadOnly || option.Disabled);
             builder.AddAttribute(43, "checked", EqualityComparer<TValue>.Default.Equals(CurrentValue, option.Value));
             builder.AddAttribute(44, "onchange", EventCallback.Factory.Create<ChangeEventArgs>(this, _ => CurrentValue = option.Value));
+            if (index == 0) CaptureControlElement(builder, 60);
             builder.CloseElement();
             builder.AddContent(45, option.Label);
             builder.CloseElement();
