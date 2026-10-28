@@ -242,11 +242,12 @@ containing arbitrary `ChildContent`:
 </FsSettings>
 ```
 
-Click the gear again, click outside, press Escape, or move keyboard focus outside
-to close. Links and controls inside remain interactive and do not automatically
-dismiss the flyout. Enter and Space toggle the button, Tab reaches the content,
-and Escape returns focus to the gear. The flyout is non-modal, not an ARIA menu,
-so it can contain links, buttons, inputs, or other components.
+Click the gear again, click outside, press Escape, move keyboard focus outside,
+or activate a link inside the flyout to close. Buttons, inputs and other controls
+inside remain interactive without dismissing automatically. Enter and Space toggle
+the button, Tab reaches the content, and Escape returns focus to the gear. The
+flyout is non-modal, not an ARIA menu, so it can contain links, buttons, inputs,
+or other components.
 
 `AccessibleLabel` defaults to "Settings" and labels both the button and flyout.
 `Class` and additional HTML attributes apply to the outer wrapper. It supports

@@ -131,7 +131,7 @@ export function attachPersona(root, reference) {
     attachFlyout(root, reference, ".fs-persona-avatar", ".fs-persona-card", "DismissPersonaAsync");
 }
 
-function attachFlyout(root, reference, triggerSelector, contentSelector, dismissMethod) {
+function attachFlyout(root, reference, triggerSelector, contentSelector, dismissMethod, dismissOnLinkClick = false) {
     if (flyouts.has(root)) return;
     const trigger = root.querySelector(triggerSelector);
     const isOpen = () => trigger.getAttribute("aria-expanded") === "true";
@@ -147,11 +147,18 @@ function attachFlyout(root, reference, triggerSelector, contentSelector, dismiss
             reference.invokeMethodAsync(dismissMethod);
         }
     };
+    const click = event => {
+        if (!dismissOnLinkClick || !isOpen() || !(event.target instanceof Element)) return;
+        const link = event.target.closest("a[href]");
+        const content = root.querySelector(contentSelector);
+        if (link && content?.contains(link)) reference.invokeMethodAsync(dismissMethod);
+    };
     const reposition = () => positionFlyout(root, contentSelector);
     const cleanup = () => {
         document.removeEventListener("pointerdown", outside, true);
         document.removeEventListener("focusin", outside, true);
         root.removeEventListener("keydown", keydown);
+        root.removeEventListener("click", click);
         window.removeEventListener("resize", reposition);
         observer.disconnect();
         flyouts.delete(root);
@@ -162,6 +169,7 @@ function attachFlyout(root, reference, triggerSelector, contentSelector, dismiss
     document.addEventListener("pointerdown", outside, true);
     document.addEventListener("focusin", outside, true);
     root.addEventListener("keydown", keydown);
+    root.addEventListener("click", click);
     window.addEventListener("resize", reposition);
     observer.observe(document.body, { childList: true, subtree: true });
     flyouts.set(root, cleanup);
@@ -172,7 +180,7 @@ export function detachPersona(root) {
 }
 
 export function attachSettings(root, reference) {
-    attachFlyout(root, reference, ".fs-settings-trigger", ".fs-settings-flyout", "DismissSettingsAsync");
+    attachFlyout(root, reference, ".fs-settings-trigger", ".fs-settings-flyout", "DismissSettingsAsync", true);
 }
 
 export function positionSettings(root) {

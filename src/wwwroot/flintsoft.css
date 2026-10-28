@@ -195,7 +195,7 @@
 .fs-table-actions > * { max-width: 100%; overflow-wrap: anywhere; }
 .fs-table-scroll { overflow-x: auto; border: 1px solid var(--fs-color-border); border-radius: var(--fs-radius); background: var(--fs-color-surface); }
 .fs-table { width: 100%; border-collapse: collapse; text-align: left; white-space: nowrap; }
-.fs-table caption { text-align: left; padding: 1rem 1.2rem; font-weight: 600; }
+.fs-table caption { caption-side: top; text-align: left; padding: 1rem 1.2rem; font-weight: 600; }
 .fs-table th { background: var(--fs-color-background); color: var(--fs-color-muted); font-weight: 600; font-size: .8rem; }
 .fs-table th, .fs-table td { padding: .9rem 1.2rem; border-top: 1px solid var(--fs-color-border); }
 .fs-table tbody tr:hover { background: var(--fs-color-primary-soft); }

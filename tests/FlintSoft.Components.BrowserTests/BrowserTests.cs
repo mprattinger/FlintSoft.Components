@@ -185,13 +185,15 @@ public sealed class BrowserTests(BrowserFixture fixture) : IClassFixture<Browser
             """);
         await page.GetByRole(AriaRole.Button, new() { Name = wasm ? "Save" : "Toggle dark theme", Exact = true }).FocusAsync();
         await Expect(flyout).ToHaveCountAsync(0);
-        if (!wasm)
-        {
-            await trigger.ClickAsync();
-            await flyout.GetByRole(AriaRole.Link, new() { Name = "Profile settings" }).ClickAsync();
-            await Expect(flyout).ToHaveCountAsync(0);
-            await Expect(page.Locator("h1")).ToContainTextAsync("A familiar face.");
-        }
+        await trigger.ClickAsync();
+        await page.EvaluateAsync("""
+            () => {
+                const link = document.querySelector(".fs-settings-flyout a");
+                if (link) link.addEventListener("click", event => event.preventDefault(), { once: true });
+            }
+            """);
+        await flyout.GetByRole(AriaRole.Link, new() { Name = "Profile settings" }).ClickAsync();
+        await Expect(flyout).ToHaveCountAsync(0);
         Assert.Empty(errors);
         await context.CloseAsync();
     }
