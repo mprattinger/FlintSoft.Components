@@ -41,6 +41,15 @@
     <p class="demo-muted" role="status">Bound customer: @(_contact is null ? "(none)" : $"{_contact.Id}: {_contact.Name}, {_contact.City}")</p>
     <p class="demo-muted">Free-text binding: @(_newContact ?? "(none)")</p>
 </FsPanel>
+<FsPanel Title="Pick a file" Description="Single or multiple file selection with accept filtering." Badge="FILE">
+    <div class="demo-form-grid">
+        <FsFileInput Label="Upload document" Accept=".pdf,.docx" OnChange="OnFileSelected"
+                     HelpText="@($"Selected: {_fileName ?? "(none)"}")" />
+        <FsFileInput Label="Upload images" Accept="image/*" Multiple OnChange="OnMultipleFilesSelected"
+                     HelpText="@($"{_fileCount} file(s) selected")" />
+        <FsFileInput Label="Disabled uploader" Disabled />
+    </div>
+</FsPanel>
 <FsPanel Title="A choice, clearly made" Description="Distinct controls for distinct decisions.">
     <div class="demo-form-grid">
         <div><FsCheckbox Label="Send me product updates" @bind-Value="_updates" /><p class="demo-muted">Updates: @_updates</p></div>
@@ -63,6 +72,10 @@
 &lt;FsNumber TValue="decimal?" Label="Budget" @@bind-Value="model.Budget" /&gt;</code></pre></div>
 
 @code {
+    private string? _fileName;
+    private int _fileCount;
+    private void OnFileSelected(InputFileChangeEventArgs e) => _fileName = e.File.Name;
+    private void OnMultipleFilesSelected(InputFileChangeEventArgs e) => _fileCount = e.FileCount;
     private string? _name = "Alex Morgan", _email, _password, _notes, _disabled = "Not available", _readOnly = "A detail worth keeping";
     private string _department = "Design", _plan = "Studio";
     private decimal? _amount = 1250.50m;
