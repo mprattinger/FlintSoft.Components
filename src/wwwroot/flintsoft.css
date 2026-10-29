@@ -188,16 +188,21 @@
 .fs-toast-indicator { display: grid; place-items: center; border-radius: 50%; min-width: 1.6rem; height: 1.6rem; margin-top: .4rem; background: var(--fs-color-primary-soft); color: var(--fs-color-primary); font-weight: 700; }
 .fs-toast-body { flex: 1; min-width: 0; padding-top: .25rem; overflow-wrap: anywhere; line-height: 1.5; }
 .fs-toast-body strong { display: block; }
-.fs-table-container { min-width: 0; }
+.fs-table-container { min-width: 0; height: 100%; }
 .fs-table-caption { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--fs-space); white-space: normal; }
 .fs-table-title { min-width: 0; overflow-wrap: anywhere; }
 .fs-table-actions { display: flex; justify-content: flex-end; align-items: center; flex-wrap: wrap; gap: .5rem; min-width: 0; max-width: 100%; margin-left: auto; }
 .fs-table-actions > * { max-width: 100%; overflow-wrap: anywhere; }
-.fs-table-scroll { overflow-x: auto; border: 1px solid var(--fs-color-border); border-radius: var(--fs-radius); background: var(--fs-color-surface); }
+.fs-table-scroll {
+    height: 100%; max-height: 100%; overflow: auto; overflow-x: auto; overflow-y: auto;
+    border: 1px solid var(--fs-color-border); border-radius: var(--fs-radius); background: var(--fs-color-surface);
+}
 .fs-table { width: 100%; border-collapse: collapse; text-align: left; white-space: nowrap; }
 .fs-table caption { caption-side: top; text-align: left; padding: 1rem 1.2rem; font-weight: 600; }
-.fs-table thead { background: var(--fs-color-background); }
-.fs-table th { background: var(--fs-color-background); color: var(--fs-color-muted); font-weight: 600; font-size: .8rem; }
+.fs-table thead {
+    position: sticky; top: 0; z-index: 1; background: var(--fs-color-background);
+}
+.fs-table th { position: sticky; top: 0; z-index: 2; background: var(--fs-color-background); color: var(--fs-color-muted); font-weight: 600; font-size: .8rem; }
 .fs-table th, .fs-table td { padding: .9rem 1.2rem; border-top: 1px solid var(--fs-color-border); }
 .fs-table tbody tr:hover { background: var(--fs-color-primary-soft); }
 .fs-table .fs-table-state { text-align: center; padding: 2rem; color: var(--fs-color-muted); }
