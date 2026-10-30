@@ -150,6 +150,7 @@
     border-radius: .5rem; cursor: pointer; font-weight: 600; line-height: 1.2;
     transition: filter .15s, transform .15s;
 }
+.fs-button-compact { min-height: 2rem; padding: 0; }
 .fs-button-primary { background: var(--fs-color-primary); color: var(--fs-color-on-primary); }
 .fs-button-secondary { background: var(--fs-color-surface); color: var(--fs-color-text); border-color: var(--fs-color-border); }
 .fs-button-action { background: var(--fs-color-primary-soft); color: var(--fs-color-primary); }

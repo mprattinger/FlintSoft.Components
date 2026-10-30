@@ -173,6 +173,15 @@ public sealed class ComponentTests : BunitContext
     }
 
     [Fact]
+    public void ButtonSupportsCompactVariant()
+    {
+        var button = Render<FsButton>(p => p
+            .Add(c => c.Compact, true)
+            .AddChildContent("Row action"));
+        Assert.Contains("fs-button-compact", button.Find("button").ClassList);
+    }
+
+    [Fact]
     public void PanelRendersOptionalSectionsAndForwardsAttributes()
     {
         var panel = Render<FsPanel>(p => p

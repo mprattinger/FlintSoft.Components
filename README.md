@@ -286,10 +286,12 @@ the modal when showing loading over a modal. No JavaScript or services are requi
 <FsButton OnClick="Save">Save</FsButton>
 <FsButton Type="submit">Submit</FsButton>
 <FsButton Appearance="FsAppearance.Danger" Disabled="busy">Delete</FsButton>
+<FsButton Compact OnClick="OpenRowDetails">Details</FsButton>
 ```
 
 Appearances: `Primary`, `Secondary`, `Action`, `Danger`, `Success`.
 The default HTML type is `button`, not submit.
+Set `Compact` for denser layouts (for example table row actions): it removes button padding and uses a smaller minimum height.
 
 ## Modals
 
