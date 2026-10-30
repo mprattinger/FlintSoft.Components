@@ -280,6 +280,19 @@ public sealed class ComponentTests : BunitContext
     }
 
     [Fact]
+    public void TableWithoutCaptionDoesNotRenderCaptionRow()
+    {
+        var columns = new FsColumn<string>[] { new("Name", value => builder => builder.AddContent(0, value)) };
+        var table = Render<FsTable<string>>(p => p
+            .Add(c => c.Items, ["Alex"])
+            .Add(c => c.Columns, columns));
+        Assert.Empty(table.FindAll("caption"));
+        Assert.Null(table.Find("table").GetAttribute("aria-labelledby"));
+        Assert.Equal("Data table", table.Find("table").GetAttribute("aria-label"));
+        Assert.Equal("Data table", table.Find(".fs-table-scroll").GetAttribute("aria-label"));
+    }
+
+    [Fact]
     public async Task ModalCoordinatesInitializationClosingFailureAndAwaitableClose()
     {
         Services.AddFlintSoftComponents();

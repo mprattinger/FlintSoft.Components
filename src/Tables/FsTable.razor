@@ -2,17 +2,23 @@
 @typeparam TItem
 
 <div class="fs-table-container">
-<div class="fs-table-scroll" tabindex="0" role="region" aria-label="@Caption">
-    <table class="fs-table" role="table" aria-labelledby="@_captionId" aria-busy="@Loading.ToString().ToLowerInvariant()">
-        <caption>
-            <div class="fs-table-caption">
-                <span id="@_captionId" class="fs-table-title">@Caption</span>
-                @if (Actions is not null)
-                {
-                    <div class="fs-table-actions" role="group" aria-label="@($"{Caption} actions")">@Actions</div>
-                }
-            </div>
-        </caption>
+<div class="fs-table-scroll" tabindex="0" role="region" aria-label="@AccessibleLabel">
+    <table class="fs-table" role="table" aria-labelledby="@(HasCaption ? _captionId : null)" aria-label="@(HasCaption ? null : AccessibleLabel)" aria-busy="@Loading.ToString().ToLowerInvariant()">
+        @if (ShowCaptionRow)
+        {
+            <caption>
+                <div class="fs-table-caption">
+                    @if (HasCaption)
+                    {
+                        <span id="@_captionId" class="fs-table-title">@Caption</span>
+                    }
+                    @if (Actions is not null)
+                    {
+                        <div class="fs-table-actions" role="group" aria-label="@ActionsLabel">@Actions</div>
+                    }
+                </div>
+            </caption>
+        }
         <thead role="rowgroup">
             <tr role="row">
                 @foreach (var column in Columns)
@@ -59,10 +65,14 @@
 
 @code {
     private readonly string _captionId = $"fs-table-caption-{Guid.NewGuid():N}";
+    private bool HasCaption => !string.IsNullOrWhiteSpace(Caption);
+    private bool ShowCaptionRow => HasCaption || Actions is not null;
+    private string AccessibleLabel => HasCaption ? Caption! : "Data table";
+    private string ActionsLabel => HasCaption ? $"{Caption} actions" : "Table actions";
 
     [Parameter, EditorRequired] public IReadOnlyList<TItem> Items { get; set; } = [];
     [Parameter, EditorRequired] public IReadOnlyList<FsColumn<TItem>> Columns { get; set; } = [];
-    [Parameter] public string Caption { get; set; } = "Data";
+    [Parameter] public string? Caption { get; set; }
     [Parameter] public bool Loading { get; set; }
     [Parameter] public RenderFragment? Actions { get; set; }
     [Parameter] public RenderFragment? EmptyContent { get; set; }
