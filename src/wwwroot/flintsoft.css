@@ -171,8 +171,8 @@
     padding: 0; width: min(35rem, calc(100% - 2rem)); max-height: calc(100dvh - 2rem);
     border: 1px solid var(--fs-color-border); border-radius: 1rem;
     background: var(--fs-color-surface); box-shadow: var(--fs-shadow);
-    display: flex; flex-direction: column;
 }
+.fs-modal[open] { display: flex; flex-direction: column; }
 .fs-modal::backdrop { background: var(--fs-color-overlay); }
 .fs-modal-header { flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 1.5rem; border-bottom: 1px solid var(--fs-color-border); }
 .fs-modal-header h2 { font-size: 1.2rem; margin: 0; }
