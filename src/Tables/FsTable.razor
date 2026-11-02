@@ -3,7 +3,16 @@
 
 <div class="fs-table-container">
 <div class="fs-table-scroll" tabindex="0" role="region" aria-label="@AccessibleLabel">
-    <table class="fs-table" role="table" aria-labelledby="@(HasCaption ? _captionId : null)" aria-label="@(HasCaption ? null : AccessibleLabel)" aria-busy="@Loading.ToString().ToLowerInvariant()">
+    <table class="fs-table" role="table" aria-labelledby="@(HasCaption ? _captionId : null)" aria-label="@(HasCaption ? null : AccessibleLabel)" aria-busy="@Loading.ToString().ToLowerInvariant()" style="@(_hasWidths ? "table-layout:fixed" : null)">
+        @if (_hasWidths)
+        {
+            <colgroup>
+                @foreach (var column in Columns)
+                {
+                    <col style="@(column.Width is not null ? $"width:{column.Width}" : null)" />
+                }
+            </colgroup>
+        }
         @if (ShowCaptionRow)
         {
             <caption>
@@ -66,6 +75,7 @@
 @code {
     private readonly string _captionId = $"fs-table-caption-{Guid.NewGuid():N}";
     private bool HasCaption => !string.IsNullOrWhiteSpace(Caption);
+    private bool _hasWidths => Columns.Any(c => c.Width is not null);
     private bool ShowCaptionRow => HasCaption || Actions is not null;
     private string AccessibleLabel => HasCaption ? Caption! : "Data table";
     private string ActionsLabel => HasCaption ? $"{Caption} actions" : "Table actions";
