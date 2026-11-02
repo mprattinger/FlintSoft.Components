@@ -171,12 +171,13 @@
     padding: 0; width: min(35rem, calc(100% - 2rem)); max-height: calc(100dvh - 2rem);
     border: 1px solid var(--fs-color-border); border-radius: 1rem;
     background: var(--fs-color-surface); box-shadow: var(--fs-shadow);
+    display: flex; flex-direction: column;
 }
 .fs-modal::backdrop { background: var(--fs-color-overlay); }
-.fs-modal-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 1.5rem; border-bottom: 1px solid var(--fs-color-border); }
+.fs-modal-header { flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 1.5rem; border-bottom: 1px solid var(--fs-color-border); }
 .fs-modal-header h2 { font-size: 1.2rem; margin: 0; }
 .fs-modal-header > :only-child { margin-left: auto; }
-.fs-modal-content { padding: 1.5rem; }
+.fs-modal-content { padding: 1.5rem; flex: 1 1 auto; min-height: 0; overflow: hidden; }
 .fs-toast-host { position: fixed; z-index: 1000; top: 1rem; right: 1rem; width: min(25rem, calc(100% - 2rem)); display: grid; gap: .75rem; }
 .fs-toast {
     display: flex; align-items: flex-start; gap: .75rem; padding: .8rem;
