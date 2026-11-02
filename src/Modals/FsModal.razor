@@ -4,7 +4,7 @@
 @inject IJSRuntime JS
 @inject FsModalCoordinator Coordinator
 
-<dialog @ref="_dialog" class="fs-modal" aria-labelledby="@(Title is null ? null : _titleId)" aria-label="@(Title is null ? AccessibleLabel : null)">
+<dialog @ref="_dialog" class="@($"fs-modal {Class}".TrimEnd())" style="@Style" aria-labelledby="@(Title is null ? null : _titleId)" aria-label="@(Title is null ? AccessibleLabel : null)">
     <div class="fs-modal-header">
         @if (Title is not null)
         {
@@ -19,6 +19,8 @@
 @code {
     [Parameter] public string? Title { get; set; }
     [Parameter] public string AccessibleLabel { get; set; } = "Dialog";
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
     [Parameter] public RenderFragment? ChildContent { get; set; }
     [Parameter] public EventCallback OnOpening { get; set; }
     [Parameter] public EventCallback<FsCloseReason> OnClosed { get; set; }
