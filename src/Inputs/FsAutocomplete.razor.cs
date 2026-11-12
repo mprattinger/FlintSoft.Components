@@ -85,6 +85,7 @@ public partial class FsAutocomplete<TItem> : IAsyncDisposable
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        SetControlElement(_input);
         if (firstRender)
         {
             _module = await JS.InvokeAsync<IJSObjectReference>("import", "./_content/FlintSoft.Components/flintsoft.js");
@@ -107,7 +108,7 @@ public partial class FsAutocomplete<TItem> : IAsyncDisposable
         await FindSuggestionsAsync();
     }
 
-    private async Task FocusAsync()
+    private async Task HandleFocusAsync()
     {
         _focused = true;
         if (!Disabled && !ReadOnly) await FindSuggestionsAsync();

@@ -14,6 +14,7 @@ public class FsTextArea : FsText
         builder.AddAttribute(38, "rows", Rows);
         builder.AddAttribute(39, "placeholder", " ");
         AddTextBinding(builder);
+        CaptureControlElement(builder, 60);
         builder.CloseElement();
     }
 }

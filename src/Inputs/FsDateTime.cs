@@ -14,6 +14,7 @@ public class FsDateTime : FsInputBase<DateTime?>
         builder.AddAttribute(38, "type", "datetime-local");
         builder.AddAttribute(39, "step", AdditionalAttributes?.TryGetValue("step", out var step) == true ? step : "any");
         AddTextBinding(builder);
+        CaptureControlElement(builder, 60);
         builder.CloseElement();
     }
 

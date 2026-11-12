@@ -16,6 +16,7 @@ public class FsSelect<TValue> : FsInputBase<TValue>
         builder.AddAttribute(38, "disabled", Disabled || ReadOnly);
         AddTextBinding(builder);
         builder.AddContent(60, ChildContent);
+        CaptureControlElement(builder, 61);
         builder.CloseElement();
     }
 

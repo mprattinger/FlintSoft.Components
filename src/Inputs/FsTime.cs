@@ -14,6 +14,7 @@ public class FsTime : FsInputBase<TimeOnly?>
         builder.AddAttribute(38, "type", "time");
         builder.AddAttribute(39, "step", AdditionalAttributes?.TryGetValue("step", out var step) == true ? step : "any");
         AddTextBinding(builder);
+        CaptureControlElement(builder, 60);
         builder.CloseElement();
     }
 

@@ -16,7 +16,7 @@
                aria-controls="@ListId" aria-activedescendant="@ActiveId"
                aria-invalid="@InvalidAttribute" aria-describedby="@DescribedBy"
                data-fs-allow-new="@AllowNewValues.ToString().ToLowerInvariant()"
-               @oninput="InputAsync" @onfocus="FocusAsync" @onblur="BlurAsync" @onkeydown="KeyDownAsync" />
+               @oninput="InputAsync" @onfocus="HandleFocusAsync" @onblur="BlurAsync" @onkeydown="KeyDownAsync" />
         @if (_open)
         {
             <div class="fs-autocomplete-popup">

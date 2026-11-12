@@ -20,12 +20,20 @@
 </FsPanel>
 <ProjectEditorModal @ref="_editor" />
 <FsYesNoModal @ref="_yesno" />
+<FsPanel Title="Scrollable list inside a modal" Description="A fixed-height modal with a filter bar and a long table that scrolls independently." Badge="SCROLL">
+    <div class="demo-actions demo-bottom-space">
+        <FsButton OnClick="() => _longList.OpenAsync()">Open contact picker</FsButton>
+    </div>
+    <p class="demo-muted">The modal has an explicit height. The table area takes the remaining space and scrolls. The filter stays pinned at the top.</p>
+</FsPanel>
+<LongListModal @ref="_longList" />
 <div class="demo-code"><span>WRAPPER FLOW</span><pre><code>var created = await editor.OpenAsync(null);
 var updated = await editor.OpenAsync(new ProjectEditorRequest(id, name, summary));</code></pre></div>
 
 @code {
     private ProjectEditorModal _editor = default!;
     private FsYesNoModal _yesno = default!;
+    private LongListModal _longList = default!;
 
     private string _status = "No modal interaction yet.";
     private int _nextId = 4;

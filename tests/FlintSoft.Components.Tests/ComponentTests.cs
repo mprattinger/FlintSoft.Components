@@ -27,6 +27,25 @@ public sealed class ComponentTests : BunitContext
     }
 
     [Fact]
+    public async Task FocusAsyncCanBeCalledAfterRender()
+    {
+        JSInterop.Mode = JSRuntimeMode.Loose;
+        var model = new Model();
+        var text = Render<FsText>(p => p
+            .Add(c => c.Value, model.Name)
+            .Add(c => c.ValueChanged, value => model.Name = value)
+            .Add(c => c.ValueExpression, () => model.Name));
+        var select = Render<FsSelect<int?>>(p => p
+            .Add(c => c.Value, model.Selection)
+            .Add(c => c.ValueChanged, value => model.Selection = value)
+            .Add(c => c.ValueExpression, () => model.Selection)
+            .AddChildContent("<option value=\"\">None</option>"));
+
+        await text.InvokeAsync(() => text.Instance.FocusAsync().AsTask());
+        await select.InvokeAsync(() => select.Instance.FocusAsync().AsTask());
+    }
+
+    [Fact]
     public void NumericInputPreservesInvalidTextAndUsesDecimalComma()
     {
         var previous = CultureInfo.CurrentCulture;
@@ -154,6 +173,15 @@ public sealed class ComponentTests : BunitContext
     }
 
     [Fact]
+    public void ButtonSupportsCompactVariant()
+    {
+        var button = Render<FsButton>(p => p
+            .Add(c => c.Compact, true)
+            .AddChildContent("Row action"));
+        Assert.Contains("fs-button-compact", button.Find("button").ClassList);
+    }
+
+    [Fact]
     public void PanelRendersOptionalSectionsAndForwardsAttributes()
     {
         var panel = Render<FsPanel>(p => p
@@ -258,6 +286,19 @@ public sealed class ComponentTests : BunitContext
         Assert.Equal(2, table.FindAll("tbody tr").Count);
         Assert.Equal("Full name", table.Find("th abbr").GetAttribute("title"));
         Assert.All(table.FindAll(".fs-table-mobile-label"), label => Assert.Equal("Name", label.TextContent));
+    }
+
+    [Fact]
+    public void TableWithoutCaptionDoesNotRenderCaptionRow()
+    {
+        var columns = new FsColumn<string>[] { new("Name", value => builder => builder.AddContent(0, value)) };
+        var table = Render<FsTable<string>>(p => p
+            .Add(c => c.Items, ["Alex"])
+            .Add(c => c.Columns, columns));
+        Assert.Empty(table.FindAll("caption"));
+        Assert.Null(table.Find("table").GetAttribute("aria-labelledby"));
+        Assert.Equal("Data table", table.Find("table").GetAttribute("aria-label"));
+        Assert.Equal("Data table", table.Find(".fs-table-scroll").GetAttribute("aria-label"));
     }
 
     [Fact]

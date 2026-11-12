@@ -242,11 +242,12 @@ containing arbitrary `ChildContent`:
 </FsSettings>
 ```
 
-Click the gear again, click outside, press Escape, or move keyboard focus outside
-to close. Links and controls inside remain interactive and do not automatically
-dismiss the flyout. Enter and Space toggle the button, Tab reaches the content,
-and Escape returns focus to the gear. The flyout is non-modal, not an ARIA menu,
-so it can contain links, buttons, inputs, or other components.
+Click the gear again, click outside, press Escape, move keyboard focus outside,
+or activate a link inside the flyout to close. Buttons, inputs and other controls
+inside remain interactive without dismissing automatically. Enter and Space toggle
+the button, Tab reaches the content, and Escape returns focus to the gear. The
+flyout is non-modal, not an ARIA menu, so it can contain links, buttons, inputs,
+or other components.
 
 `AccessibleLabel` defaults to "Settings" and labels both the button and flyout.
 `Class` and additional HTML attributes apply to the outer wrapper. It supports
@@ -318,10 +319,12 @@ the modal when showing loading over a modal. No JavaScript or services are requi
 <FsButton OnClick="Save">Save</FsButton>
 <FsButton Type="submit">Submit</FsButton>
 <FsButton Appearance="FsAppearance.Danger" Disabled="busy">Delete</FsButton>
+<FsButton Compact OnClick="OpenRowDetails">Details</FsButton>
 ```
 
 Appearances: `Primary`, `Secondary`, `Action`, `Danger`, `Success`.
 The default HTML type is `button`, not submit.
+Set `Compact` for denser layouts (for example table row actions): it removes button padding and uses a smaller minimum height.
 
 ## Modals
 

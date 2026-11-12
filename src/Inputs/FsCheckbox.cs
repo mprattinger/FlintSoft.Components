@@ -20,6 +20,7 @@ public class FsCheckbox : FsInputBase<bool>
         builder.AddAttribute(40, "checked", CurrentValue);
         builder.AddAttribute(41, "onchange", EventCallback.Factory.CreateBinder<bool>(this, value => CurrentValue = value, CurrentValue));
         builder.SetUpdatesAttributeName("checked");
+        CaptureControlElement(builder, 60);
         builder.CloseElement();
         builder.OpenElement(42, "span");
         builder.AddContent(43, ChildContent ?? (content => content.AddContent(0, Label)));

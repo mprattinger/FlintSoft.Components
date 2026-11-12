@@ -2,6 +2,7 @@ using System.Globalization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Rendering;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace FlintSoft.Components;
 
@@ -9,6 +10,7 @@ public abstract class FsInputBase<TValue> : InputBase<TValue>
 {
     private readonly string _generatedId = $"fs-{Guid.NewGuid():N}";
     private string? _standaloneError;
+    private ElementReference _controlElement;
 
     [Parameter] public string? Id { get; set; }
     [Parameter] public string Label { get; set; } = "";
@@ -25,6 +27,8 @@ public abstract class FsInputBase<TValue> : InputBase<TValue>
     protected virtual bool IsChoice => false;
     protected virtual bool AlwaysFloat => false;
     protected virtual string? InputText => CurrentValueAsString;
+
+    public virtual ValueTask FocusAsync() => _controlElement.FocusAsync();
 
     protected override void BuildRenderTree(RenderTreeBuilder builder)
     {
@@ -86,6 +90,11 @@ public abstract class FsInputBase<TValue> : InputBase<TValue>
     }
 
     protected abstract void RenderControl(RenderTreeBuilder builder);
+
+    protected void CaptureControlElement(RenderTreeBuilder builder, int sequence) =>
+        builder.AddElementReferenceCapture(sequence, value => _controlElement = value);
+
+    protected void SetControlElement(ElementReference element) => _controlElement = element;
 
     protected void AddControlAttributes(RenderTreeBuilder builder)
     {
