@@ -85,6 +85,60 @@ public sealed class BrowserFixture : IAsyncLifetime
 
 public sealed class BrowserTests(BrowserFixture fixture) : IClassFixture<BrowserFixture>
 {
+    [Fact]
+    public async Task ContextMenuSupportsCustomTriggersTouchKeyboardAndDismissal()
+    {
+        var context = await fixture.Browser.NewContextAsync(new()
+        {
+            HasTouch = true,
+            ViewportSize = new() { Width = 390, Height = 844 }
+        });
+        var page = await context.NewPageAsync();
+        var errors = new List<string>();
+        page.PageError += (_, error) => errors.Add(error);
+        await page.GotoAsync(fixture.ServerUrl + "/context-menus");
+        await Expect(page.Locator("[data-interactive=true]")).ToBeVisibleAsync(new() { Timeout = 60000 });
+        var trigger = page.GetByRole(AriaRole.Button, new() { Name = "Project actions", Exact = true });
+        var flyout = page.Locator(".fs-context-menu-flyout");
+        await Expect(flyout).ToHaveCountAsync(0);
+        await trigger.TapAsync();
+        await Expect(flyout).ToBeVisibleAsync();
+        await flyout.GetByRole(AriaRole.Button, new() { Name = "Save project" }).ClickAsync();
+        await Expect(page.GetByRole(AriaRole.Status)).ToContainTextAsync("Project saved.");
+        await Expect(flyout).ToBeVisibleAsync();
+        await trigger.ClickAsync();
+        await Expect(flyout).ToHaveCountAsync(0);
+        await trigger.PressAsync("Enter");
+        await Expect(flyout).ToBeVisibleAsync();
+        await trigger.PressAsync("Tab");
+        await Expect(flyout.Locator("a")).ToBeFocusedAsync();
+        await page.Keyboard.PressAsync("Escape");
+        await Expect(flyout).ToHaveCountAsync(0);
+        await Expect(trigger).ToBeFocusedAsync();
+        await trigger.PressAsync("Space");
+        await Expect(flyout).ToBeVisibleAsync();
+        await page.Locator("h1").TapAsync();
+        await Expect(flyout).ToHaveCountAsync(0);
+        var icon = page.GetByRole(AriaRole.Button, new() { Name = "More actions", Exact = true });
+        await icon.Locator("svg").TapAsync();
+        await Expect(flyout).ToBeVisibleAsync();
+        await icon.Locator("svg").TapAsync();
+        await Expect(flyout).ToHaveCountAsync(0);
+        await trigger.ClickAsync();
+        await Expect(flyout).ToBeVisibleAsync();
+        await page.SetViewportSizeAsync(320, 844);
+        await page.WaitForFunctionAsync("""
+            () => {
+                const r = document.querySelector(".fs-context-menu-flyout").getBoundingClientRect();
+                return r.left >= 0 && r.right <= window.innerWidth;
+            }
+            """);
+        await page.GetByRole(AriaRole.Button, new() { Name = "Toggle dark theme" }).FocusAsync();
+        await Expect(flyout).ToHaveCountAsync(0);
+        Assert.Empty(errors);
+        await context.CloseAsync();
+    }
+
     [Theory]
     [InlineData(false)]
     [InlineData(true)]

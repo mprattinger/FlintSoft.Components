@@ -182,3 +182,15 @@ export function positionSettings(root) {
 export function detachSettings(root) {
     flyouts.get(root)?.();
 }
+
+export function attachContextMenu(root, reference) {
+    attachFlyout(root, reference, ".fs-context-menu-trigger", ".fs-context-menu-flyout", "DismissContextMenuAsync");
+}
+
+export function positionContextMenu(root) {
+    positionFlyout(root, ".fs-context-menu-flyout");
+}
+
+export function detachContextMenu(root) {
+    flyouts.get(root)?.();
+}

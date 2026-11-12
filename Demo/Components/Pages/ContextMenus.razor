@@ -1,0 +1,29 @@
+@page "/context-menus"
+@inject FsToastService Toasts
+
+<PageTitle>Context menus - FlintSoft</PageTitle>
+<div class="demo-eyebrow">COMPONENTS / 11</div>
+<h1>Your trigger.<br /><span>Your actions inside.</span></h1>
+<p class="demo-lead">Use text, an icon, or both. Click or tap again to close.</p>
+
+<FsPanel Title="Text trigger" Description="Child content can contain links, buttons, or other controls.">
+    <FsContextMenu Text="Project actions">
+        <div class="demo-stack">
+            <a href="panels">View project</a>
+            <FsButton OnClick="Save">Save project</FsButton>
+        </div>
+    </FsContextMenu>
+</FsPanel>
+
+<FsPanel Title="Icon trigger" Description="Provide an accessible label for an icon-only trigger.">
+    <FsContextMenu AccessibleLabel="More actions">
+        <Icon><FlintSoft.Components.Icons.Menue /></Icon>
+        <ChildContent>
+            <FsButton OnClick="Save">Save project</FsButton>
+        </ChildContent>
+    </FsContextMenu>
+</FsPanel>
+
+@code {
+    private void Save() => Toasts.Show("Project saved.", FsToastStyle.Success);
+}

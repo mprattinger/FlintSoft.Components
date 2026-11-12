@@ -252,6 +252,39 @@ so it can contain links, buttons, inputs, or other components.
 `Class` and additional HTML attributes apply to the outer wrapper. It supports
 the library's light/dark themes and interactive Server and WebAssembly rendering.
 
+## Context menus
+
+`FsContextMenu` toggles arbitrary `ChildContent` using your own text or icon:
+
+```razor
+<FsContextMenu Text="More actions">
+    <a href="profile">View profile</a>
+    <FsButton OnClick="Save">Save</FsButton>
+</FsContextMenu>
+
+<FsContextMenu AccessibleLabel="Project actions">
+    <Icon><FlintSoft.Components.Icons.Menue /></Icon>
+    <ChildContent>
+        <FsButton OnClick="Save">Save</FsButton>
+    </ChildContent>
+</FsContextMenu>
+```
+
+`Text` and the `Icon` render fragment can be used separately or together. With no
+icon or text, the trigger displays "Actions". `AccessibleLabel` names the trigger
+and flyout; it falls back to `Text`, then "Actions". Supply a descriptive label for
+icon-only triggers. The `Icon` slot is decorative and should not contain buttons
+or links because it renders inside the trigger button.
+
+Click or tap the trigger again to close. Clicking outside, moving focus outside,
+or pressing Escape also closes it; Escape returns focus to the trigger. Enter
+and Space toggle the native button, and Tab reaches child controls. Child actions
+do not automatically close the flyout. This is a non-modal flyout, not an ARIA
+menu: child content can include ordinary links, buttons, inputs, and components
+without menu-specific roles or arrow-key navigation. `Class` and additional HTML
+attributes apply to the wrapper. Light/dark themes and interactive Server and
+WebAssembly rendering use the same flyout behavior as `FsSettings`.
+
 ## Adorners
 
 `FsAdorner` displays a full-screen overlay while `IsLoading` is true (false by
