@@ -276,8 +276,9 @@ icon or text, the trigger displays "Actions". `AccessibleLabel` names the trigge
 and flyout; it falls back to `Text`, then "Actions". Supply a descriptive label for
 icon-only triggers. The `Icon` slot is decorative and should not contain buttons
 or links because it renders inside the trigger button. The button has no default
-button chrome. The flyout is positioned over surrounding content without changing
-layout; an ancestor with clipping overflow can still clip it.
+button chrome. The flyout sizes to its content with compact padding, up to the
+viewport width, and is positioned over surrounding content without changing layout;
+an ancestor with clipping overflow can still clip it.
 
 `Alignment` controls horizontal positioning below the trigger: `Left` aligns the
 right edges (extending left), `Center` centers the flyout, and `Right` aligns the

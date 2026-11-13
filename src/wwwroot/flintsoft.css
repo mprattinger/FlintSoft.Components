@@ -82,6 +82,7 @@
     border: 1px solid var(--fs-color-border); border-radius: var(--fs-radius);
     background: var(--fs-color-surface); box-shadow: var(--fs-shadow);
 }
+.fs-context-menu-flyout { width: max-content; padding: calc(var(--fs-space) * .5); }
 .fs-context-menu-flyout-left { inset-inline-end: auto; left: auto; right: 0; }
 .fs-context-menu-flyout-center { inset-inline-end: auto; left: 50%; right: auto; translate: -50% 0; }
 .fs-context-menu-flyout-right { inset-inline-end: auto; left: 0; right: auto; }

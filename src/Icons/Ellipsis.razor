@@ -13,6 +13,10 @@
      @onclick="() => OnClicked.InvokeAsync()"
      @onclick:stopPropagation="@StopPropagation"
      class="@ClassValue">
+    @if (Title is not null)
+    {
+        <title>@Title</title>
+    }
      <circle cx="12" cy="12" r="1" />
      <circle cx="19" cy="12" r="1" />
      <circle cx="5" cy="12" r="1" />

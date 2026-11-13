@@ -192,6 +192,48 @@ public sealed class BrowserTests(BrowserFixture fixture) : IClassFixture<Browser
         await context.CloseAsync();
     }
 
+    [Fact]
+    public async Task ContextMenuFitsContentAndLimitsWidthOnNarrowViewports()
+    {
+        var context = await fixture.Browser.NewContextAsync(new()
+        {
+            ViewportSize = new() { Width = 1280, Height = 844 }
+        });
+        var page = await context.NewPageAsync();
+        var errors = new List<string>();
+        page.PageError += (_, error) => errors.Add(error);
+        await page.GotoAsync(fixture.ServerUrl + "/context-menus");
+        await Expect(page.Locator("[data-interactive=true]")).ToBeVisibleAsync(new() { Timeout = 60000 });
+        await page.GetByRole(AriaRole.Button, new() { Name = "More actions", Exact = true }).ClickAsync();
+        var flyout = page.Locator(".fs-context-menu-flyout");
+        await Expect(flyout).ToBeVisibleAsync();
+        var dimensions = await flyout.EvaluateAsync<float[]>("""
+            element => {
+                const style = getComputedStyle(element);
+                return [element.getBoundingClientRect().width,
+                    element.querySelector('button').getBoundingClientRect().width,
+                    parseFloat(style.paddingLeft), parseFloat(style.paddingRight),
+                    parseFloat(style.borderLeftWidth), parseFloat(style.borderRightWidth)];
+            }
+            """);
+        Assert.InRange(Math.Abs(dimensions[0] - dimensions[1] - dimensions[2] - dimensions[3] - dimensions[4] - dimensions[5]), 0, 1);
+        Assert.True(dimensions[2] > 0 && dimensions[2] <= 8);
+        Assert.True(dimensions[0] < 320);
+
+        await flyout.Locator("button").EvaluateAsync("element => element.textContent = 'A very long context menu action that should wrap to fit within the narrow viewport ' .repeat(10)");
+        await page.SetViewportSizeAsync(320, 844);
+        await page.WaitForFunctionAsync("""
+            () => {
+                const element = document.querySelector('.fs-context-menu-flyout');
+                const rect = element.getBoundingClientRect();
+                return rect.left >= 7 && rect.right <= document.documentElement.clientWidth - 7 &&
+                    rect.width <= document.documentElement.clientWidth - 16 && element.scrollWidth <= element.clientWidth;
+            }
+            """);
+        Assert.Empty(errors);
+        await context.CloseAsync();
+    }
+
     [Theory]
     [InlineData("Left", false)]
     [InlineData("Center", false)]
