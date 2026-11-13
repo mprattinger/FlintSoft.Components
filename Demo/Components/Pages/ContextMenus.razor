@@ -16,12 +16,30 @@
 </FsPanel>
 
 <FsPanel Title="Icon trigger" Description="Provide an accessible label for an icon-only trigger.">
-    <FsContextMenu AccessibleLabel="More actions">
-        <Icon><FlintSoft.Components.Icons.Menue /></Icon>
-        <ChildContent>
-            <FsButton OnClick="Save">Save project</FsButton>
-        </ChildContent>
-    </FsContextMenu>
+    <div class="context-menu-row">
+        <span class="context-menu-name">Project</span>
+        <div class="context-menu-actions">
+            <FsContextMenu AccessibleLabel="More actions">
+                <Icon><FlintSoft.Components.Icons.Menue /></Icon>
+                <ChildContent>
+                    <FsButton OnClick="Save">Save project</FsButton>
+                </ChildContent>
+            </FsContextMenu>
+            <span aria-hidden="true">...</span>
+        </div>
+    </div>
+    <div class="context-menu-row context-menu-next-row">Next project</div>
+</FsPanel>
+
+<FsPanel Title="Flyout alignment" Description="Choose how the flyout extends from its trigger.">
+    <div class="context-menu-alignments">
+        @foreach (var alignment in new[] { FsContextMenuAlignment.Left, FsContextMenuAlignment.Center, FsContextMenuAlignment.Right })
+        {
+            <FsContextMenu Text="@alignment.ToString()" Alignment="@alignment">
+                <FsButton OnClick="Save">Save project</FsButton>
+            </FsContextMenu>
+        }
+    </div>
 </FsPanel>
 
 @code {

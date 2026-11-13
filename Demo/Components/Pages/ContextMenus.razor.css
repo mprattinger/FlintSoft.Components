@@ -1,0 +1,9 @@
+.context-menu-row {
+    display: flex;
+    min-height: 2rem;
+    background: var(--fs-color-primary-soft);
+}
+.context-menu-name { flex: 1; }
+.context-menu-actions { display: flex; gap: .5rem; }
+.context-menu-next-row { position: relative; z-index: 1; min-height: 4rem; }
+.context-menu-alignments { display: flex; justify-content: center; gap: 1rem; }

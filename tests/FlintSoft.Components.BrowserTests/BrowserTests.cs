@@ -139,6 +139,106 @@ public sealed class BrowserTests(BrowserFixture fixture) : IClassFixture<Browser
         await context.CloseAsync();
     }
 
+    [Fact]
+    public async Task ContextMenuFlyoutOverlaysFlexRowsWithoutMovingThem()
+    {
+        var context = await fixture.Browser.NewContextAsync(new()
+        {
+            ViewportSize = new() { Width = 1280, Height = 844 }
+        });
+        var page = await context.NewPageAsync();
+        var errors = new List<string>();
+        page.PageError += (_, error) => errors.Add(error);
+        await page.GotoAsync(fixture.ServerUrl + "/context-menus");
+        await Expect(page.Locator("[data-interactive=true]")).ToBeVisibleAsync(new() { Timeout = 60000 });
+        var trigger = page.GetByRole(AriaRole.Button, new() { Name = "More actions", Exact = true });
+        var row = page.Locator(".context-menu-row").First;
+        var nextRow = page.Locator(".context-menu-next-row");
+        var sibling = page.Locator(".context-menu-actions > span");
+        await trigger.ScrollIntoViewIfNeededAsync();
+        var triggerBefore = await trigger.BoundingBoxAsync();
+        var rowBefore = await row.BoundingBoxAsync();
+        var nextRowBefore = await nextRow.BoundingBoxAsync();
+        var siblingBefore = await sibling.BoundingBoxAsync();
+        Assert.NotNull(triggerBefore);
+        Assert.NotNull(rowBefore);
+        Assert.NotNull(nextRowBefore);
+        Assert.NotNull(siblingBefore);
+
+        await trigger.ClickAsync();
+        var flyout = page.Locator(".fs-context-menu-flyout");
+        await Expect(flyout).ToBeVisibleAsync();
+        var triggerAfter = await trigger.BoundingBoxAsync();
+        var rowAfter = await row.BoundingBoxAsync();
+        var nextRowAfter = await nextRow.BoundingBoxAsync();
+        var siblingAfter = await sibling.BoundingBoxAsync();
+        var flyoutBounds = await flyout.BoundingBoxAsync();
+        Assert.NotNull(triggerAfter);
+        Assert.NotNull(rowAfter);
+        Assert.NotNull(nextRowAfter);
+        Assert.NotNull(siblingAfter);
+        Assert.NotNull(flyoutBounds);
+        Assert.Equal(triggerBefore.X, triggerAfter.X);
+        Assert.Equal(triggerBefore.Y, triggerAfter.Y);
+        Assert.Equal(rowBefore.Width, rowAfter.Width);
+        Assert.Equal(rowBefore.Height, rowAfter.Height);
+        Assert.Equal(nextRowBefore.Y, nextRowAfter.Y);
+        Assert.Equal(siblingBefore.X, siblingAfter.X);
+        Assert.True(flyoutBounds.Y < nextRowAfter.Y + nextRowAfter.Height);
+        Assert.True(flyoutBounds.Y + flyoutBounds.Height > nextRowAfter.Y);
+        await flyout.GetByRole(AriaRole.Button, new() { Name = "Save project" }).ClickAsync();
+        await Expect(page.GetByRole(AriaRole.Status)).ToContainTextAsync("Project saved.");
+        Assert.Empty(errors);
+        await context.CloseAsync();
+    }
+
+    [Theory]
+    [InlineData("Left", false)]
+    [InlineData("Center", false)]
+    [InlineData("Right", false)]
+    [InlineData("Left", true)]
+    [InlineData("Center", true)]
+    [InlineData("Right", true)]
+    public async Task ContextMenuAlignmentUsesPhysicalDirectionsAndFitsViewport(string alignment, bool rtl)
+    {
+        var context = await fixture.Browser.NewContextAsync(new()
+        {
+            ViewportSize = new() { Width = 1600, Height = 1000 }
+        });
+        var page = await context.NewPageAsync();
+        var errors = new List<string>();
+        page.PageError += (_, error) => errors.Add(error);
+        await page.GotoAsync(fixture.ServerUrl + "/context-menus");
+        await Expect(page.Locator("[data-interactive=true]")).ToBeVisibleAsync(new() { Timeout = 60000 });
+        if (rtl)
+            await page.Locator(".context-menu-alignments").EvaluateAsync("element => element.dir = 'rtl'");
+        var trigger = page.GetByRole(AriaRole.Button, new() { Name = alignment, Exact = true });
+        await trigger.ClickAsync();
+        var flyout = page.Locator(".fs-context-menu-flyout");
+        await Expect(flyout).ToBeVisibleAsync();
+        await page.WaitForFunctionAsync("""
+            alignment => {
+                const flyout = document.querySelector('.fs-context-menu-flyout');
+                const trigger = flyout.parentElement.querySelector('.fs-context-menu-trigger');
+                const f = flyout.getBoundingClientRect(), t = trigger.getBoundingClientRect();
+                const difference = alignment === 'Left' ? f.right - t.right :
+                    alignment === 'Right' ? f.left - t.left : (f.left + f.right - t.left - t.right) / 2;
+                return Math.abs(difference) < 1;
+            }
+            """, alignment);
+        await page.SetViewportSizeAsync(320, 1000);
+        await page.WaitForFunctionAsync("""
+            () => {
+                const r = document.querySelector('.fs-context-menu-flyout').getBoundingClientRect();
+                return r.left >= 7 && r.right <= document.documentElement.clientWidth - 7;
+            }
+            """);
+        await flyout.GetByRole(AriaRole.Button, new() { Name = "Save project" }).ClickAsync();
+        await Expect(page.GetByRole(AriaRole.Status)).ToContainTextAsync("Project saved.");
+        Assert.Empty(errors);
+        await context.CloseAsync();
+    }
+
     [Theory]
     [InlineData(false)]
     [InlineData(true)]

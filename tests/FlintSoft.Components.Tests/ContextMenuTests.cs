@@ -60,6 +60,28 @@ public sealed class ContextMenuTests : BunitContext
     }
 
     [Fact]
+    public void AlignmentCanChangeWhileFlyoutIsOpen()
+    {
+        var menu = Render<FsContextMenu>();
+        menu.Find("button").Click();
+        Assert.DoesNotContain("fs-context-menu-flyout-left", menu.Find("section").ClassList);
+        Assert.DoesNotContain("fs-context-menu-flyout-center", menu.Find("section").ClassList);
+        Assert.DoesNotContain("fs-context-menu-flyout-right", menu.Find("section").ClassList);
+
+        foreach (var (alignment, cssClass) in new[]
+        {
+            (FsContextMenuAlignment.Left, "fs-context-menu-flyout-left"),
+            (FsContextMenuAlignment.Center, "fs-context-menu-flyout-center"),
+            (FsContextMenuAlignment.Right, "fs-context-menu-flyout-right")
+        })
+        {
+            menu.Render(p => p.Add(c => c.Alignment, alignment));
+            Assert.Contains(cssClass, menu.Find("section").ClassList);
+        }
+        Assert.True(_module.Invocations.Count(call => call.Identifier == "positionContextMenu") >= 4);
+    }
+
+    [Fact]
     public void ChildControlsRemainInteractiveWithoutClosing()
     {
         var clicks = 0;

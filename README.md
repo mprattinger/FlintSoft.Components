@@ -263,7 +263,7 @@ the library's light/dark themes and interactive Server and WebAssembly rendering
     <FsButton OnClick="Save">Save</FsButton>
 </FsContextMenu>
 
-<FsContextMenu AccessibleLabel="Project actions">
+<FsContextMenu AccessibleLabel="Project actions" Alignment="FsContextMenuAlignment.Right">
     <Icon><FlintSoft.Components.Icons.Menue /></Icon>
     <ChildContent>
         <FsButton OnClick="Save">Save</FsButton>
@@ -275,7 +275,16 @@ the library's light/dark themes and interactive Server and WebAssembly rendering
 icon or text, the trigger displays "Actions". `AccessibleLabel` names the trigger
 and flyout; it falls back to `Text`, then "Actions". Supply a descriptive label for
 icon-only triggers. The `Icon` slot is decorative and should not contain buttons
-or links because it renders inside the trigger button.
+or links because it renders inside the trigger button. The button has no default
+button chrome. The flyout is positioned over surrounding content without changing
+layout; an ancestor with clipping overflow can still clip it.
+
+`Alignment` controls horizontal positioning below the trigger: `Left` aligns the
+right edges (extending left), `Center` centers the flyout, and `Right` aligns the
+left edges (extending right). These are physical directions even in right-to-left
+layouts. The default retains the original inline-end alignment, which extends left
+in left-to-right layouts and right in right-to-left layouts. The flyout shifts as
+needed to fit the viewport, so it may not retain the requested alignment near an edge.
 
 Click or tap the trigger again to close. Clicking outside, moving focus outside,
 or pressing Escape also closes it; Escape returns focus to the trigger. Enter

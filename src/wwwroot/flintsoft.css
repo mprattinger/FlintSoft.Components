@@ -60,8 +60,14 @@
     background: var(--fs-color-surface); box-shadow: var(--fs-shadow);
 }
 .fs-persona, .fs-settings, .fs-context-menu { position: relative; display: inline-block; vertical-align: middle; }
+.fs-context-menu { flex: none; }
+.fs-context-menu-open { z-index: 20; }
 .fs-settings-trigger span, .fs-context-menu-icon { display: flex; }
-.fs-context-menu-trigger { font-family: inherit; }
+.fs-context-menu-trigger {
+    display: inline-flex; align-items: center; gap: .35rem; padding: 0; border: 0;
+    background: transparent; color: inherit; font: inherit; cursor: pointer;
+}
+.fs-context-menu-trigger:focus-visible { outline: 2px solid var(--fs-color-focus); outline-offset: 2px; }
 .fs-persona-avatar {
     display: grid; place-items: center; width: 2.75rem; height: 2.75rem; padding: 0;
     border: 1px solid var(--fs-color-border); border-radius: 50%; overflow: hidden;
@@ -76,6 +82,9 @@
     border: 1px solid var(--fs-color-border); border-radius: var(--fs-radius);
     background: var(--fs-color-surface); box-shadow: var(--fs-shadow);
 }
+.fs-context-menu-flyout-left { inset-inline-end: auto; left: auto; right: 0; }
+.fs-context-menu-flyout-center { inset-inline-end: auto; left: 50%; right: auto; translate: -50% 0; }
+.fs-context-menu-flyout-right { inset-inline-end: auto; left: 0; right: auto; }
 .fs-persona-heading p { margin: .3rem 0 0; color: var(--fs-color-muted); font-size: .85rem; }
 .fs-persona-details:not(:first-child) { margin-top: var(--fs-space); }
 .fs-persona-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }

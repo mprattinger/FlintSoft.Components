@@ -3,8 +3,8 @@
 @implements IAsyncDisposable
 @inject IJSRuntime JS
 
-<div @ref="_root" class="fs-context-menu @Class" @attributes="AdditionalAttributes">
-    <button type="button" class="fs-context-menu-trigger fs-button fs-button-secondary"
+<div @ref="_root" class="fs-context-menu @(_expanded ? "fs-context-menu-open" : null) @Class" @attributes="AdditionalAttributes">
+    <button type="button" class="fs-context-menu-trigger"
             aria-label="@TriggerLabel" aria-expanded="@_expanded.ToString().ToLowerInvariant()"
             aria-controls="@_flyoutId" @onclick="Toggle">
         @if (Icon is not null)
@@ -22,7 +22,7 @@
     </button>
     @if (_expanded)
     {
-        <section id="@_flyoutId" class="fs-context-menu-flyout" aria-label="@TriggerLabel">
+        <section id="@_flyoutId" class="fs-context-menu-flyout @AlignmentClass" aria-label="@TriggerLabel">
             @ChildContent
         </section>
     }
@@ -33,9 +33,18 @@
     [Parameter] public RenderFragment? Icon { get; set; }
     [Parameter] public string? AccessibleLabel { get; set; }
     [Parameter] public string? Class { get; set; }
+    [Parameter] public FsContextMenuAlignment Alignment { get; set; } = FsContextMenuAlignment.Default;
     [Parameter] public RenderFragment? ChildContent { get; set; }
     [Parameter(CaptureUnmatchedValues = true)] public Dictionary<string, object>? AdditionalAttributes { get; set; }
 
+    private string? AlignmentClass => Alignment switch
+    {
+        FsContextMenuAlignment.Default => null,
+        FsContextMenuAlignment.Left => "fs-context-menu-flyout-left",
+        FsContextMenuAlignment.Center => "fs-context-menu-flyout-center",
+        FsContextMenuAlignment.Right => "fs-context-menu-flyout-right",
+        _ => throw new ArgumentOutOfRangeException(nameof(Alignment), Alignment, "Unknown context menu alignment.")
+    };
     private string TriggerLabel => !string.IsNullOrWhiteSpace(AccessibleLabel) ? AccessibleLabel
         : !string.IsNullOrWhiteSpace(Text) ? Text : "Actions";
     private readonly string _flyoutId = $"fs-context-menu-{Guid.NewGuid():N}";
