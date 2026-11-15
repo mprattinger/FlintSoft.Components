@@ -289,12 +289,15 @@ needed to fit the viewport, so it may not retain the requested alignment near an
 
 Click or tap the trigger again to close. Clicking outside, moving focus outside,
 or pressing Escape also closes it; Escape returns focus to the trigger. Enter
-and Space toggle the native button, and Tab reaches child controls. Child actions
-do not automatically close the flyout. This is a non-modal flyout, not an ARIA
-menu: child content can include ordinary links, buttons, inputs, and components
-without menu-specific roles or arrow-key navigation. `Class` and additional HTML
-attributes apply to the wrapper. Light/dark themes and interactive Server and
-WebAssembly rendering use the same flyout behavior as `FsSettings`.
+and Space toggle the native button, and Tab reaches child controls. By default,
+child actions do not automatically close the flyout; set
+`CloseOnContentClick="true"` to dismiss when clicking links, buttons, or
+menuitem-role elements inside the flyout. This is a non-modal flyout, not an
+ARIA menu: child content can include ordinary links, buttons, inputs, and
+components without menu-specific roles or arrow-key navigation. `Class` and
+additional HTML attributes apply to the wrapper. Light/dark themes and
+interactive Server and WebAssembly rendering use the same flyout behavior as
+`FsSettings`.
 
 ## Adorners
 

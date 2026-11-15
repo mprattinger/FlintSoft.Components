@@ -131,7 +131,7 @@ export function attachPersona(root, reference) {
     attachFlyout(root, reference, ".fs-persona-avatar", ".fs-persona-card", "DismissPersonaAsync");
 }
 
-function attachFlyout(root, reference, triggerSelector, contentSelector, dismissMethod, dismissOnLinkClick = false) {
+function attachFlyout(root, reference, triggerSelector, contentSelector, dismissMethod, dismissMode = "none") {
     if (flyouts.has(root)) return;
     const trigger = root.querySelector(triggerSelector);
     const isOpen = () => trigger.getAttribute("aria-expanded") === "true";
@@ -148,10 +148,13 @@ function attachFlyout(root, reference, triggerSelector, contentSelector, dismiss
         }
     };
     const click = event => {
-        if (!dismissOnLinkClick || !isOpen() || !(event.target instanceof Element)) return;
-        const link = event.target.closest("a[href]");
+        if (dismissMode === "none" || !isOpen() || !(event.target instanceof Element)) return;
         const content = root.querySelector(contentSelector);
-        if (link && content?.contains(link)) reference.invokeMethodAsync(dismissMethod);
+        if (!(content instanceof Element) || !content.contains(event.target)) return;
+        const selector = dismissMode === "interactive"
+            ? "a[href],button,[role='menuitem'],[role='menuitemcheckbox'],[role='menuitemradio']"
+            : "a[href]";
+        if (event.target.closest(selector)) reference.invokeMethodAsync(dismissMethod);
     };
     const reposition = () => positionFlyout(root, contentSelector);
     const cleanup = () => {
@@ -180,7 +183,7 @@ export function detachPersona(root) {
 }
 
 export function attachSettings(root, reference) {
-    attachFlyout(root, reference, ".fs-settings-trigger", ".fs-settings-flyout", "DismissSettingsAsync", true);
+    attachFlyout(root, reference, ".fs-settings-trigger", ".fs-settings-flyout", "DismissSettingsAsync", "link");
 }
 
 export function positionSettings(root) {
@@ -191,8 +194,14 @@ export function detachSettings(root) {
     flyouts.get(root)?.();
 }
 
-export function attachContextMenu(root, reference) {
-    attachFlyout(root, reference, ".fs-context-menu-trigger", ".fs-context-menu-flyout", "DismissContextMenuAsync");
+export function attachContextMenu(root, reference, closeOnContentClick = false) {
+    attachFlyout(
+        root,
+        reference,
+        ".fs-context-menu-trigger",
+        ".fs-context-menu-flyout",
+        "DismissContextMenuAsync",
+        closeOnContentClick ? "interactive" : "none");
 }
 
 export function positionContextMenu(root) {

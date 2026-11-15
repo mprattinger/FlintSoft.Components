@@ -34,6 +34,7 @@
     [Parameter] public string? AccessibleLabel { get; set; }
     [Parameter] public string? Class { get; set; }
     [Parameter] public FsContextMenuAlignment Alignment { get; set; } = FsContextMenuAlignment.Default;
+    [Parameter] public bool CloseOnContentClick { get; set; }
     [Parameter] public RenderFragment? ChildContent { get; set; }
     [Parameter(CaptureUnmatchedValues = true)] public Dictionary<string, object>? AdditionalAttributes { get; set; }
 
@@ -66,7 +67,7 @@
             }
             _module = module;
             _reference = DotNetObjectReference.Create(this);
-            await module.InvokeVoidAsync("attachContextMenu", _root, _reference);
+            await module.InvokeVoidAsync("attachContextMenu", _root, _reference, CloseOnContentClick);
         }
         if (_expanded && !_disposed && _module is not null)
             await _module.InvokeVoidAsync("positionContextMenu", _root);

@@ -96,6 +96,23 @@ public sealed class ContextMenuTests : BunitContext
     }
 
     [Fact]
+    public void ChildControlsCanCloseMenuWhenConfigured()
+    {
+        var clicks = 0;
+        var menu = Render<FsContextMenu>(p => p
+            .Add(c => c.CloseOnContentClick, true)
+            .AddChildContent<FsButton>(button => button
+                .Add(c => c.OnClick, () => clicks++)
+                .AddChildContent("Save")));
+        menu.Find("button").Click();
+        menu.Find("section button").Click();
+        Assert.Equal(1, clicks);
+        Assert.Contains(_module.Invocations, call => call.Identifier == "attachContextMenu"
+            && call.Arguments.Count > 2
+            && call.Arguments[2] is true);
+    }
+
+    [Fact]
     public async Task DismissalAndDisposalAreIdempotent()
     {
         var menu = Render<FsContextMenu>();
