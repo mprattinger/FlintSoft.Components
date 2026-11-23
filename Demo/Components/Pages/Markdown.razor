@@ -1,0 +1,65 @@
+@page "/markdown"
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+
+<PageTitle>Markdown - FlintSoft</PageTitle>
+<div class="demo-eyebrow">COMPONENTS / 12</div>
+<h1>Write in Markdown.<br /><span>Make it your own.</span></h1>
+<p class="demo-lead">Edit Markdown with the standard toolbar or supply your own actions.</p>
+
+<FsPanel Title="Standard toolbar" Description="Paste an image to insert a temporary browser URL; text paste remains native." Badge="EDITOR">
+    <FsMarkdownEditor Label="Document" @bind-Value="_markdown" ProcessPasteAsync="ProcessImageAsync"
+                      HelpText="Select text and choose an action. Press Tab to move to the next control." />
+    <p class="demo-muted">Markdown value:</p>
+    <pre id="markdown-value" style="white-space: pre-wrap; overflow-wrap: anywhere">@_markdown</pre>
+</FsPanel>
+
+<FsPanel Title="Your own toolbar" Description="The named slot replaces the default actions.">
+    <FsMarkdownEditor @ref="_editor" Label="Custom document" @bind-Value="_customMarkdown">
+        <Toolbar>
+            <button type="button" @onclick="BoldAsync">Bold</button>
+            <button type="button" @onclick="HeadingAsync">Heading</button>
+        </Toolbar>
+    </FsMarkdownEditor>
+    <pre id="custom-markdown-value" style="white-space: pre-wrap; overflow-wrap: anywhere">@_customMarkdown</pre>
+</FsPanel>
+
+<FsPanel Title="Validated Markdown" Description="The editor participates in EditForm validation.">
+    <EditForm Model="_model" OnValidSubmit="Saved" FormName="markdown-demo">
+        <DataAnnotationsValidator />
+        <FsMarkdownEditor Label="Required document" @bind-Value="_model.Document" />
+        <FsButton Type="submit">Validate document</FsButton>
+        <p role="status">@_result</p>
+    </EditForm>
+</FsPanel>
+
+@code {
+    private string? _markdown = "# Hello Markdown\nSelect some text to format it.";
+    private string? _customMarkdown = "Custom toolbar";
+    private FsMarkdownEditor _editor = default!;
+    private readonly MarkdownModel _model = new();
+    private IJSObjectReference? _imageModule;
+    private string? _result;
+    private Task BoldAsync() => _editor.BoldAsync();
+    private Task HeadingAsync() => _editor.HeadingAsync(1);
+    private async Task<string> ProcessImageAsync(FsMarkdownPaste image)
+    {
+        _imageModule ??= await JS.InvokeAsync<IJSObjectReference>("import", "./markdown-demo.js");
+        return await _imageModule.InvokeAsync<string>("createImageUrl", image.Data, image.ContentType);
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_imageModule is null) return;
+        try
+        {
+            await _imageModule.InvokeVoidAsync("revokeImages");
+            await _imageModule.DisposeAsync();
+        }
+        catch (JSDisconnectedException) { }
+    }
+    private void Saved() => _result = "Document is valid.";
+    private sealed class MarkdownModel
+    {
+        [Required] public string? Document { get; set; }
+    }
+}

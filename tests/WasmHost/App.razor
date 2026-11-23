@@ -44,8 +44,10 @@
         <FsRadioGroup TValue="int" Label="Plan" Options="_plans" @bind-Value="_model.Plan" />
         <FsAutocomplete TItem="string" Label="Assignee" @bind-Value="_model.Assignee"
                         SearchAsync="SearchPeopleAsync" GetText="person => person" />
+        <FsMarkdownEditor Label="WASM Markdown" @bind-Value="_markdown" ProcessPasteAsync="ProcessImageAsync" MaxPasteSize="16" />
         <FsButton Type="submit">Save</FsButton>
     </EditForm>
+    <p id="bound-markdown">@_markdown</p>
     <p id="bound-budget">@_model.Budget</p>
     <p id="bound-assignee">@_model.Assignee</p>
     <FsButton OnClick="Open">Open modal</FsButton>
@@ -66,8 +68,13 @@
     private readonly IReadOnlyList<string> _people = ["Alex", "Jamie"];
     private readonly IReadOnlyList<FsColumn<string>> _columns = [new("Name", value => @<span>@value</span>)];
     private FsModal _modal = default!;
-    private string? _project, _result;
+    private string? _project, _result, _markdown;
     private bool _loading, _customLoading;
+    private static async Task<string> ProcessImageAsync(FsMarkdownPaste image)
+    {
+        await Task.Delay(300);
+        return "/images/test.png";
+    }
     private void ShowLoading() { _customLoading = false; _loading = true; }
     private void ShowCustomLoading() { _customLoading = true; _loading = true; }
     private void HideLoading() => _loading = false;

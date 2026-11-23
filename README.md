@@ -110,6 +110,70 @@ values use browser-required invariant formats and are localized by the browser.
 Use the application's normal Blazor localization configuration in Server or
 WebAssembly; the library does not change the application's culture.
 
+## Markdown editor
+
+`FsMarkdownEditor` edits Markdown text and updates its bound value as the user
+edits, including toolbar and image-paste changes. It supports `EditForm`, labels,
+help text, disabled and read-only states, and `Rows`; a null value displays as
+empty. It does not render Markdown or sanitize HTML. Applications that render
+untrusted Markdown must sanitize the resulting HTML themselves.
+
+```razor
+<FsMarkdownEditor Label="Document" @bind-Value="document" ProcessPasteAsync="SaveImageAsync" />
+
+@code {
+    private string? document;
+    private async Task<string> SaveImageAsync(FsMarkdownPaste image)
+    {
+        // Upload image.Data after validating its type and size, then return its URL.
+        return await imageStore.SaveAsync(image.Data, image.ContentType, image.FileName);
+    }
+}
+```
+
+The default toolbar offers bold, italic, headings 1-3, bulleted and numbered lists,
+code blocks, links and quotes. Supply a named `Toolbar` to replace it. Call the
+editor reference's `BoldAsync`, `ItalicAsync`, `HeadingAsync(int)`,
+`BulletedListAsync`, `NumberedListAsync`, `CodeAsync`, `LinkAsync` and
+`QuoteAsync` methods to use the same actions from custom buttons:
+
+```razor
+<FsMarkdownEditor @ref="editor" Label="Notes" @bind-Value="document">
+    <Toolbar>
+        <button type="button" @onclick="MakeBold">Bold</button>
+    </Toolbar>
+</FsMarkdownEditor>
+@code {
+    private FsMarkdownEditor editor = default!;
+    private string? document;
+    private Task MakeBold() => editor.BoldAsync();
+}
+```
+
+Formatting uses the last textarea selection. Bold, italic and link actions leave
+leading and trailing selected whitespace outside the markup; whitespace-only
+selections are unchanged. Link insertion asks for a URL using the browser prompt.
+Enter continues a list at the end of a line; Enter on an empty item exits the list.
+Tab moves focus normally so keyboard users can leave the editor. Ctrl+] (Command+]
+on macOS) indents the selection or inserts a tab at the caret.
+
+`ProcessPasteAsync` is optional and receives a `FsMarkdownPaste` containing bytes,
+content type and the browser-supplied filename. It must return a non-empty image
+path or URL, inserted as `![Image](...)` with whitespace and parentheses URL-escaped.
+Ordinary text paste, and image paste when no handler is supplied, use the browser's
+native behavior. An intercepted image paste cannot fall back to native paste after
+an async handler starts. The default `MaxPasteSize` is 10 MiB; change it to suit
+your application and enforce additional server-side upload and content validation.
+The image is transferred over JS interop and held in memory; on Interactive Server
+it also crosses the circuit. Markdown updates send the full text through the circuit;
+configure the host's SignalR receive limit if documents can exceed its default.
+Only one image paste can be pending per editor. If its text changes, the editor
+becomes read-only or disabled, or another image is pasted before processing finishes,
+the affected insertion is rejected and an error is displayed and logged. Customize
+the displayed message with `PasteErrorText`. The demo uses a temporary browser
+object URL that is revoked on leaving the page; production apps normally store the
+image and return its durable URL.
+
 ## Autocomplete
 
 `FsAutocomplete<TItem>` binds the selected `TItem` with `@bind-Value`. Supply an

@@ -144,3 +144,82 @@ the demo.
 
 The scope decisions above are resolved. Implementation can proceed from this plan
 without further requirements clarification.
+
+## Markdown Editor Implementation Plan
+
+### Scope and source
+
+Add an `FsMarkdownEditor` Blazor input, using the existing editor in
+`C:\dev\html\tryouts-controls\src\js\markdown-editor.js` and its browser tests
+as the behavioral baseline. The component edits Markdown as text; rendering,
+preview, Markdown parsing and HTML sanitization are outside this scope.
+
+### 1. Component and form integration
+
+- Follow the existing input conventions for `@bind-Value`, `ValueExpression`,
+  labels, help text, additional attributes, disabled and read-only states,
+  focus, and `EditForm` validation and field modification notifications.
+- Keep the textarea under Blazor's control while using browser interop for
+  selection-aware editing. Synchronize typing, programmatic formatting and
+  external value changes without duplicate notifications, feedback loops or
+  lost edits. Define how null and empty values map to the textarea.
+- Initialize browser behavior after interactive rendering, support prerendering,
+  Interactive Server and WebAssembly, and dispose listeners and references.
+  Prevent late asynchronous work from updating a disposed editor.
+
+### 2. Default and custom toolbars
+
+- Provide the source editor's ten actions by default: bold, italic, headings
+  1 through 3, bulleted list, numbered list, code block, link and quote.
+- Add a named `Toolbar` render fragment that replaces the default toolbar when
+  supplied. A custom toolbar can call public asynchronous methods on the editor
+  reference for every default action, including a heading level and list type
+  where appropriate. Both toolbars use the same editing implementation.
+- Retain the selection when a toolbar control takes focus, including keyboard
+  activation, and apply edits to the correct editor instance. Do not edit when
+  disabled or read-only. Use non-submit buttons, accessible names and visible
+  keyboard focus for the default toolbar.
+- Preserve the source's list continuation, empty-list exit and indentation
+  behavior while ensuring keyboard users can leave the editor. Document the
+  chosen Tab and link-entry interaction.
+
+### 3. Host-managed image paste
+
+- Offer an optional asynchronous paste handler that receives a typed payload
+  for the pasted image, including its bytes, MIME type and filename when
+  available. The host processes or uploads the image and returns its path or
+  URL; the editor inserts a Markdown image link with a documented alt-text and
+  escaping convention. The component itself does not upload the image.
+- Non-image paste uses the browser's normal behavior. When no image handler is
+  configured, leave image paste to the browser as well. Choose whether to
+  intercept synchronously, before starting the async handler: the browser's
+  original default action cannot be resumed after an asynchronous decision.
+- Preserve a meaningful insertion position while processing is pending. Define
+  and test how intervening edits, external value changes, multiple pending
+  pastes, read-only changes and disposal affect the result so stale positions
+  cannot silently corrupt text. Surface read, interop and handler failures;
+  never insert a success-shaped placeholder or silently discard an error.
+- Document data transfer and size considerations for Interactive Server,
+  where image bytes cross the circuit, and describe the native-paste behavior
+  when the handler is not configured.
+
+### 4. Styling, demo and documentation
+
+- Use the existing `--fs-*` tokens for light and dark themes; make the toolbar
+  wrap and the editor usable on narrow screens. Do not carry over the source
+  demo's fixed width and viewport height as component defaults.
+- Add a demo with default and custom toolbars, binding and form validation,
+  plus a host-controlled image-paste example. Update the README with API
+  examples, keyboard behavior, paste semantics and preview/sanitization scope.
+
+### 5. Verification
+
+- Add focused component tests for binding, external updates, validation,
+  disabled/read-only behavior, default and custom toolbar rendering, and
+  interop lifecycle and failure handling.
+- Add browser tests for all actions, selection and focus, keyboard behavior,
+  multiple independent editors, normal text paste, handled image paste,
+  pending-paste races and disposal. Exercise Interactive Server and WebAssembly
+  and check both themes and narrow layouts.
+- Build the affected projects and run the focused component and browser tests;
+  verify the packaged static assets are available to consuming applications.
