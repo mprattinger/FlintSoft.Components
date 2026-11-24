@@ -39,6 +39,39 @@ public sealed class MarkdownEditorTests : BunitContext
     }
 
     [Fact]
+    public void DefaultToolbarRendersRequestedIconsWithAccessibleNames()
+    {
+        var editor = Render<FsMarkdownEditor>(p => p.Add(c => c.ValueExpression, () => _value));
+        var buttons = editor.FindAll(".fs-markdown-toolbar button");
+        var expected = new (string Action, string Label, Type? Icon, string Text)[]
+        {
+            ("bold", "Bold", null, "B"), ("italic", "Italic", null, "I"),
+            ("heading-1", "Heading 1", typeof(FlintSoft.Components.Icons.H1), ""),
+            ("heading-2", "Heading 2", typeof(FlintSoft.Components.Icons.H2), ""),
+            ("heading-3", "Heading 3", typeof(FlintSoft.Components.Icons.H3), ""),
+            ("list", "Bulleted list", typeof(FlintSoft.Components.Icons.List), ""),
+            ("numbered-list", "Numbered list", typeof(FlintSoft.Components.Icons.ListOrdered), ""),
+            ("code", "Code block", typeof(FlintSoft.Components.Icons.Code), ""),
+            ("link", "Link", typeof(FlintSoft.Components.Icons.Link), ""),
+            ("quote", "Quote", typeof(FlintSoft.Components.Icons.Quote), "")
+        };
+        Assert.Equal(expected.Length, buttons.Count);
+        foreach (var (action, label, icon, text) in expected)
+        {
+            var button = editor.Find($"button[data-fs-markdown-action='{action}']");
+            Assert.Equal(label, button.GetAttribute("aria-label"));
+            Assert.Equal("button", button.GetAttribute("type"));
+            Assert.Equal(text, button.TextContent.Trim());
+            if (icon is null) Assert.Empty(button.QuerySelectorAll("svg"));
+            else
+            {
+                Assert.Single(button.QuerySelectorAll("span[aria-hidden='true'] svg"));
+                Assert.Equal(1, editor.FindComponents<FlintSoft.Components.Icons.IconBase>().Count(component => component.Instance.GetType() == icon));
+            }
+        }
+    }
+
+    [Fact]
     public async Task CustomToolbarReplacesDefaultsAndFormattingRejectsInvalidHeading()
     {
         var editor = Render<FsMarkdownEditor>(p => p

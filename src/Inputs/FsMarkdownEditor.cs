@@ -1,8 +1,8 @@
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
+using System.Diagnostics.CodeAnalysis;
 
 namespace FlintSoft.Components;
 
@@ -17,13 +17,13 @@ public sealed class FsMarkdownEditor : FsInputBase<string?>, IAsyncDisposable
     [Parameter] public long MaxPasteSize { get; set; } = 10 * 1024 * 1024;
     [Parameter] public string PasteErrorText { get; set; } = "The pasted image could not be inserted.";
 
-    private static readonly (string Action, string Text, string Label)[] Actions =
+    private static readonly (string Action, string Text, string Label, Type? Icon)[] Actions =
     [
-        ("bold", "B", "Bold"), ("italic", "I", "Italic"),
-        ("heading-1", "H1", "Heading 1"), ("heading-2", "H2", "Heading 2"),
-        ("heading-3", "H3", "Heading 3"), ("list", "*", "Bulleted list"),
-        ("numbered-list", "1.", "Numbered list"), ("code", "</>", "Code block"),
-        ("link", "Link", "Link"), ("quote", "Quote", "Quote")
+        ("bold", "B", "Bold", null), ("italic", "I", "Italic", null),
+        ("heading-1", "", "Heading 1", typeof(Icons.H1)), ("heading-2", "", "Heading 2", typeof(Icons.H2)),
+        ("heading-3", "", "Heading 3", typeof(Icons.H3)), ("list", "", "Bulleted list", typeof(Icons.List)),
+        ("numbered-list", "", "Numbered list", typeof(Icons.ListOrdered)), ("code", "", "Code block", typeof(Icons.Code)),
+        ("link", "", "Link", typeof(Icons.Link)), ("quote", "", "Quote", typeof(Icons.Quote))
     ];
 
     private ElementReference _textarea;
@@ -49,7 +49,7 @@ public sealed class FsMarkdownEditor : FsInputBase<string?>, IAsyncDisposable
         if (Toolbar is not null) builder.AddContent(4, Toolbar);
         else
         {
-            foreach (var (action, text, label) in Actions)
+            foreach (var (action, text, label, icon) in Actions)
             {
                 builder.OpenElement(5, "button");
                 builder.SetKey(action);
@@ -58,7 +58,15 @@ public sealed class FsMarkdownEditor : FsInputBase<string?>, IAsyncDisposable
                 builder.AddAttribute(8, "aria-label", label);
                 builder.AddAttribute(9, "title", label);
                 builder.AddAttribute(10, "disabled", Disabled || ReadOnly);
-                builder.AddContent(11, text);
+                if (icon is null) builder.AddContent(11, text);
+                else
+                {
+                    builder.OpenElement(12, "span");
+                    builder.AddAttribute(13, "aria-hidden", "true");
+                    builder.OpenComponent(14, icon);
+                    builder.CloseComponent();
+                    builder.CloseElement();
+                }
                 builder.CloseElement();
             }
         }

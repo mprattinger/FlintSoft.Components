@@ -100,7 +100,9 @@ public sealed class MarkdownEditorBrowserTests(BrowserFixture fixture) : IClassF
                 await editor.FillAsync("abc");
                 await Expect(page.Locator("#markdown-value")).ToHaveTextAsync("abc");
                 await editor.EvaluateAsync("e => { e.focus(); e.setSelectionRange(0, 3); e.dispatchEvent(new Event('select')); }");
-                await page.Locator($"[data-fs-markdown-action='{action}']").First.ClickAsync();
+                var button = page.Locator($"[data-fs-markdown-action='{action}']").First;
+                if (action is "bold" or "italic") await button.ClickAsync();
+                else await button.Locator("svg").ClickAsync();
                 await Expect(editor).ToHaveValueAsync(expected);
                 await Expect(page.Locator("#markdown-value")).ToHaveTextAsync(expected);
             }
