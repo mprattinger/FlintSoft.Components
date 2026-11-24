@@ -134,6 +134,21 @@
     outline: none; border-bottom-color: var(--fs-color-primary); background: var(--fs-color-primary-soft);
     box-shadow: 0 1px 0 var(--fs-color-primary);
 }
+.fs-input-control:has(> .fs-markdown-toolbar) { display: flex; flex-direction: column; }
+.fs-field:not(.fs-choice-field) .fs-input-control:has(> .fs-markdown-toolbar) > label {
+    position: static; order: -2; max-width: 100%; padding: 0 .4rem; font-size: .75rem; color: var(--fs-color-primary);
+}
+.fs-markdown-toolbar { display: flex; flex-wrap: wrap; gap: .35rem; padding: .5rem 0; }
+.fs-markdown-toolbar button {
+    min-width: 2rem; min-height: 2rem; padding: .25rem .5rem; border: 1px solid var(--fs-color-border);
+    border-radius: .35rem; background: var(--fs-color-surface); color: var(--fs-color-text); font: inherit; cursor: pointer;
+}
+.fs-markdown-toolbar button[data-fs-markdown-action] { display: inline-flex; align-items: center; justify-content: center; }
+.fs-markdown-toolbar button[data-fs-markdown-action] > span { display: flex; }
+.fs-markdown-toolbar button:hover:not(:disabled) { background: var(--fs-color-primary-soft); }
+.fs-markdown-toolbar button:focus-visible { outline: 2px solid var(--fs-color-focus); outline-offset: 2px; }
+.fs-markdown-toolbar button:disabled { opacity: .45; cursor: not-allowed; }
+.fs-input-control:has(> .fs-markdown-toolbar) > textarea.fs-input { padding: .7rem .4rem; }
 .fs-affix { display: flex; align-items: flex-end; padding-bottom: .6rem; color: var(--fs-color-primary); }
 .fs-help { font-size: .8rem; color: var(--fs-color-muted); }
 .fs-validation { font-size: .8rem; color: var(--fs-color-danger); }
