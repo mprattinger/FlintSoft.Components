@@ -1,0 +1,56 @@
+@namespace FlintSoft.Components
+@typeparam TItem
+
+@foreach (var item in Nodes)
+{
+    var expanded = Owner.IsExpanded(item.Id);
+    var disclosure = Owner.HasDisclosure(item);
+    var busy = Owner.IsPending(item.Id);
+    <li @key="item.Id" id="@Owner.DomId(item.Id)" role="treeitem" data-fs-tree-id="@item.Id"
+        data-fs-tree-accept="@(FsTree<TItem>.Bool(item.CanAcceptDrop))" aria-label="@item.Text"
+        aria-expanded="@(disclosure ? FsTree<TItem>.Bool(expanded) : null)"
+        aria-selected="@(FsTree<TItem>.Bool(Owner.CurrentSelectedId == item.Id))" aria-busy="@(FsTree<TItem>.Bool(busy))"
+        tabindex="@(Owner.FocusId == item.Id && !Owner.Disabled ? 0 : -1)" @onfocus="() => Owner.OnNodeFocus(item.Id)">
+        <div class="fs-tree-row" draggable="@(FsTree<TItem>.Bool(Owner.CanDrag(item.Id)))">
+            @if (disclosure && item.Children.Count > 0)
+            {
+                <button type="button" class="fs-tree-toggle" tabindex="-1" aria-label="@($"{(expanded ? "Collapse" : "Expand")} {item.Text}")"
+                        disabled="@(Owner.Disabled || busy)" @onclick="() => Owner.RequestExpansionAsync(item.Id, !expanded)" @onclick:stopPropagation>
+                    <span aria-hidden="true">
+                        @if (expanded) { <FlintSoft.Components.Icons.DownChevron /> }
+                        else { <FlintSoft.Components.Icons.RightChevron /> }
+                    </span>
+                </button>
+            }
+            else
+            {
+                <span class="fs-tree-toggle-space" aria-hidden="true"></span>
+            }
+            <span class="fs-tree-label" @onclick="() => Owner.ActivateAsync(item.Id)" @onclick:stopPropagation>
+                @if (Owner.ItemTemplate is not null) { @Owner.ItemTemplate(item) } else { @item.Text }
+            </span>
+            @if (item.ShowActions && Owner.Actions is not null)
+            {
+                <fieldset class="fs-tree-actions" aria-label="@($"Actions for {item.Text}")" disabled="@Owner.Disabled" @onclick:stopPropagation>
+                    @Owner.Actions(item)
+                </fieldset>
+            }
+            @if (busy) { <span class="fs-tree-pending" role="status">Loading...</span> }
+        </div>
+        @if (expanded)
+        {
+            <ul role="group">
+                <FsTreeBranch TItem="TItem" Owner="Owner" Nodes="item.Children" />
+            </ul>
+            @if (item.Children.Count == 0 && Owner.EmptyChildrenContent is not null)
+            {
+                <div class="fs-tree-empty">@Owner.EmptyChildrenContent</div>
+            }
+        }
+    </li>
+}
+
+@code {
+    [Parameter, EditorRequired] public FsTree<TItem> Owner { get; set; } = default!;
+    [Parameter, EditorRequired] public IReadOnlyList<FsTreeItem<TItem>> Nodes { get; set; } = [];
+}

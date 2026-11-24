@@ -42,13 +42,45 @@
     --fs-color-focus: #69c8ee;
     --fs-shadow: 0 16px 50px #0003;
 }
-.fs-field, .fs-button, .fs-modal, .fs-toast-host, .fs-table-scroll, .fs-panel, .fs-persona, .fs-settings, .fs-context-menu, .fs-adorner {
+.fs-field, .fs-button, .fs-modal, .fs-toast-host, .fs-table-scroll, .fs-panel, .fs-persona, .fs-settings, .fs-context-menu, .fs-adorner, .fs-tree {
     box-sizing: border-box;
     font-family: var(--fs-font-family);
     font-size: var(--fs-font-size);
     color: var(--fs-color-text);
 }
-.fs-field *, .fs-modal *, .fs-toast-host *, .fs-table *, .fs-panel *, .fs-persona *, .fs-settings *, .fs-context-menu *, .fs-adorner * { box-sizing: border-box; }
+.fs-field *, .fs-modal *, .fs-toast-host *, .fs-table *, .fs-panel *, .fs-persona *, .fs-settings *, .fs-context-menu *, .fs-adorner *, .fs-tree * { box-sizing: border-box; }
+.fs-tree { min-width: 0; }
+.fs-tree ul { list-style: none; margin: 0; padding: 0; }
+.fs-tree ul ul { padding-inline-start: 1.25rem; }
+.fs-tree li { min-width: 0; outline: none; }
+.fs-tree-row { display: flex; align-items: center; gap: .35rem; min-width: 0; padding: .3rem; border-radius: .3rem; }
+.fs-tree li:focus > .fs-tree-row { outline: 2px solid var(--fs-color-focus); outline-offset: -2px; }
+.fs-tree li[aria-selected="true"] > .fs-tree-row { background: var(--fs-color-primary-soft); color: var(--fs-color-primary); }
+.fs-tree-toggle, .fs-tree-toggle-space { flex: 0 0 1.75rem; width: 1.75rem; height: 1.75rem; }
+.fs-tree-toggle { display: grid; place-items: center; padding: 0; border: 0; border-radius: .25rem; background: transparent; color: inherit; font: inherit; cursor: pointer; }
+.fs-tree-toggle > span { display: flex; }
+.fs-tree-toggle svg { width: 1rem; height: 1rem; }
+.fs-tree-toggle:focus-visible { outline: 2px solid var(--fs-color-focus); }
+.fs-tree-label { flex: 1; min-width: 0; overflow-wrap: anywhere; cursor: pointer; }
+.fs-tree-actions { display: flex; align-items: center; flex-wrap: wrap; gap: .35rem; min-width: 0; max-width: 100%; margin: 0; padding: 0; border: 0; cursor: default; }
+.fs-tree-actions > button { display: inline-flex; align-items: center; justify-content: center; padding: .2rem; border: 0; border-radius: .25rem; background: transparent; color: inherit; cursor: pointer; }
+.fs-tree-actions > button:focus-visible { outline: 2px solid var(--fs-color-focus); }
+.fs-tree-actions:disabled { opacity: .6; }
+.fs-tree-actions:disabled > button { cursor: default; }
+.fs-tree-row[draggable="true"] { cursor: grab; user-select: none; }
+.fs-tree .fs-tree-drop-target { background: var(--fs-color-primary-soft); outline: 2px dashed var(--fs-color-primary); }
+.fs-tree-pending, .fs-tree-empty { color: var(--fs-color-muted); font-size: .85rem; }
+.fs-tree-empty { padding: .5rem; }
+.fs-tree[data-fs-tree-enabled="false"] .fs-tree-row { opacity: .6; }
+.fs-tree[data-fs-tree-enabled="false"] .fs-tree-label { cursor: default; }
+.fs-tree-move { margin-top: .75rem; }
+.fs-tree-move summary { cursor: pointer; }
+.fs-tree-move-controls { display: flex; align-items: end; flex-wrap: wrap; gap: .75rem; padding-top: .5rem; }
+.fs-tree-move-controls label { display: grid; gap: .25rem; min-width: 0; max-width: 100%; }
+.fs-tree-move-controls select { max-width: 100%; }
+.fs-tree-move-controls select, .fs-tree-move-controls button { border: 1px solid var(--fs-color-border); border-radius: .25rem; padding: .4rem; background: var(--fs-color-surface); color: inherit; font: inherit; }
+.fs-tree-status:empty { display: none; }
+.fs-tree-status { margin-top: .5rem; font-size: .85rem; }
 .fs-adorner {
     position: fixed; z-index: 1100; inset: 0; display: grid; place-items: center;
     padding: var(--fs-space); background: var(--fs-color-overlay);
