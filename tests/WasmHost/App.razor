@@ -58,6 +58,12 @@
     </FsModal>
     <p id="modal-result">@_result</p>
     <FsTable TItem="string" Caption="People" Items="_people" Columns="_columns" />
+    <FsTree TItem="string" Items="_treeItems" AccessibleLabel="WASM tree"
+            ExpansionRequested="TreeExpansion" ItemClickRequested="TreeClickRequest" ItemDropped="TreeDrop"
+            ItemClicked="args => _treeResult = args.Id">
+        <EmptyChildrenContent><span>No children yet.</span></EmptyChildrenContent>
+    </FsTree>
+    <p id="tree-result">@_treeResult</p>
     <FsToastHost />
     <p id="ready">Interactive WebAssembly ready</p>
 </main>
@@ -70,6 +76,22 @@
     private FsModal _modal = default!;
     private string? _project, _result, _markdown;
     private bool _loading, _customLoading;
+    private string? _treeResult;
+    private IReadOnlyList<FsTreeItem<string>> _treeItems =
+    [
+        new() { Id = "source", Text = "Source", ShowActions = false, IsDraggable = true, IsExpandable = false, IsClickable = false,
+            Children = [new() { Id = "child", Text = "Child", ShowActions = false, IsDraggable = true }] },
+        new() { Id = "target", Text = "Target", ShowActions = false, CanAcceptDrop = true, IsExpandable = true }
+    ];
+    private void TreeExpansion(FsTreeExpansionRequestEventArgs<string> args) => args.Decision = FsTreeDecision.Allow;
+    private void TreeClickRequest(FsTreeItemClickRequestEventArgs<string> args) => args.Decision = FsTreeDecision.Allow;
+    private void TreeDrop(FsTreeDropEventArgs<string> args)
+    {
+        if (args.SourceParent is null) _treeItems = _treeItems.Where(item => item.Id != args.Id).ToArray();
+        else args.SourceParent.Children = args.SourceParent.Children.Where(item => item.Id != args.Id).ToArray();
+        args.TargetParent.Children = [.. args.TargetParent.Children, args.Item];
+        _treeResult = $"Moved {args.Id}: {args.SourceParentId ?? "root"} -> {args.TargetParentId}";
+    }
     private static async Task<string> ProcessImageAsync(FsMarkdownPaste image)
     {
         await Task.Delay(300);

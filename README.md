@@ -363,6 +363,168 @@ additional HTML attributes apply to the wrapper. Light/dark themes and
 interactive Server and WebAssembly rendering use the same flyout behavior as
 `FsSettings`.
 
+## Trees
+
+`FsTree<TItem>` renders arbitrary application data through `FsTreeItem<TItem>`
+wrappers. IDs must be stable, non-empty, case-sensitive strings, unique within a
+single tree. Cycles, duplicate placement, and null children collections are rejected.
+`Text` is the default label and type-ahead text; `Value` holds your domain object.
+Depth is inferred from `Children`, not stored in the model.
+
+```razor
+<FsTree TItem="Customer" Items="nodes" AccessibleLabel="Customers"
+        ExpansionRequested="Expanding" ItemClickRequested="Clicking"
+        ItemClicked="Clicked" ItemDropped="DroppedAsync" />
+
+@code {
+    private IReadOnlyList<FsTreeItem<Customer>> nodes = [];
+
+    private void Expanding(FsTreeExpansionRequestEventArgs<Customer> request)
+    {
+        // Leave Default to use configuration, or explicitly override it.
+        request.Decision = FsTreeDecision.Allow;
+    }
+
+    private void Clicking(FsTreeItemClickRequestEventArgs<Customer> request)
+    {
+        if (request.Item.Value is { Archived: true }) request.Decision = FsTreeDecision.Deny;
+    }
+
+    private void Clicked(FsTreeItemClickedEventArgs<Customer> args)
+    {
+        // args.Item is the clicked node; args.Item.Value is the Customer.
+    }
+
+    private async Task DroppedAsync(FsTreeDropEventArgs<Customer> args)
+    {
+        await store.MoveAsync(args.Id, args.TargetParentId, args.TargetIndex, args.CancellationToken);
+        nodes = await store.LoadTreeAsync(args.CancellationToken);
+    }
+}
+```
+
+The example assumes your application's `Customer` type and `store`. See `/trees`
+in Demo for a complete in-memory example, including rejected saves.
+
+### Expansion and activation policy
+
+`IsExpandable` and `IsClickable` are nullable per-item defaults. Expansion uses
+`item.IsExpandable ?? DefaultIsExpandable ?? (item.Children.Count > 0)`;
+`DefaultIsExpandable` defaults to null. Activation uses
+`item.IsClickable ?? DefaultIsClickable`; `DefaultIsClickable` defaults to true.
+
+Both request callbacks are awaited **before** checking these policies. Their
+mutable `Decision` starts at `FsTreeDecision.Default` (use config); `Allow`
+overrides even an explicit false, and `Deny` overrides true. Overrides affect one
+interaction only, not the item's properties. `Disabled` is an absolute block.
+Callbacks receive the node, ID, parent ID, and a cancellation token. Expansion
+also provides `IsExpanded` and `RequestedExpanded`. Collapse defaults to allowed
+regardless of expand policy, but an explicit Deny may veto it.
+
+Disclosure clicks only expand/collapse; they never activate/select. Accepted label
+clicks or Enter/Space activate and select without implicit expansion or navigation.
+`ItemClicked` fires once per accepted activation, including repeats, and exposes
+`Item`, `Id`, and actual `SelectedId`. `ExpandedChanged` reports an applied change
+through `Item`, `Id`, and `IsExpanded`. Denials do not emit completed callbacks.
+Selection binding is notified before `ItemClicked`; expansion binding is notified
+before `ExpandedChanged`. Callback failures propagate to Blazor error handling.
+
+Populated branches display a right chevron when collapsed and a down chevron when
+expanded. Childless items never display a disclosure chevron, even with an expansion
+handler or `IsExpandable = true`. Expansion policy and its event overrides still
+apply: use Right/Left arrows or `RequestExpansionAsync` from a custom action for an
+unloaded branch. Lazy loading can await data inside `ExpansionRequested`, then assign
+`request.Item.Children`; its chevron appears once children exist. Keep the pending
+node object itself stable; replacing/removing it cancels that request. Set
+`IsExpandable = true` for unloaded branches and use `EmptyChildrenContent` for an
+expanded branch with no children. Duplicate requests on one node are suppressed;
+independent nodes can load concurrently. Honor the supplied cancellation token.
+
+Use `@bind-ExpandedIds` (`IReadOnlyCollection<string>?`) and `@bind-SelectedId`
+(`string?`) for controlled state. Null `ExpandedIds` means internal expansion
+state; an empty collection means controlled and collapsed. Supplying `SelectedId`,
+even null, makes selection controlled. Omit it for internal selection. A parent
+may reject a proposed state update; the component does not mutate parameter
+collections or retain an optimistic second copy. Stale IDs are ignored, stable IDs
+preserve state across replacement objects, and programmatic updates do not replay
+user request events. Collapsing keeps descendant state and selection.
+
+### Drag-and-drop and persistence
+
+Set `IsDraggable = true` on sources and `CanAcceptDrop = true` on destinations;
+both default to false. These permissions are independent of expansion/activation.
+A non-draggable node may receive drops. An `ItemDropped` handler is required to
+enable moving. Nodes move into a destination, appended to its children; same-parent,
+self/descendant, external, stale, and cross-tree drops are rejected. Root nodes can
+move into another node; root-background drops and sibling reordering are not supported.
+
+`ItemDropped` is awaited once per valid drop and contains:
+
+- `Items`: the current full root collection (references, not a deep snapshot).
+- `Item` / `Id`: the dragged node, whose `Value` is your payload.
+- `SourceParent` / `SourceParentId`: null for a root source.
+- `TargetParent` / `TargetParentId`: the receiving node.
+- `SourceIndex`: original zero-based index; `TargetIndex`: proposed append index.
+- `CancellationToken`: disposal or relevant hierarchy invalidation.
+
+**A valid drop is intent, not successful persistence.** Unlike the source
+JavaScript's `structure-move` event, this callback runs before any hierarchy
+change: the component never moves nodes in caller-owned collections. Save the
+parent/order change in the callback, then update/reload `Items` or `Children`.
+If rejected, leave the hierarchy unchanged and display the reason. Handle
+recoverable save failures visibly or let an ErrorBoundary handle exceptions;
+there is no false successful move or automatic rollback of application side effects.
+Revalidate authorization and concurrency in your data source, not via browser flags.
+
+Further moves are blocked while a drop is pending. Native drag highlighting is
+cleaned up on cancel/removal/disposal. Moves preserve selection/expansion by ID,
+do not auto-expand destinations or activate nodes, and suppress drag-generated
+clicks. The built-in **Move an item** disclosure provides keyboard/touch-accessible
+source/destination selects using the same validation and callback. Public
+`MoveAsync`, `RequestExpansionAsync`, and `ActivateAsync` methods support custom UI.
+
+### Presentation and keyboard
+
+Every `FsTreeItem<TItem>` initializer must explicitly set the required bool
+`ShowActions`. Set it to false for rows without actions, or true to render the
+optional `Actions` template beside that node's label. The template receives the
+node and may contain icon buttons, a context menu, or other controls. No action
+container is rendered when `ShowActions` is false or the template is absent.
+Changing `ShowActions` takes effect on the next render.
+
+```razor
+<FsTree TItem="string" Items="nodes">
+    <Actions Context="node">
+        <button type="button" aria-label="@($"Add child to {node.Text}")" @onclick="() => AddChild(node)">
+            <span aria-hidden="true"><FlintSoft.Components.Icons.Plus /></span>
+        </button>
+        <FsContextMenu AccessibleLabel="@($"More actions for {node.Text}")">
+            <Icon><FlintSoft.Components.Icons.Ellipsis Style="transform: rotate(90deg)" /></Icon>
+            <ChildContent><!-- Application actions go here. --></ChildContent>
+        </FsContextMenu>
+    </Actions>
+</FsTree>
+```
+
+Initialize nodes, for example, with
+`new FsTreeItem<string> { Id = "team", Text = "Team", ShowActions = true }`.
+The application implements `AddChild` and publishes updated `Children`. Actions
+are isolated from row activation, expansion, and native drag-start; no extra click
+propagation modifiers are needed inside `Actions`. Native controls in the slot
+are disabled with the tree. Give icon-only buttons accessible names and use
+`type="button"` to avoid form submission. Custom non-native controls must honor
+the disabled state themselves. The slot does not perform application operations.
+
+`ItemTemplate` still customizes label content. Embedded buttons/links in that label
+must use `@onclick:stopPropagation` to avoid activating the node; prefer `Actions`
+for these controls. `EmptyContent`, `EmptyChildrenContent`, `Class`, additional
+wrapper attributes, and `AccessibleLabel` (default "Tree") customize presentation.
+Styles use light/dark `--fs-*` tokens.
+Use arrows, Home/End, and type-ahead to navigate visible nodes; Right/Left also
+request expansion/collapse. Focus does not select. Tab leaves the tree normally.
+Interactive Server, WebAssembly, and prerendering are supported; browser behavior
+attaches only after interactive rendering and is disposed on removal.
+
 ## Adorners
 
 `FsAdorner` displays a full-screen overlay while `IsLoading` is true (false by

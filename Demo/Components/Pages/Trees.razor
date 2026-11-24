@@ -1,0 +1,141 @@
+@page "/trees"
+
+<PageTitle>Trees - FlintSoft</PageTitle>
+<div class="demo-eyebrow">COMPONENTS / 13</div>
+<h1>Your hierarchy.<br /><span>Your decisions.</span></h1>
+<p class="demo-lead">Expand, activate, and move arbitrary data. Your callbacks control policy and persistence.</p>
+
+<FsPanel Title="Project workspace" Description="Drag Brief or Product into Delivery, or use Move an item. Delivery accepts drops but is not draggable.">
+    <div class="demo-stack">
+        <FsCheckbox Label="Reject moves (simulate a failed save)" @bind-Value="_rejectMoves" />
+        <FsCheckbox Label="Disable tree" @bind-Value="_disabled" />
+        <FsTree @ref="_tree" TItem="string" Items="_items" AccessibleLabel="Project workspace" Disabled="_disabled"
+                @bind-ExpandedIds="_expanded" @bind-SelectedId="_selected"
+                ExpansionRequested="RequestExpansionAsync" ItemClickRequested="RequestClick"
+                ExpandedChanged="Expanded" ItemClicked="Clicked" ItemDropped="DropAsync">
+            <Actions Context="node">
+                @if (node.Id == "lazy" && node.Children.Count == 0)
+                {
+                    <button type="button" aria-label="@($"Load children for {node.Text}")" @onclick="() => _tree.RequestExpansionAsync(node.Id, true)">
+                        <span aria-hidden="true"><FlintSoft.Components.Icons.DownChevron /></span>
+                    </button>
+                }
+                <button type="button" aria-label="@($"Add child to {node.Text}")" @onclick="() => AddChild(node)">
+                    <span aria-hidden="true"><FlintSoft.Components.Icons.Plus /></span>
+                </button>
+                <FsContextMenu AccessibleLabel="@($"More actions for {node.Text}")">
+                    <Icon><FlintSoft.Components.Icons.Ellipsis Style="transform: rotate(90deg)" /></Icon>
+                    <ChildContent>
+                        <button type="button" @onclick='() => Log($"Details: {node.Id}")'>Details</button>
+                    </ChildContent>
+                </FsContextMenu>
+            </Actions>
+            <EmptyChildrenContent><span>No children yet.</span></EmptyChildrenContent>
+        </FsTree>
+        <p id="tree-selection">Selected: @(_selected ?? "none")</p>
+        <p id="tree-save" role="status">@_saveStatus</p>
+        <button id="tree-after" type="button" @onclick='() => Log("Outside action")'>After the tree</button>
+    </div>
+</FsPanel>
+
+<FsPanel Title="Policy examples" Description="Properties are defaults; request handlers have the final decision.">
+    <ul>
+        <li>Override: IsExpandable and IsClickable are false, but handlers explicitly allow both.</li>
+        <li>Restricted: properties allow interaction, but handlers deny it.</li>
+        <li>Lazy: use its Load children action or Right arrow to load children before expansion; childless nodes have no disclosure chevron.</li>
+        <li>Use the plus icon to add a child and the vertical dots for item actions. Pinned hides its actions.</li>
+        <li>Other nodes leave the decision at Default and use their configuration.</li>
+    </ul>
+    <p>Source data after accepted moves:</p>
+    <pre id="tree-data" style="white-space: pre-wrap; overflow-wrap: anywhere">@Describe(_items, "root")</pre>
+    <p>Recent events (requests are not successful actions):</p>
+    <ol id="tree-events">@foreach (var entry in _events) { <li>@entry</li> }</ol>
+</FsPanel>
+
+<FsPanel Title="Custom node content" Description="The Actions slot receives each node and does not activate or select it.">
+    <FsTree TItem="string" Items="_customItems" AccessibleLabel="Custom labels" ItemClicked="Clicked">
+        <ItemTemplate Context="node"><strong>@node.Text</strong></ItemTemplate>
+        <Actions Context="node">
+            <button type="button" @onclick='() => Log($"Details: {node.Id}")'>Details</button>
+        </Actions>
+    </FsTree>
+</FsPanel>
+
+@code {
+    private IReadOnlyList<FsTreeItem<string>> _items =
+    [
+        new() { Id = "product", Text = "Product", ShowActions = true, Value = "Department: Product", IsDraggable = true, CanAcceptDrop = true,
+            Children = [new() { Id = "brief", Text = "Brief", ShowActions = true, Value = "Task: Brief", IsDraggable = true },
+                        new() { Id = "pinned", Text = "Pinned", ShowActions = false, Value = "Task: Pinned" }] },
+        new() { Id = "delivery", Text = "Delivery", ShowActions = true, Value = "Department: Delivery", CanAcceptDrop = true, IsExpandable = true },
+        new() { Id = "override", Text = "Override", ShowActions = false, IsExpandable = false, IsClickable = false,
+            Children = [new() { Id = "override-child", Text = "Allowed by the handler", ShowActions = false }] },
+        new() { Id = "restricted", Text = "Restricted", ShowActions = false, IsExpandable = true, IsClickable = true,
+            Children = [new() { Id = "restricted-child", Text = "Not shown", ShowActions = false }] },
+        new() { Id = "lazy", Text = "Lazy", ShowActions = true, IsExpandable = true, IsDraggable = true }
+    ];
+    private readonly IReadOnlyList<FsTreeItem<string>> _customItems = [new() { Id = "custom", Text = "Custom item", ShowActions = true, Value = "Custom payload" }];
+    private FsTree<string> _tree = default!;
+    private int _nextChild;
+    private IReadOnlyCollection<string>? _expanded = new[] { "product" };
+    private string? _selected;
+    private bool _rejectMoves, _disabled;
+    private string _saveStatus = "No moves saved.";
+    private readonly List<string> _events = [];
+
+    private async Task RequestExpansionAsync(FsTreeExpansionRequestEventArgs<string> args)
+    {
+        if (args.Id == "override") args.Decision = FsTreeDecision.Allow;
+        if (args.Id == "restricted") args.Decision = FsTreeDecision.Deny;
+        Log($"Expansion requested: {args.Id} -> {args.RequestedExpanded}, {args.Decision}");
+        if (args.Id == "lazy" && args.RequestedExpanded && args.Item.Children.Count == 0)
+        {
+            await Task.Delay(200, args.CancellationToken);
+            args.Item.Children = [new() { Id = "loaded", Text = "Loaded task", ShowActions = true, Value = "Task: Loaded", IsDraggable = true }];
+        }
+    }
+
+    private void AddChild(FsTreeItem<string> node)
+    {
+        var id = $"added-{++_nextChild}";
+        node.Children = [.. node.Children, new() { Id = id, Text = $"New child {_nextChild}", ShowActions = true, IsDraggable = true }];
+        Log($"Added {id} to {node.Id}");
+    }
+
+    private void RequestClick(FsTreeItemClickRequestEventArgs<string> args)
+    {
+        if (args.Id == "override") args.Decision = FsTreeDecision.Allow;
+        if (args.Id == "restricted") args.Decision = FsTreeDecision.Deny;
+        Log($"Click requested: {args.Id}, {args.Decision}");
+    }
+
+    private void Expanded(FsTreeExpandedEventArgs<string> args) => Log($"Expanded changed: {args.Id} = {args.IsExpanded}");
+    private void Clicked(FsTreeItemClickedEventArgs<string> args) => Log($"Clicked: {args.Id}, payload: {args.Item.Value ?? "none"}");
+
+    private async Task DropAsync(FsTreeDropEventArgs<string> args)
+    {
+        Log($"Drop: {args.Id}, {args.SourceParentId ?? "root"}[{args.SourceIndex}] -> {args.TargetParentId}[{args.TargetIndex}]");
+        _saveStatus = "Saving move...";
+        await Task.Delay(200, args.CancellationToken);
+        if (_rejectMoves)
+        {
+            _saveStatus = "Save rejected; source data unchanged.";
+            return;
+        }
+        args.CancellationToken.ThrowIfCancellationRequested();
+        // A real application persists the parent/order change before publishing the new hierarchy.
+        if (args.SourceParent is null) _items = _items.Where(item => item.Id != args.Id).ToArray();
+        else args.SourceParent.Children = args.SourceParent.Children.Where(item => item.Id != args.Id).ToArray();
+        args.TargetParent.Children = [.. args.TargetParent.Children, args.Item];
+        _saveStatus = $"Saved {args.Id} in {args.TargetParentId}.";
+    }
+
+    private void Log(string text)
+    {
+        _events.Insert(0, text);
+        if (_events.Count > 12) _events.RemoveAt(_events.Count - 1);
+    }
+
+    private static string Describe(IReadOnlyList<FsTreeItem<string>> items, string parent) =>
+        string.Join("", items.Select(item => $"{item.Id} -> {parent}\n{Describe(item.Children, item.Id)}"));
+}

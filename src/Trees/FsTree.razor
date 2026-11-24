@@ -1,0 +1,43 @@
+@namespace FlintSoft.Components
+@typeparam TItem
+@implements IAsyncDisposable
+
+<div @ref="_root" class="fs-tree @Class" @attributes="AdditionalAttributes"
+     data-fs-tree-enabled="@Bool(!Disabled && !_disposed)" data-fs-tree-dropping="@Bool(_drop is not null)">
+    <ul role="tree" aria-label="@AccessibleLabel" aria-disabled="@Bool(Disabled)" aria-busy="@Bool(_drop is not null)"
+        tabindex="@(Items.Count == 0 && !Disabled ? 0 : -1)">
+        <FsTreeBranch TItem="TItem" Owner="this" Nodes="Items" />
+    </ul>
+    @if (Items.Count == 0)
+    {
+        <div class="fs-tree-empty">@if (EmptyContent is not null) { @EmptyContent } else { <span>No items to display.</span> }</div>
+    }
+    @if (ItemDropped.HasDelegate && _nodes.Values.Any(n => n.Item.IsDraggable))
+    {
+        <details class="fs-tree-move">
+            <summary>Move an item</summary>
+            <div class="fs-tree-move-controls">
+                <label>Item to move
+                    <select value="@_moveSource" @onchange="MoveSourceChanged" disabled="@(Disabled || _drop is not null)">
+                        <option value="">Choose an item</option>
+                        @foreach (var entry in _nodes.Values.Where(n => n.Item.IsDraggable))
+                        {
+                            <option value="@entry.Item.Id">@entry.Item.Text (@entry.Item.Id)</option>
+                        }
+                    </select>
+                </label>
+                <label>Destination
+                    <select @bind="_moveTarget" disabled="@(Disabled || _drop is not null)">
+                        <option value="">Choose a destination</option>
+                        @foreach (var entry in _nodes.Values.Where(n => CanMove(_moveSource, n.Item.Id)))
+                        {
+                            <option value="@entry.Item.Id">@entry.Item.Text (@entry.Item.Id)</option>
+                        }
+                    </select>
+                </label>
+                <button type="button" @onclick="MoveChosenAsync" disabled="@(!CanMove(_moveSource, _moveTarget))">Move</button>
+            </div>
+        </details>
+    }
+    <div class="fs-tree-status" role="status" aria-live="polite">@_status</div>
+</div>
